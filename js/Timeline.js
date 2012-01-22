@@ -1,17 +1,26 @@
 function Timeline(caller){
 	this.parent = caller;
 	this.ONE_DAY_MS = 1000*60*60*24;
+	this.OFFSET_DV2DATE = 2*60*60; //2h em segundos
 	this.today = new Date();
 	this.timelineStr = this.parent.sites[this.parent.sId].timeline;
+}
+
+Timeline.prototype.init = function(){
 	this.timelineStr ? this.labelsToDates() : this.autoLabel();
 }
 
 Timeline.prototype.autoLabel = function(date){
 	//monta a timeline baseado nas atividades carregadas
 	console.log('autoLabel!');
-	
-	//avisa que terminou
-	try { this.parent.onTimelineReady() } catch(err) { console.log(err) };
+}
+
+Timeline.dvToDate = function(dv){
+	return new Date((this.OFFSET_DV2DATE + parseInt(dv))*1000);
+}
+
+Timeline.prototype.dateToDv = function(date){
+	return Math.round(date.getTime()/1000 - this.OFFSET_DV2DATE);
 }
 
 Timeline.prototype.zeraRelogio = function(date){
@@ -87,7 +96,4 @@ Timeline.prototype.labelsToDates = function(){
 				break;
 		}
 	}
-	
-	//avisa que terminou
-	try { this.parent.onTimelineReady() } catch(err) { console.log(err) };
 }

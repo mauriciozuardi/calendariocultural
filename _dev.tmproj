@@ -40,7 +40,7 @@
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
-	<integer>244</integer>
+	<integer>171</integer>
 	<key>metaData</key>
 	<dict>
 		<key>.htaccess</key>
@@ -140,6 +140,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{289, 4}, {1077, 742}}</string>
+	<string>{{195, 4}, {1171, 742}}</string>
 </dict>
 </plist>

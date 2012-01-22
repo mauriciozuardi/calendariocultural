@@ -32,13 +32,29 @@ PageManager.prototype.loadBasicInfo = function(mainKey){
 		this.loadedRequests ++;
 		if(loadedVarName == 'sites'){
 			this.loadPulldownInfo();
-			this.query ? this.queryActivities() : this.timeline = new Timeline(this);
+			if(this.query){
+				this.queryActivities();
+			} else {
+				this.timeline = new Timeline(this);
+				this.timeline.init();
+				this.onTimelineReady();
+			} 
 		}
 	}
 }
 
 PageManager.prototype.onTimelineReady = function(){
-	console.log('Timeline Pronta!');
+	if(this.query){
+		// console.log(this.query);
+	} else {
+		// console.log(this.timeline);
+		// console.log(this.timeline.first.date);
+		var f = this.timeline.dateToDv(this.timeline.first.date);
+		var l = this.timeline.dateToDv(this.timeline.last.date);
+		var dateQuery = '&sq=!((dvi<=' + f + ' and dvf<=' + f + ') or (dvi>=' + l + ' and dvf>=' + l + ')) and publicar==1';
+		url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json' + encodeURI(dateQuery);
+		this.loadJsonToVar(url, 'atividades');
+	}
 }
 
 // PageManager.prototype.loadActivities = function(){
