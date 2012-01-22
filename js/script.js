@@ -1,6 +1,6 @@
 function init(){
 	page = new PageManager();
-	page.wrapVars(['sId']);
+	page.wrapUrlVars(['sId', 'query']);
 	page.init();
 	console.log(page);
 }

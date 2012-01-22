@@ -15,7 +15,7 @@
 	<script type="text/javascript" charset="utf-8" src="js/script.js"></script>
 </head>
 <body>
-	<script type="text/javascript" charset="utf-8">sId="<?php echo $_GET['s']; ?>";</script>
+	<script type="text/javascript" charset="utf-8">sId="<?php echo $_GET['s']; ?>";query="<?php echo $_GET['q']; ?>";</script>
 </body>
 </html>
 

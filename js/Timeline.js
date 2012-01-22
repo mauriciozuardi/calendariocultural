@@ -9,6 +9,9 @@ function Timeline(caller){
 Timeline.prototype.autoLabel = function(date){
 	//monta a timeline baseado nas atividades carregadas
 	console.log('autoLabel!');
+	
+	//avisa que terminou
+	try { this.parent.onTimelineReady() } catch(err) { console.log(err) };
 }
 
 Timeline.prototype.zeraRelogio = function(date){
@@ -84,4 +87,7 @@ Timeline.prototype.labelsToDates = function(){
 				break;
 		}
 	}
+	
+	//avisa que terminou
+	try { this.parent.onTimelineReady() } catch(err) { console.log(err) };
 }

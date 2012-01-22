@@ -1,11 +1,11 @@
 function PageManager(){
-	//Incluir no index.php: <script type="text/javascript" charset="utf-8"> var v="<?php echo $_GET['v']; ?>"; console.log(v);</script>
+	//INCLUIR NO INDEX.PHP: <script type="text/javascript" charset="utf-8"> var v="<?php echo $_GET['v']; ?>"; console.log(v);</script>
 	this.totalRequests = 0;
 	this.loadedRequests = 0;
 	this.mainKey = "0AnLIuvvW8l93dDViZURvYkRGTFZldXpTbVIwNnlTOUE";
 }
 
-PageManager.prototype.wrapVars = function(vars){
+PageManager.prototype.wrapUrlVars = function(vars){
 	for(var i in vars){
 		var vName = vars[i];
 		this[vName] = window[vName];
@@ -27,12 +27,18 @@ PageManager.prototype.loadBasicInfo = function(mainKey){
 	this.loadJsonToVar(urlEspacos, 'espacos');
 	this.loadJsonToVar(urlPessoas, 'pessoas');
 	
+	//acompanha e direciona o carregamento das informações
 	this.onJsonLoaded = function(loadedVarName){
+		this.loadedRequests ++;
 		if(loadedVarName == 'sites'){
 			this.loadPulldownInfo();
-			this.q ? this.queryActivities() : this.timeline = new Timeline(this);
+			this.query ? this.queryActivities() : this.timeline = new Timeline(this);
 		}
 	}
+}
+
+PageManager.prototype.onTimelineReady = function(){
+	console.log('Timeline Pronta!');
 }
 
 // PageManager.prototype.loadActivities = function(){
@@ -40,8 +46,8 @@ PageManager.prototype.loadBasicInfo = function(mainKey){
 // 	this.loadJsonToVar(urlAtividades, 'pessoas');
 // }
 
-PageManager.prototype.queryActivities = function(q){
-	console.log('should query activities for query: ' + q);
+PageManager.prototype.queryActivities = function(){
+	console.log('should request activities for query: ' + this.query);
 }
 
 PageManager.prototype.loadJsonToVar = function(url, vName){
@@ -66,7 +72,6 @@ PageManager.jsonToVar = function(json){
 }
 
 PageManager.jsonToArrayElement = function(json){
-	// console.log(this.array);
 	this.instance[this.arrName].push(PageManager.listToObj(json));
 	this.instance.onJsonLoaded(this.arrName);
 }
