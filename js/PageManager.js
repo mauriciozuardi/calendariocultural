@@ -30,9 +30,7 @@ PageManager.prototype.loadBasicInfo = function(mainKey){
 	this.onJsonLoaded = function(loadedVarName){
 		if(loadedVarName == 'sites'){
 			this.loadPulldownInfo();
-			this.q ? this.queryActivities() : this.timeline = new Timeline(this.sites[this.sId].timeline);
-			// this.timeline = new Timeline();
-			// this.loadActivities();
+			this.q ? this.queryActivities() : this.timeline = new Timeline(this);
 		}
 	}
 }
