@@ -26,61 +26,181 @@ PageManager.prototype.loadBasicInfo = function(mainKey){
 	this.loadJsonToVar(urlSites, 'sites');
 	this.loadJsonToVar(urlEspacos, 'espacos');
 	this.loadJsonToVar(urlPessoas, 'pessoas');
-	
+}
+
+PageManager.prototype.onJsonLoaded = function(loadedVarName){
 	//acompanha e direciona o carregamento das informações
-	this.onJsonLoaded = function(loadedVarName){
-		this.loadedRequests ++;
-		if(loadedVarName == 'sites'){
+	this.loadedRequests ++;
+	
+	switch(loadedVarName){
+		case 'sites':
 			this.loadPulldownInfo();
 			if(this.query){
-				this.queryActivities();
+				this.loadQueryActivities();
 			} else {
-				this.timeline = new Timeline(this);
-				this.timeline.init();
-				this.onTimelineReady();
-			} 
-		} else if(loadedVarName == 'atividades'){
-			this.agrupaAtividades();
-		}
+				this.loadActivitiesByDate();
+			}
+			break;
+		case 'pulldowns':
+			this.organizaPullDowns();
+		break;
+		case 'atividades':
+				this.confereDependencias();
+			break;
+		case 'repescagem':
+			if(this.repescagensEsperadas == this.repescagem.length){
+				this.incluiDependencias();
+			}
+		break;
+		default:
+		break;
 	}
 }
 
-PageManager.prototype.agrupaAtividades = function(){
-	//prepara para listar os filhos
+PageManager.prototype.incluiDependencias = function(){
+	if(this.repescagem){
+		for(var i in this.repescagem){
+			var arrIndex = this.repescagem[i];
+			for(var j in arrIndex){
+				var obj = arrIndex[j];
+				this.atividades[j] ? null : this.atividades[j] = obj;
+			}
+		}
+	}
+	delete this.repescagem;
+	this.organizaAtividadesEmGrupos();
+}
+
+PageManager.prototype.confereDependencias = function(){
+	//varre as atividades procurando se alguma tem parent
+	this.pais = [];
 	for(var i in this.atividades){
 		var a = this.atividades[i];
-		a.filhos = [];
+		if(a.parent){
+			var repetido = false;
+			for(var p in this.pais){
+				var pai = this.pais[p];
+				if(pai == a.parent){ repetido = true; break }
+			}
+			if(!repetido){ this.pais.push(a.parent) }
+		}
 	}
-	//lista-os
+	//se precisar, carrega de novo, buscando pelos pais agora
+	if(this.pais.length > 0){
+		this.repescagem = [];
+		this.repescagensEsperadas = 0;
+		for(var i in this.pais){
+			var pai = this.pais[i];
+			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json&q=' + pai + '&sq=publicar==1';
+			this.repescagensEsperadas ++;
+			this.addJsonToArray(url, 'repescagem');
+		}		
+	} else {
+		this.organizaAtividadesEmGrupos();
+	}
+}
+
+PageManager.prototype.trataValoresDasAtividades = function(){
+	this.datasInvalidas = {}
+	var todasValidas = true;
 	for(var i in this.atividades){
-		a.parent ? this.atividades[a.parent].filhos.push(a) : null;
+		//tenta transformar em data
+		this.atividades[i].datainicial = new Date(this.atividades[i].datainicial);
+		this.atividades[i].datafinal	 = new Date(this.atividades[i].datafinal);
+		//confere se alguma é inválida
+		var inv = 'Invalid Date';
+		if(this.atividades[i].datainicial == inv || this.atividades[i].datafinal == inv){
+			//marca na lista negra
+			todasValidas = false;
+			this.datasInvalidas[this.atividades[i].id] = this.atividades[i];
+			//cria datas ok para não fuder o site
+			this.atividades[i].datainicial = new Date();
+			this.atividades[i].datafinal	 = new Date(Date.now() + 1);
+		}
 	}
+	if(todasValidas){
+		delete this.datasInvalidas;
+	}
+}
+
+PageManager.prototype.organizaAtividadesEmGrupos = function(){
+	//parse dos valores
+	this.trataValoresDasAtividades();
+	
+	//prepara para receber os dependentes
+	for(var i in this.atividades){
+		this.atividades[i].nDependentes = 0;
+		this.atividades[i].dependentes = {};
+	}
+	//move os dependentes para a atividade principal;
+	for(var i in this.atividades){
+		var a = this.atividades[i];
+		for(var j in this.pais){
+			var p = this.pais[j];
+			// a.parent ? console.log(a.parent + ":" + p + " = " + a.id) : null;
+			if(a.parent == p){
+				this.atividades[p].dependentes[a.id] = a;
+				this.atividades[p].nDependentes ++;
+				delete this.atividades[i];
+			}
+		}
+	}
+	//exclui os dependentes se não tiver nenhum
+	for(var i in this.atividades){
+		if(this.atividades[i].nDependentes == 0){
+			delete this.atividades[i].dependentes;
+		}
+	}
+	
+	//ajusta o range de todos os pais, baseado nos filhos
+	for(var i in this.pais){
+		var a = this.atividades[this.pais[i]];
+		Timeline.defineParentRange(a);
+	}
+	
+	
+	//se precisou esperar carregar as coisas da busca
+	if(this.query){
+		this.timeline = new Timeline(this);
+		this.timeline.init();
+		this.onTimelineReady();
+	} else {
+		console.log(['Init done. Site timeline.', this]);
+	}
+}
+
+PageManager.prototype.organizaPullDowns = function(){
+	
 }
 
 PageManager.prototype.onTimelineReady = function(){
 	if(this.query){
-		// console.log(this.query);
+		delete this.timeline.timelineStr;
+		console.log(['Init done. Query timeline.', this]);
 	} else {
-		// console.log(this.timeline);
-		// console.log(this.timeline.first.date);
 		var f = this.timeline.dateToDv(this.timeline.first.date);
 		var l = this.timeline.dateToDv(this.timeline.last.date);
 		var dateQuery = '&sq=!((dvi<=' + f + ' and dvf<=' + f + ') or (dvi>=' + l + ' and dvf>=' + l + ')) and publicar==1';
-		url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json' + encodeURI(dateQuery);
-		this.loadJsonToVar(url, 'atividades');
+		url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json' + dateQuery;
+		url = encodeURI(url);
+		this.loadJsonToVar(url, 'atividades');	
 	}
 }
 
-// PageManager.prototype.loadActivities = function(){
-// 	var urlAtividades = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId] + '/1/public/basic?alt=json&sq=publicar==1'
-// 	this.loadJsonToVar(urlAtividades, 'pessoas');
-// }
+PageManager.prototype.loadActivitiesByDate = function(){
+	this.timeline = new Timeline(this);
+	this.timeline.init();
+	this.onTimelineReady();
+}
 
-PageManager.prototype.queryActivities = function(){
-	console.log('should request activities for query: ' + this.query);
+PageManager.prototype.loadQueryActivities = function(){
+	url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json&q=' + this.query;
+	url = encodeURI(url);
+	this.loadJsonToVar(url, 'atividades');
 }
 
 PageManager.prototype.loadJsonToVar = function(url, vName){
+	// console.log(vName);
 	var context = {};
 	context.instance = this;
 	context.vName = vName;
@@ -89,6 +209,7 @@ PageManager.prototype.loadJsonToVar = function(url, vName){
 }
 
 PageManager.prototype.addJsonToArray = function(url, arrName){
+	// console.log(arrName);
 	var context = {};
 	context.instance = this;
 	context.arrName = arrName;
@@ -107,10 +228,15 @@ PageManager.jsonToArrayElement = function(json){
 }
 
 PageManager.prototype.loadPulldownInfo = function(mainKey){
-	this.pd = [];
-	for(var s in this.sites){
-		var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[s].key + '/3/public/basic?alt=json&sq=publicar==1'
-		this.addJsonToArray(url, 'pd');
+	if(this.sites[this.sId].ondebuscar){
+		console.log('devo buscar em ' + this.sites[this.sId].ondebuscar);
+	} else {
+		//busca em todos os sites
+		this.pulldowns = [];
+		for(var s in this.sites){
+			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[s].key + '/3/public/basic?alt=json&sq=publicar==1'
+			this.addJsonToArray(url, 'pulldowns');
+		}
 	}
 }
 
@@ -134,11 +260,11 @@ PageManager.listToObj = function(json){
 	//converte o array num objeto com os ids(ou nomes) como identificador
 	var dados = {};
 	for(var i in arr){
-		var value = isNaN(value) ? value : parseFloat(value);
+		var obj = arr[i];
 		if(arr[i].id){
-			dados[arr[i].id] = arr[i];
+			dados[arr[i].id] = obj;
 		} else if(arr[i].nome) {
-			dados[PageManager.stringToSlug(arr[i].nome)] = arr[i];
+			dados[PageManager.stringToSlug(arr[i].nome)] = obj;
 		}
 	}
 	return dados;
