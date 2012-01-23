@@ -42,7 +42,9 @@ PageManager.prototype.onJsonLoaded = function(loadedVarName){
 			}
 			break;
 		case 'pulldowns':
-			this.organizaPullDowns();
+			if(this.pulldownsEsperados == this.pulldowns.length){
+				this.organizaPullDowns();
+			}
 		break;
 		case 'atividades':
 				this.confereDependencias();
@@ -170,7 +172,14 @@ PageManager.prototype.organizaAtividadesEmGrupos = function(){
 }
 
 PageManager.prototype.organizaPullDowns = function(){
-	
+	var pd = {}
+	for(var i in this.pulldowns){
+		var obj = this.pulldowns[i];
+		for(var j in obj){
+			var a = obj[j];
+			console.log(a);
+		}
+	}
 }
 
 PageManager.prototype.onTimelineReady = function(){
@@ -228,13 +237,21 @@ PageManager.jsonToArrayElement = function(json){
 }
 
 PageManager.prototype.loadPulldownInfo = function(mainKey){
+	this.pulldowns = [];
+	this.pulldownsEsperados = 0;
 	if(this.sites[this.sId].ondebuscar){
-		console.log('devo buscar em ' + this.sites[this.sId].ondebuscar);
+		//busca só nos sites listados
+		var sites = this.sites[this.sId].ondebuscar.split(', ');
+		for(var s in sites){
+			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[sites[s]].key + '/3/public/basic?alt=json&sq=publicar==1';
+			this.pulldownsEsperados ++;
+			this.addJsonToArray(url, 'pulldowns');
+		}
 	} else {
-		//busca em todos os sites
-		this.pulldowns = [];
+		//busca em todos os sites listados na planilha geral (mainKey);
 		for(var s in this.sites){
-			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[s].key + '/3/public/basic?alt=json&sq=publicar==1'
+			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[s].key + '/3/public/basic?alt=json&sq=publicar==1';
+			this.pulldownsEsperados ++;
 			this.addJsonToArray(url, 'pulldowns');
 		}
 	}
