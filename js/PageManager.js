@@ -39,7 +39,21 @@ PageManager.prototype.loadBasicInfo = function(mainKey){
 				this.timeline.init();
 				this.onTimelineReady();
 			} 
+		} else if(loadedVarName == 'atividades'){
+			this.agrupaAtividades();
 		}
+	}
+}
+
+PageManager.prototype.agrupaAtividades = function(){
+	//prepara para listar os filhos
+	for(var i in this.atividades){
+		var a = this.atividades[i];
+		a.filhos = [];
+	}
+	//lista-os
+	for(var i in this.atividades){
+		a.parent ? this.atividades[a.parent].filhos.push(a) : null;
 	}
 }
 

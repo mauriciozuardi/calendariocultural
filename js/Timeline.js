@@ -10,9 +10,74 @@ Timeline.prototype.init = function(){
 	this.timelineStr ? this.labelsToDates() : this.autoLabel();
 }
 
-Timeline.prototype.autoLabel = function(date){
+Timeline.prototype.autoLabel = function(){
 	//monta a timeline baseado nas atividades carregadas
 	console.log('autoLabel!');
+	
+	for(var a in this.parent.atividades){
+		var datas = this.defineRange(a);		
+	}
+
+	
+	// var aI = datas.menor.getFullYear();
+	// var aF = datas.maior.getFullYear();
+	// var dA = aF - aI;
+	// var mI = datas.menor.getMonth();
+	// var mF = datas.maior.getMonth();
+	// 
+	// if(dA > 0){
+	// 	//tem mais de um ano entre as datas
+	// 	var nM = (dA*12) - mI + mF;
+	// } else {
+	// 	//está tudo dentro do mesmo ano
+	// 	var nM = mF - mI;
+	// }
+	// 
+	// // console.log(nM);
+	// var mesCurto = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+	// timeline = [];
+	// 
+	// for(var i=0; i<=nM+1; i++){
+	// 	var currentMonth = (mI + i)%12;
+	// 	var currentYear = aI + Math.floor( (mI+i)/12 );
+	// 	// var mostraAno = (i==0 || currentMonth == 0) ? " " + currentYear : "";
+	// 	var mostraAno = " " + currentYear;
+	// 	var timelineItem = {}
+	// 	timelineItem.date = new Date(currentYear,currentMonth,1);
+	// 	timelineItem.htmlLabel = mesCurto[currentMonth] + mostraAno;
+	// 	timeline.push(timelineItem);
+	// }
+	// // console.log("Mostrando eventos entre [" + datas.menor.toString() + "] e [" + datas.maior.toString() + "]")
+	
+}
+
+Timeline.prototype.defineRange = function(id){
+	var datas = {};
+	
+	var a = this.parent.atividades[id];
+	if(!a.filhos){
+		//se não tem pai, assume que as datas estão corretasa
+		datas.menor = this.parent.atividades[id].datainicial;
+		datas.maior = this.parent.atividades[id].datafinal;
+	} else {
+		//confere entre todos os filhos, a maior e a menor data
+		//define extremos (absurdos) iniciais
+		datas.menor = 1.7976931348623157E+10308; //infinito
+		datas.maior = 0;
+		for(var f in a.filhos){
+			//guarda os recordistas
+			(f.datainicial.getTime() < datas.menor) ? datas.filhoMenor = f : null;
+			(f.datafinal.getTime() > datas.maior) ? datas.filhoMaior = f : null;
+			//atualiza a maior e a menor
+			datas.menor = Math.min(f.datainicial.getTime(), datas.menor);
+			datas.maior = Math.max(f.datafinal.getTime(), datas.maior);	
+		}
+		//converte os epochs em datas
+		datas.menor = new Date(datas.menor);
+		datas.maior = new Date(datas.maior);
+	}
+	
+	return datas;
 }
 
 Timeline.dvToDate = function(dv){
