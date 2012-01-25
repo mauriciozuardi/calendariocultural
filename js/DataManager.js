@@ -1,11 +1,14 @@
-function PageManager(){
+var DEBUG = false;
+
+function DataManager(caller){
 	//INCLUIR NO INDEX.PHP: <script type="text/javascript" charset="utf-8"> var v="<?php echo $_GET['v']; ?>"; console.log(v);</script>
+	this.parent = caller;
 	this.totalRequests = 0;
 	this.loadedRequests = 0;
 	this.mainKey = "0AnLIuvvW8l93dDViZURvYkRGTFZldXpTbVIwNnlTOUE";
 }
 
-PageManager.prototype.wrapUrlVars = function(vars){
+DataManager.prototype.wrapUrlVars = function(vars){
 	for(var i in vars){
 		var vName = vars[i];
 		this[vName] = window[vName];
@@ -13,12 +16,12 @@ PageManager.prototype.wrapUrlVars = function(vars){
 	}
 }
 
-PageManager.prototype.init = function(){
+DataManager.prototype.init = function(){
 	this.sId = (this.sId == '') ? 's1' : this.sId;
 	this.loadBasicInfo();
 }
 
-PageManager.prototype.loadBasicInfo = function(mainKey){
+DataManager.prototype.loadBasicInfo = function(mainKey){
 	var urlSites   = 'https://spreadsheets.google.com/feeds/list/' + this.mainKey + '/6/public/basic?alt=json&sq=publicar==1';
 	var urlEspacos = 'https://spreadsheets.google.com/feeds/list/' + this.mainKey + '/4/public/basic?alt=json&sq=publicar==1';
 	var urlPessoas = 'https://spreadsheets.google.com/feeds/list/' + this.mainKey + '/5/public/basic?alt=json&sq=publicar==1';
@@ -28,7 +31,7 @@ PageManager.prototype.loadBasicInfo = function(mainKey){
 	this.loadJsonToVar(urlPessoas, 'pessoas');
 }
 
-PageManager.prototype.onJsonLoaded = function(loadedVarName){
+DataManager.prototype.onJsonLoaded = function(loadedVarName){
 	//acompanha e direciona o carregamento das informações
 	this.loadedRequests ++;
 	
@@ -42,7 +45,7 @@ PageManager.prototype.onJsonLoaded = function(loadedVarName){
 			}
 			break;
 		case 'pds':
-			if(this.pulldownsEsperados == this.pds.length){
+			if(this.pulldownsEsperados == this.pds.length && this.espacos){
 				this.organizaPullDowns();
 				delete this.pds;
 				delete this.pulldownsEsperados;
@@ -56,12 +59,19 @@ PageManager.prototype.onJsonLoaded = function(loadedVarName){
 				this.incluiDependencias();
 			}
 		break;
+		case 'espacos':
+			if(this.pulldownsEsperados == this.pds.length && this.espacos){
+				this.organizaPullDowns();
+				delete this.pds;
+				delete this.pulldownsEsperados;
+			}
+		break;
 		default:
 		break;
 	}
 }
 
-PageManager.prototype.incluiDependencias = function(){
+DataManager.prototype.incluiDependencias = function(){
 	if(this.repescagem){
 		for(var i in this.repescagem){
 			var arrIndex = this.repescagem[i];
@@ -75,7 +85,7 @@ PageManager.prototype.incluiDependencias = function(){
 	this.organizaAtividadesEmGrupos();
 }
 
-PageManager.prototype.confereDependencias = function(){
+DataManager.prototype.confereDependencias = function(){
 	//varre as atividades procurando se alguma tem parent
 	this.pais = [];
 	for(var i in this.atividades){
@@ -104,7 +114,7 @@ PageManager.prototype.confereDependencias = function(){
 	}
 }
 
-PageManager.prototype.trataValoresDasAtividades = function(){
+DataManager.prototype.trataValoresDasAtividades = function(){
 	this.datasInvalidas = {}
 	var todasValidas = true;
 	for(var i in this.atividades){
@@ -127,7 +137,7 @@ PageManager.prototype.trataValoresDasAtividades = function(){
 	}
 }
 
-PageManager.prototype.organizaAtividadesEmGrupos = function(){
+DataManager.prototype.organizaAtividadesEmGrupos = function(){
 	//parse dos valores
 	this.trataValoresDasAtividades();
 	
@@ -170,11 +180,11 @@ PageManager.prototype.organizaAtividadesEmGrupos = function(){
 		this.timeline.init();
 		this.onTimelineReady();
 	} else {
-		console.log(['Init done. Site timeline.', this]);
+		this.onDataComplete();
 	}
 }
 
-PageManager.prototype.organizaPullDowns = function(){
+DataManager.prototype.organizaPullDowns = function(){ //<-- SÓ DEPOIS Q CARREGAR OS ESPAÇOS
 	this.pulldowns = {};
 	this.pulldowns.oque = {};
 	this.pulldowns.onde = {};
@@ -189,7 +199,7 @@ PageManager.prototype.organizaPullDowns = function(){
 				var tipos = a.tipo.split(', ');
 				for(var t in tipos){
 					var tipo = tipos[t];
-					var slug = PageManager.stringToSlug(tipo);
+					var slug = DataManager.stringToSlug(tipo);
 					if(!this.pulldowns.oque[slug]){
 						this.pulldowns.oque[slug] = {};
 						this.pulldowns.oque[slug].id = slug;
@@ -205,10 +215,10 @@ PageManager.prototype.organizaPullDowns = function(){
 				var ondes = a.onde.split(', ');
 				for(var o in ondes){
 					var onde = ondes[o];
-					if(!this.pulldowns.onde[onde]){
+					if(!this.pulldowns.onde[onde] && this.espacos && this.espacos[onde]){
 						this.pulldowns.onde[onde] = {};
 						this.pulldowns.onde[onde].id = onde;
-						this.pulldowns.onde[onde].label = this.espacos[onde].nome;
+						this.pulldowns.onde[onde].label = this.espacos[onde].nome.replace(/\n/g, '');
 					}
 				}
 			} else {
@@ -220,7 +230,7 @@ PageManager.prototype.organizaPullDowns = function(){
 				var quems = a.quem.split(', ');
 				for(var q in quems){
 					var quem = quems[q];
-					var slug = PageManager.stringToSlug(quem);
+					var slug = DataManager.stringToSlug(quem);
 					if(!this.pulldowns.quem[slug]){
 						this.pulldowns.quem[slug] = {};
 						this.pulldowns.quem[slug].id = slug;
@@ -228,16 +238,66 @@ PageManager.prototype.organizaPullDowns = function(){
 					}
 				}
 			} else {
-				console.log(a.id + ' não tem quem.');
+				DEBUG ? console.log(a.id + ' não tem quem.') : null;
 			}
 		}
 	}
+	
+	//ordena o quê
+	this.pulldowns.oque._ordenado = [];
+	for(var i in this.pulldowns.oque){
+		this.pulldowns.oque._ordenado.push(this.pulldowns.oque[i]);
+	}
+	this.pulldowns.oque._ordenado.pop(); //< não sei pq, mas o último elemento do for era um array com os objetos! O excluo.
+	this.pulldowns.oque._ordenado.sort(this.alphaSortOque);
+	
+	//ordena onde
+	this.pulldowns.onde._ordenado = [];
+	for(var i in this.pulldowns.onde){
+		this.pulldowns.onde._ordenado.push(this.pulldowns.onde[i]);
+	}
+	this.pulldowns.onde._ordenado.pop();
+	this.pulldowns.onde._ordenado.sort(this.alphaSortOnde);
+	
+	//ordena quem
+	this.pulldowns.quem._ordenado = [];
+	for(var i in this.pulldowns.quem){
+		this.pulldowns.quem._ordenado.push(this.pulldowns.quem[i]);
+	}
+	this.pulldowns.quem._ordenado.pop();
+	this.pulldowns.quem._ordenado.sort(this.alphaSortQuem);
 }
 
-PageManager.prototype.onTimelineReady = function(){
+DataManager.prototype.alphaSortOque = function(a,b){
+	var sA = a.id;
+	var sB = b.id;
+	if (sA < sB) {return -1}
+	if (sA > sB) {return 1}
+	return 0;
+}
+
+DataManager.prototype.alphaSortOnde = function(a,b){
+	if(a.label && b.label){
+		var sA = DataManager.stringToSlug(a.label);
+		var sB = DataManager.stringToSlug(b.label);
+		if (sA < sB) {return -1}
+		if (sA > sB) {return 1}
+	}
+	return 0;
+}
+
+DataManager.prototype.alphaSortQuem = function(a,b){
+	var sA = a.id;
+	var sB = b.id;
+	if (sA < sB) {return -1}
+	if (sA > sB) {return 1}
+	return 0;
+}
+
+DataManager.prototype.onTimelineReady = function(){
 	if(this.query){
 		delete this.timeline.timelineStr;
-		console.log(['Init done. Query timeline.', this]);
+		this.onDataComplete();
 	} else {
 		var f = this.timeline.dateToDv(this.timeline.first.date);
 		var l = this.timeline.dateToDv(this.timeline.last.date);
@@ -248,48 +308,54 @@ PageManager.prototype.onTimelineReady = function(){
 	}
 }
 
-PageManager.prototype.loadActivitiesByDate = function(){
+DataManager.prototype.onDataComplete = function(){
+	this.parent.dm = this;
+	this.parent.init();
+	console.log(['Init done. Site timeline.', this]);
+}
+
+DataManager.prototype.loadActivitiesByDate = function(){
 	this.timeline = new Timeline(this);
 	// console.log('init timeline : by date');
 	this.timeline.init();
 	this.onTimelineReady();
 }
 
-PageManager.prototype.loadQueryActivities = function(){
+DataManager.prototype.loadQueryActivities = function(){
 	url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json&q=' + this.query;
 	url = encodeURI(url);
 	this.loadJsonToVar(url, 'atividades');
 }
 
-PageManager.prototype.loadJsonToVar = function(url, vName){
+DataManager.prototype.loadJsonToVar = function(url, vName){
 	// console.log(vName);
 	var context = {};
 	context.instance = this;
 	context.vName = vName;
 	this.totalRequests ++;
-	$.getJSON(url, $.proxy(PageManager.jsonToVar, context));
+	$.getJSON(url, $.proxy(DataManager.jsonToVar, context));
 }
 
-PageManager.prototype.addJsonToArray = function(url, arrName){
+DataManager.prototype.addJsonToArray = function(url, arrName){
 	// console.log(arrName);
 	var context = {};
 	context.instance = this;
 	context.arrName = arrName;
 	this.totalRequests ++;
-	$.getJSON(url, $.proxy(PageManager.jsonToArrayElement, context));
+	$.getJSON(url, $.proxy(DataManager.jsonToArrayElement, context));
 }
 
-PageManager.jsonToVar = function(json){
-	this.instance[this.vName] = PageManager.listToObj(json);
+DataManager.jsonToVar = function(json){
+	this.instance[this.vName] = DataManager.listToObj(json);
 	this.instance.onJsonLoaded(this.vName);
 }
 
-PageManager.jsonToArrayElement = function(json){
-	this.instance[this.arrName].push(PageManager.listToObj(json));
+DataManager.jsonToArrayElement = function(json){
+	this.instance[this.arrName].push(DataManager.listToObj(json));
 	this.instance.onJsonLoaded(this.arrName);
 }
 
-PageManager.prototype.loadPulldownInfo = function(mainKey){
+DataManager.prototype.loadPulldownInfo = function(mainKey){
 	this.pds = [];
 	this.pulldownsEsperados = 0;
 	if(this.sites[this.sId].ondebuscar){
@@ -310,7 +376,7 @@ PageManager.prototype.loadPulldownInfo = function(mainKey){
 	}
 }
 
-PageManager.listToObj = function(json){
+DataManager.listToObj = function(json){
 	//IMPORTANTE: PRIMEIRA COLUNA (da sheet q o json representa) NÃO É PROCESSADA pois ela vira título quando usamos list.
 	var entry = json.feed.entry;
 	var arr = [];
@@ -334,13 +400,13 @@ PageManager.listToObj = function(json){
 		if(arr[i].id){
 			dados[arr[i].id] = obj;
 		} else if(arr[i].nome) {
-			dados[PageManager.stringToSlug(arr[i].nome)] = obj;
+			dados[DataManager.stringToSlug(arr[i].nome)] = obj;
 		}
 	}
 	return dados;
 }
 
-PageManager.stringToSlug = function(str) {
+DataManager.stringToSlug = function(str) {
   str = str.replace(/^\s+|\s+$/g, ''); // trim
   str = str.toLowerCase();
   

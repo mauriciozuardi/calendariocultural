@@ -1,7 +1,8 @@
 function init(){
-	page = new PageManager();
-	page.wrapUrlVars(['sId', 'query']);
-	page.init();
+	im = new InterfaceManager();
+	data = new DataManager(im);
+	data.wrapUrlVars(['sId', 'query']);
+	data.init();
 }
 
 $(init);

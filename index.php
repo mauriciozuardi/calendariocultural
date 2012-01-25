@@ -10,12 +10,25 @@
 	<link rel="stylesheet" href="css/normalize.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script type="text/javascript" charset="utf-8" src="js/jquery-1.7.min.js"></script>
-	<script type="text/javascript" charset="utf-8" src="js/PageManager.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/Timeline.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/DataManager.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/InterfaceManager.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/script.js"></script>
+	<script type="text/javascript" charset="utf-8">sId="<?php echo $_GET['s']; ?>";query="<?php echo $_GET['q']; ?>";</script>
 </head>
 <body>
-	<script type="text/javascript" charset="utf-8">sId="<?php echo $_GET['s']; ?>";query="<?php echo $_GET['q']; ?>";</script>
+	<!-- <div class='header'>
+		<img src="./img/content/logo-agenda-de-fotografia.png" />
+		<select class='oque'>
+			<option>o quê</option>
+		</select>
+		<select class='onde'>
+			<option>onde</option>
+		</select>
+		<select class='quem'>
+			<option>quem</option>
+		</select>
+	</div> -->
 </body>
 </html>
 

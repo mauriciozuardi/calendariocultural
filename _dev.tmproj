@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>js/Timeline.js</string>
+	<string>js/InterfaceManager.js</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -30,13 +30,21 @@
 			<key>filename</key>
 			<string>.htaccess</string>
 			<key>lastUsed</key>
-			<date>2012-01-22T22:01:42Z</date>
+			<date>2012-01-25T12:06:51Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>index.php</string>
 			<key>lastUsed</key>
-			<date>2012-01-22T22:01:46Z</date>
+			<date>2012-01-25T12:07:11Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>js/InterfaceManager.js</string>
+			<key>lastUsed</key>
+			<date>2012-01-25T12:36:55Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -48,9 +56,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>24</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>4</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -76,16 +84,30 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>60</integer>
 				<key>line</key>
-				<integer>20</integer>
+				<integer>12</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>js/PageManager.js</key>
+		<key>js/DataManager.js</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>47</integer>
+				<key>line</key>
+				<integer>215</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>19</integer>
+		</dict>
+		<key>js/InterfaceManager.js</key>
 		<dict>
 			<key>caret</key>
 			<dict>
@@ -120,7 +142,7 @@
 				<key>column</key>
 				<integer>16</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>1</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -134,12 +156,13 @@
 		<string>index.php</string>
 		<string>css/style.css</string>
 		<string>js/script.js</string>
-		<string>js/PageManager.js</string>
+		<string>js/DataManager.js</string>
+		<string>js/InterfaceManager.js</string>
 		<string>js/Timeline.js</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{195, 4}, {1171, 742}}</string>
+	<string>{{1522, 79}, {976, 1211}}</string>
 </dict>
 </plist>
