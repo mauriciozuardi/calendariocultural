@@ -309,7 +309,8 @@ DataManager.prototype.onTimelineReady = function(){
 }
 
 DataManager.prototype.onDataComplete = function(){
-	this.parent.dm = this;
+	this.currentSite = this.sites[this.sId];
+	this.parent.dataManager = this;
 	this.parent.init();
 	console.log(['Init done. Site timeline.', this]);
 }
