@@ -7,11 +7,11 @@ function Timeline(caller){
 }
 
 Timeline.prototype.init = function(){
-	// console.log(this.parent.query);
-	this.parent.query == '' ? this.labelsToDates() : this.autoLabel();
+	this.parent.query ? this.autoLabel() : this.labelsToDates();
 }
 
 Timeline.prototype.autoLabel = function(){
+	// console.log('autoLabel');
 	//monta a timeline baseado nas atividades carregadas
 	var datas = this.defineActivitiesRange();
 	// console.log(datas);
@@ -52,7 +52,6 @@ Timeline.prototype.defineActivitiesRange = function(){
 
 	for(var i in this.parent.atividades){
 		var a = this.parent.atividades[i];
-		// console.log([a.id, a.datainicial]);
 		//guarda os recordistas
 		(a.datainicial.getTime() < datas.menor) ? datas.filhoMenor = a : null;
 		(a.datafinal.getTime() > datas.maior) ? datas.filhoMaior = a : null;
@@ -103,6 +102,7 @@ Timeline.prototype.zeraRelogio = function(date){
 }
 
 Timeline.prototype.labelsToDates = function(){
+	// console.log('labelsToDates');
 	if(this.timelineStr){
 		var year		= this.today.getFullYear();
 		var month		= this.today.getMonth();

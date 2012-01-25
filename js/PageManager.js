@@ -41,9 +41,11 @@ PageManager.prototype.onJsonLoaded = function(loadedVarName){
 				this.loadActivitiesByDate();
 			}
 			break;
-		case 'pulldowns':
-			if(this.pulldownsEsperados == this.pulldowns.length){
+		case 'pds':
+			if(this.pulldownsEsperados == this.pds.length){
 				this.organizaPullDowns();
+				delete this.pds;
+				delete this.pulldownsEsperados;
 			}
 		break;
 		case 'atividades':
@@ -164,6 +166,7 @@ PageManager.prototype.organizaAtividadesEmGrupos = function(){
 	//se precisou esperar carregar as coisas da busca
 	if(this.query){
 		this.timeline = new Timeline(this);
+		// console.log('init timeline : by query');
 		this.timeline.init();
 		this.onTimelineReady();
 	} else {
@@ -172,12 +175,61 @@ PageManager.prototype.organizaAtividadesEmGrupos = function(){
 }
 
 PageManager.prototype.organizaPullDowns = function(){
-	var pd = {}
-	for(var i in this.pulldowns){
-		var obj = this.pulldowns[i];
+	this.pulldowns = {};
+	this.pulldowns.oque = {};
+	this.pulldowns.onde = {};
+	this.pulldowns.quem = {};
+	for(var i in this.pds){
+		var obj = this.pds[i];
 		for(var j in obj){
 			var a = obj[j];
-			console.log(a);
+			
+			//oque (tipo)
+			if(a.tipo){
+				var tipos = a.tipo.split(', ');
+				for(var t in tipos){
+					var tipo = tipos[t];
+					var slug = PageManager.stringToSlug(tipo);
+					if(!this.pulldowns.oque[slug]){
+						this.pulldowns.oque[slug] = {};
+						this.pulldowns.oque[slug].id = slug;
+						this.pulldowns.oque[slug].label = tipo;
+					}
+				}
+			} else {
+				console.log(a.id + ' não tem tipo.');
+			}
+			
+			//onde
+			if(a.onde){
+				var ondes = a.onde.split(', ');
+				for(var o in ondes){
+					var onde = ondes[o];
+					if(!this.pulldowns.onde[onde]){
+						this.pulldowns.onde[onde] = {};
+						this.pulldowns.onde[onde].id = onde;
+						this.pulldowns.onde[onde].label = this.espacos[onde].nome;
+					}
+				}
+			} else {
+				console.log(a.id + ' não tem onde.');
+			}
+			
+			//quem
+			if(a.quem){
+				var quems = a.quem.split(', ');
+				for(var q in quems){
+					var quem = quems[q];
+					var slug = PageManager.stringToSlug(quem);
+					if(!this.pulldowns.quem[slug]){
+						this.pulldowns.quem[slug] = {};
+						this.pulldowns.quem[slug].id = slug;
+						this.pulldowns.quem[slug].label = quem;
+					}
+				}
+			} else {
+				console.log(a.id + ' não tem quem.');
+			}
 		}
 	}
 }
@@ -198,6 +250,7 @@ PageManager.prototype.onTimelineReady = function(){
 
 PageManager.prototype.loadActivitiesByDate = function(){
 	this.timeline = new Timeline(this);
+	// console.log('init timeline : by date');
 	this.timeline.init();
 	this.onTimelineReady();
 }
@@ -237,7 +290,7 @@ PageManager.jsonToArrayElement = function(json){
 }
 
 PageManager.prototype.loadPulldownInfo = function(mainKey){
-	this.pulldowns = [];
+	this.pds = [];
 	this.pulldownsEsperados = 0;
 	if(this.sites[this.sId].ondebuscar){
 		//busca só nos sites listados
@@ -245,14 +298,14 @@ PageManager.prototype.loadPulldownInfo = function(mainKey){
 		for(var s in sites){
 			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[sites[s]].key + '/3/public/basic?alt=json&sq=publicar==1';
 			this.pulldownsEsperados ++;
-			this.addJsonToArray(url, 'pulldowns');
+			this.addJsonToArray(url, 'pds');
 		}
 	} else {
 		//busca em todos os sites listados na planilha geral (mainKey);
 		for(var s in this.sites){
 			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[s].key + '/3/public/basic?alt=json&sq=publicar==1';
 			this.pulldownsEsperados ++;
-			this.addJsonToArray(url, 'pulldowns');
+			this.addJsonToArray(url, 'pds');
 		}
 	}
 }
