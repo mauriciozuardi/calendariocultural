@@ -41,10 +41,13 @@ InterfaceManager.prototype.onPullDownChange = function(){
 			var query = v;
 		}
 		//
-		var newURL = window.location.href.toString().split(window.location.search)[0];
+		console.log(window.location.href);
+		console.log(window.location.search);
+		
+		var newURL = window.location.search != '' ? window.location.href.toString().split(window.location.search)[0] : window.location.href;
 		newURL += '?q=' + encodeURI(query);
-		console.log(newURL);
-		// window.location = newURL;
+		// console.log(newURL);
+		window.location = newURL;
 	}
 }
 
