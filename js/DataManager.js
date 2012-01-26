@@ -71,8 +71,8 @@ DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 		case 'espacos':
 			if(this.pds && this.espacos && this.pulldownsEsperados == this.pds.length){
 				this.organizaPullDowns();
-				delete this.pds;
-				delete this.pulldownsEsperados;
+				// delete this.pds;
+				// delete this.pulldownsEsperados;
 			}
 		break;
 		default:
@@ -94,10 +94,10 @@ DataManager.prototype.organizaPreAtividades = function(){
 		for(var j in obj){
 			var a = obj[j];
 			var lastSite = a.idSiteOriginal;
+			lastSite == undefined ? console.log(['lastSite undefined for: ' + a.id, a]) : null;
 			this.atividades[a.idSiteOriginal] ? null : this.atividades[a.idSiteOriginal] = {};
 			this.atividades[a.idSiteOriginal][a.id] = a;
 		}
-		// console.log('last site ' + lastSite);
 		this.confereDependencias(lastSite);
 	}
 	// console.log(['organizei', this]);
@@ -118,41 +118,46 @@ DataManager.prototype.incluiDependencias = function(s){
 }
 
 DataManager.prototype.confereDependencias = function(s){
-	this.totalDeRepescagensEsperadas ? null : this.totalDeRepescagensEsperadas = 0;
-	this.sitesSemDependencias ? null : this.sitesSemDependencias = 0;
-	this.sitesComDependencias ? null : this.sitesComDependencias = 0;
+	if(s){
+		this.totalDeRepescagensEsperadas ? null : this.totalDeRepescagensEsperadas = 0;
+		this.sitesSemDependencias ? null : this.sitesSemDependencias = 0;
+		this.sitesComDependencias ? null : this.sitesComDependencias = 0;
 	
-	//varre as atividades procurando se alguma tem parent
-	this.pais = {};
-	this.pais[s] = [];
-	for(var i in this.atividades[s]){
-		var a = this.atividades[s][i];
-		if(a.parent){
-			var repetido = false;
-			for(var p in this.pais[s]){
-				var pai = this.pais[s][p];
-				if(pai == a.parent){ repetido = true; break }
+		//varre as atividades procurando se alguma tem parent
+		this.pais = {};
+		this.pais[s] = [];
+		for(var i in this.atividades[s]){
+			var a = this.atividades[s][i];
+			if(a.parent){
+				var repetido = false;
+				for(var p in this.pais[s]){
+					var pai = this.pais[s][p];
+					if(pai == a.parent){ repetido = true; break }
+				}
+				if(!repetido){ this.pais[s].push(a.parent) }
 			}
-			if(!repetido){ this.pais[s].push(a.parent) }
 		}
-	}
-	//se precisar, carrega de novo, buscando pelos pais agora
-	if(this.pais[s].length > 0){
-		this.sitesComDependencias ++;
-		this['repescagem_' + s] = [];
-		this['repescagensEsperadas_' + s] = 0;
-		this.totalDeRepescagensEsperadas ++;
-		for(var i in this.pais[s]){
-			var pai = this.pais[s][i];
-			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[s].key + '/2/public/basic?alt=json&q=' + pai + '&sq=publicar==1';
-			this['repescagensEsperadas_' + s] ++;
-			this.addJsonToArray(url, 'repescagem_' + s, s);
+		//se precisar, carrega de novo, buscando pelos pais agora
+		if(this.pais[s].length > 0){
+			this.sitesComDependencias ++;
+			this['repescagem_' + s] ? null : this['repescagem_' + s] = [];
+			this['repescagensEsperadas_' + s] ? null : this['repescagensEsperadas_' + s] = 0;
+			this.totalDeRepescagensEsperadas ++;
+			for(var i in this.pais[s]){
+				var pai = this.pais[s][i];
+				var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[s].key + '/2/public/basic?alt=json&q=' + pai + '&sq=publicar==1';
+				this['repescagensEsperadas_' + s] ++;
+				this.addJsonToArray(url, 'repescagem_' + s, s);
+			}		
+		} else {
+			this.organizaAtividadesEmGrupos(s);
+			this.sitesSemDependencias ++;
+			this.confereDependenciasGeral();
+			console.log(s + ': sem dependencias');
+			this.checkDataComplete();
 		}		
 	} else {
-		this.organizaAtividadesEmGrupos(s);
-		this.sitesSemDependencias ++;
-		this.confereDependenciasGeral();
-		console.log(s + ': sem dependencias');
+		console.log('ERRO: confereDependencias(s) undefined');
 	}
 }
 
@@ -219,15 +224,11 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 
 DataManager.prototype.confereDependenciasGeral = function(){
 	// SE O TOTAL DE REPESCAGENS CHEGOU ..
-	var nSitesParaChecar = this.currentSite.ondebuscar ? this.currentSite.ondebuscar.split(', ').length : this.nSites;
-	var temDependencias = (this.sitesSemDependencias != nSitesParaChecar);
-	var carregouTodasDependencias = (this.totalDeRepescagensCarregadas == this.totalDeRepescagensEsperadas);
-
-	// console.log('nSitesParaChecar:' + nSitesParaChecar);
-	// console.log('temDependencias:' + temDependencias);
-	// console.log('carregouTodasDependencias:' + carregouTodasDependencias);
+	this.nSitesParaChecar = this.currentSite.ondebuscar ? this.currentSite.ondebuscar.split(', ').length : this.nSites;
+	this.temDependencias = (this.sitesSemDependencias != this.nSitesParaChecar);
+	this.carregouTodasDependencias = (this.totalDeRepescagensCarregadas == this.totalDeRepescagensEsperadas);
 	
-	if(!temDependencias || (temDependencias && carregouTodasDependencias)){
+	if(!this.temDependencias || (this.temDependencias && this.carregouTodasDependencias)){
 		//se precisou esperar carregar as coisas da busca
 		if(this.query){
 			this.timeline = new Timeline(this);
@@ -374,7 +375,8 @@ DataManager.prototype.onTimelineReady = function(){
 }
 
 DataManager.prototype.checkDataComplete = function(){
-	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests){
+	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore){
+		this.completedBefore = true;
 		this.onDataComplete();
 	}
 }
@@ -432,6 +434,7 @@ DataManager.prototype.addJsonToArray = function(url, arrName, preSID){
 	context.instance = this;
 	context.arrName = arrName;
 	context.preSID = preSID;
+	// console.log(context)
 	this.totalRequests ++;
 	$.getJSON(url, $.proxy(DataManager.jsonToArrayElement, context));
 }
@@ -443,11 +446,20 @@ DataManager.jsonToVar = function(json){
 
 DataManager.jsonToArrayElement = function(json){
 	var obj = DataManager.listToObj(json);
-	// console.log(this.preSID);
-	if(this.preSID){
-		this.instance.incluiSiteDeOrigem(obj, this.preSID);
+	var objLength = 0;
+	for(var i in obj){
+		objLength ++;
 	}
-	this.instance[this.arrName].push(obj);
+	
+	if(objLength > 0){
+		this.instance.incluiSiteDeOrigem(obj, this.preSID);
+		// this.arrName.substr(0,11) == 'repescagem_' ? console.log([this.arrName, this]) : null;
+		this.instance[this.arrName].push(obj);		
+	} else {
+		this.instance.preAtividadesEsperadas --;
+		console.log([this.arrName + ': retorno vazio', json]);
+	}
+
 	this.instance.onJsonLoaded(this.arrName, this.preSID);
 }
 
@@ -467,14 +479,14 @@ DataManager.prototype.loadPulldownInfo = function(mainKey){
 		for(var s in sites){
 			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[sites[s]].key + '/3/public/basic?alt=json&sq=publicar==1';
 			this.pulldownsEsperados ++;
-			this.addJsonToArray(url, 'pds');
+			this.addJsonToArray(url, 'pds', this.sites[sites[s]].id);
 		}
 	} else {
 		//busca em todos os sites listados na planilha geral (mainKey);
 		for(var s in this.sites){
 			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[s].key + '/3/public/basic?alt=json&sq=publicar==1';
 			this.pulldownsEsperados ++;
-			this.addJsonToArray(url, 'pds');
+			this.addJsonToArray(url, 'pds', s);
 		}
 	}
 }
