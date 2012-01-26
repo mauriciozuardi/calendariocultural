@@ -34,7 +34,6 @@ DataManager.prototype.loadBasicInfo = function(mainKey){
 DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 	//acompanha e direciona o carregamento das informações
 	this.loadedRequests ++;
-	
 	switch(loadedVarName){
 		case 'sites':
 			this.currentSite = this.sites[this.sId];
@@ -47,7 +46,7 @@ DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 			}
 			break;
 		case 'pds':
-			if(this.pulldownsEsperados == this.pds.length && this.espacos){
+			if(this.pds && this.espacos && this.pulldownsEsperados == this.pds.length){
 				this.organizaPullDowns();
 				delete this.pds;
 				delete this.pulldownsEsperados;
@@ -58,16 +57,19 @@ DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 				this.organizaPreAtividades();
 			}
 			break;
-		case 'atividades':
-				this.confereDependencias();
-			break;
-		case 'repescagem':
-			if(this.repescagensEsperadas == this.repescagem.length){
-				this.incluiDependencias();
+		// case 'atividades':
+		// 		this.confereDependencias();
+		// 	break;
+		case 'repescagem_' + preSID :
+			if(this['repescagensEsperadas_' + preSID] == this['repescagem_' + preSID].length){
+				console.log('chegaram todas as repescagens de ' + preSID);
+				var n = this['repescagensEsperadas_' + preSID];
+				this.totalDeRepescagensCarregadas ? this.totalDeRepescagensCarregadas += n : this.totalDeRepescagensCarregadas = n;
+				this.incluiDependencias(preSID);
 			}
 		break;
 		case 'espacos':
-			if(this.pulldownsEsperados == this.pds.length && this.espacos){
+			if(this.pds && this.espacos && this.pulldownsEsperados == this.pds.length){
 				this.organizaPullDowns();
 				delete this.pds;
 				delete this.pulldownsEsperados;
@@ -91,72 +93,85 @@ DataManager.prototype.organizaPreAtividades = function(){
 		var obj = this.preAtividades[i];
 		for(var j in obj){
 			var a = obj[j];
+			var lastSite = a.idSiteOriginal;
 			this.atividades[a.idSiteOriginal] ? null : this.atividades[a.idSiteOriginal] = {};
 			this.atividades[a.idSiteOriginal][a.id] = a;
 		}
+		// console.log('last site ' + lastSite);
+		this.confereDependencias(lastSite);
 	}
-	console.log(['organizei', this]);
+	// console.log(['organizei', this]);
 }
 
-DataManager.prototype.incluiDependencias = function(){
-	if(this.repescagem){
-		for(var i in this.repescagem){
-			var arrIndex = this.repescagem[i];
+DataManager.prototype.incluiDependencias = function(s){
+	if(this['repescagem_' + s]){
+		for(var i in this['repescagem_' + s]){
+			var arrIndex = this['repescagem_' + s][i];
 			for(var j in arrIndex){
 				var obj = arrIndex[j];
-				this.atividades[j] ? null : this.atividades[j] = obj;
+				this.atividades[s][j] ? null : this.atividades[s][j] = obj;
 			}
 		}
 	}
-	delete this.repescagem;
-	this.organizaAtividadesEmGrupos();
+	delete this['repescagem_' + s];
+	this.organizaAtividadesEmGrupos(s);
 }
 
-DataManager.prototype.confereDependencias = function(){
+DataManager.prototype.confereDependencias = function(s){
+	this.totalDeRepescagensEsperadas ? null : this.totalDeRepescagensEsperadas = 0;
+	this.sitesSemDependencias ? null : this.sitesSemDependencias = 0;
+	this.sitesComDependencias ? null : this.sitesComDependencias = 0;
+	
 	//varre as atividades procurando se alguma tem parent
-	this.pais = [];
-	for(var i in this.atividades){
-		var a = this.atividades[i];
+	this.pais = {};
+	this.pais[s] = [];
+	for(var i in this.atividades[s]){
+		var a = this.atividades[s][i];
 		if(a.parent){
 			var repetido = false;
-			for(var p in this.pais){
-				var pai = this.pais[p];
+			for(var p in this.pais[s]){
+				var pai = this.pais[s][p];
 				if(pai == a.parent){ repetido = true; break }
 			}
-			if(!repetido){ this.pais.push(a.parent) }
+			if(!repetido){ this.pais[s].push(a.parent) }
 		}
 	}
 	//se precisar, carrega de novo, buscando pelos pais agora
-	if(this.pais.length > 0){
-		this.repescagem = [];
-		this.repescagensEsperadas = 0;
-		for(var i in this.pais){
-			var pai = this.pais[i];
-			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json&q=' + pai + '&sq=publicar==1';
-			this.repescagensEsperadas ++;
-			this.addJsonToArray(url, 'repescagem');
+	if(this.pais[s].length > 0){
+		this.sitesComDependencias ++;
+		this['repescagem_' + s] = [];
+		this['repescagensEsperadas_' + s] = 0;
+		this.totalDeRepescagensEsperadas ++;
+		for(var i in this.pais[s]){
+			var pai = this.pais[s][i];
+			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[s].key + '/2/public/basic?alt=json&q=' + pai + '&sq=publicar==1';
+			this['repescagensEsperadas_' + s] ++;
+			this.addJsonToArray(url, 'repescagem_' + s, s);
 		}		
 	} else {
-		this.organizaAtividadesEmGrupos();
+		this.organizaAtividadesEmGrupos(s);
+		this.sitesSemDependencias ++;
+		this.confereDependenciasGeral();
+		console.log(s + ': sem dependencias');
 	}
 }
 
-DataManager.prototype.trataValoresDasAtividades = function(){
-	this.datasInvalidas = {}
+DataManager.prototype.trataValoresDasAtividades = function(s){
+	this.datasInvalidas ? null : this.datasInvalidas = {};
 	var todasValidas = true;
-	for(var i in this.atividades){
+	for(var i in this.atividades[s]){
 		//tenta transformar em data
-		this.atividades[i].datainicial = new Date(this.atividades[i].datainicial);
-		this.atividades[i].datafinal	 = new Date(this.atividades[i].datafinal);
+		this.atividades[s][i].datainicial = new Date(this.atividades[s][i].datainicial);
+		this.atividades[s][i].datafinal	 = new Date(this.atividades[s][i].datafinal);
 		//confere se alguma é inválida
 		var inv = 'Invalid Date';
-		if(this.atividades[i].datainicial == inv || this.atividades[i].datafinal == inv){
+		if(this.atividades[s][i].datainicial == inv || this.atividades[s][i].datafinal == inv){
 			//marca na lista negra
 			todasValidas = false;
-			this.datasInvalidas[this.atividades[i].id] = this.atividades[i];
+			this.datasInvalidas[s + '-' + this.atividades[s][i].id] = this.atividades[s][i];
 			//cria datas ok para não fuder o site
-			this.atividades[i].datainicial = new Date();
-			this.atividades[i].datafinal	 = new Date(Date.now() + 1);
+			this.atividades[s][i].datainicial = new Date();
+			this.atividades[s][i].datafinal	 = new Date(Date.now() + 1);
 		}
 	}
 	if(todasValidas){
@@ -164,50 +179,65 @@ DataManager.prototype.trataValoresDasAtividades = function(){
 	}
 }
 
-DataManager.prototype.organizaAtividadesEmGrupos = function(){
+DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 	//parse dos valores
-	this.trataValoresDasAtividades();
+	this.trataValoresDasAtividades(s);
 	
 	//prepara para receber os dependentes
-	for(var i in this.atividades){
-		this.atividades[i].nDependentes = 0;
-		this.atividades[i].dependentes = {};
+	for(var i in this.atividades[s]){
+		this.atividades[s][i].nDependentes = 0;
+		this.atividades[s][i].dependentes = {};
 	}
 	//move os dependentes para a atividade principal;
-	for(var i in this.atividades){
-		var a = this.atividades[i];
-		for(var j in this.pais){
-			var p = this.pais[j];
+	for(var i in this.atividades[s]){
+		var a = this.atividades[s][i];
+		for(var j in this.pais[s]){
+			var p = this.pais[s][j];
 			// a.parent ? console.log(a.parent + ":" + p + " = " + a.id) : null;
 			if(a.parent == p){
-				this.atividades[p].dependentes[a.id] = a;
-				this.atividades[p].nDependentes ++;
-				delete this.atividades[i];
+				this.atividades[s][p].dependentes[a.id] = a;
+				this.atividades[s][p].nDependentes ++;
+				delete this.atividades[s][i];
 			}
 		}
 	}
 	//exclui os dependentes se não tiver nenhum
-	for(var i in this.atividades){
-		if(this.atividades[i].nDependentes == 0){
-			delete this.atividades[i].dependentes;
+	for(var i in this.atividades[s]){
+		if(this.atividades[s][i].nDependentes == 0){
+			delete this.atividades[s][i].dependentes;
 		}
 	}
 	
 	//ajusta o range de todos os pais, baseado nos filhos
-	for(var i in this.pais){
-		var a = this.atividades[this.pais[i]];
+	for(var i in this.pais[s]){
+		var a = this.atividades[s][this.pais[s][i]];
 		Timeline.defineParentRange(a);
 	}
 	
+	this.confereDependenciasGeral();
+}
+
+DataManager.prototype.confereDependenciasGeral = function(){
+	// SE O TOTAL DE REPESCAGENS CHEGOU ..
+	var nSitesParaChecar = this.currentSite.ondebuscar ? this.currentSite.ondebuscar.split(', ').length : this.nSites;
+	var temDependencias = (this.sitesSemDependencias != nSitesParaChecar);
+	var carregouTodasDependencias = (this.totalDeRepescagensCarregadas == this.totalDeRepescagensEsperadas);
+
+	// console.log('nSitesParaChecar:' + nSitesParaChecar);
+	// console.log('temDependencias:' + temDependencias);
+	// console.log('carregouTodasDependencias:' + carregouTodasDependencias);
 	
-	//se precisou esperar carregar as coisas da busca
-	if(this.query){
-		this.timeline = new Timeline(this);
-		// console.log('init timeline : by query');
-		this.timeline.init();
-		this.onTimelineReady();
-	} else {
-		this.onDataComplete();
+	if(!temDependencias || (temDependencias && carregouTodasDependencias)){
+		//se precisou esperar carregar as coisas da busca
+		if(this.query){
+			this.timeline = new Timeline(this);
+			// console.log('init timeline : by query');
+			this.timeline.init();
+			this.onTimelineReady();
+		} else {
+			this.onDataComplete();
+		}
+		// console.log('\\o/');
 	}
 }
 
@@ -359,12 +389,12 @@ DataManager.prototype.loadQueryActivities = function(){
 	if(this.currentSite.ondebuscar){
 		var sites = this.currentSite.ondebuscar.split(', ');
 		for (var i in sites){
-			console.log('Alguns. Chamando ' + sites[i].id);
+			console.log('Alguns. Chamando ' + sites[i]);
 			url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[sites[i]].key + '/2/public/basic?alt=json&q=' + this.query;
 			url = encodeURI(url);
 			// console.log(url);
 			this.preAtividadesEsperadas ++;
-			this.addJsonToArray(url, 'preAtividades', this.sites[i].id);
+			this.addJsonToArray(url, 'preAtividades', sites[i]);
 		}
 	} else {
 		for(var i in this.sites){
@@ -409,7 +439,7 @@ DataManager.jsonToArrayElement = function(json){
 		this.instance.incluiSiteDeOrigem(obj, this.preSID);
 	}
 	this.instance[this.arrName].push(obj);
-	this.instance.onJsonLoaded(this.arrName);
+	this.instance.onJsonLoaded(this.arrName, this.preSID);
 }
 
 DataManager.prototype.incluiSiteDeOrigem = function(objPrincipal, idSiteOriginal){
@@ -452,7 +482,8 @@ DataManager.listToObj = function(json){
 		for(var j in colunas){
 			colunas[j] = colunas[j].split(': ');
 			colunas[j][1] = colunas[j][1] ? colunas[j][1].replace(/¥Ω/g, ',') : undefined;
-			colunas[j][1] = colunas[j][1] ? colunas[j][1].replace(/•≈/g, '\n') : undefined;
+			colunas[j][1] = colunas[j][1] ? colunas[j][1].replace(/¢£/g, ':') : undefined;
+			// colunas[j][1] = colunas[j][1] ? colunas[j][1].replace(/•≈/g, '\n') : undefined;
 			obj[colunas[j][0]] = colunas[j][1];
 		}
 		arr.push(obj);

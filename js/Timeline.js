@@ -50,14 +50,16 @@ Timeline.prototype.defineActivitiesRange = function(){
 	datas.menor = 1.7976931348623157E+10308; //infinito
 	datas.maior = 0;
 
-	for(var i in this.parent.atividades){
-		var a = this.parent.atividades[i];
-		//guarda os recordistas
-		(a.datainicial.getTime() < datas.menor) ? datas.filhoMenor = a : null;
-		(a.datafinal.getTime() > datas.maior) ? datas.filhoMaior = a : null;
-		//atualiza a maior e a menor
-		datas.menor = Math.min(a.datainicial.getTime(), datas.menor);
-		datas.maior = Math.max(a.datafinal.getTime(), datas.maior);
+	for(var s in this.parent.atividades){
+		for(var i in this.parent.atividades[s]){
+			var a = this.parent.atividades[s][i];
+			//guarda os recordistas
+			(a.datainicial.getTime() < datas.menor) ? datas.filhoMenor = a : null;
+			(a.datafinal.getTime() > datas.maior) ? datas.filhoMaior = a : null;
+			//atualiza a maior e a menor
+			datas.menor = Math.min(a.datainicial.getTime(), datas.menor);
+			datas.maior = Math.max(a.datafinal.getTime(), datas.maior);
+		}
 	}
 	
 	return datas;
