@@ -48,7 +48,7 @@ InterfaceManager.prototype.onPullDownChange = function(){
 	}
 }
 
-InterfaceManager.prototype.drawPullDowns = function(){	
+InterfaceManager.prototype.drawPullDowns = function(){
 	var html = ""
 	//desenha o quê
 	if(this.dataManager.pulldowns.oque._ordenado.length > 1 && !this.dataManager.currentSite.semoque){

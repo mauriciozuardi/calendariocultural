@@ -235,7 +235,7 @@ DataManager.prototype.confereDependenciasGeral = function(){
 			this.timeline.init();
 			this.onTimelineReady();
 		} else {
-			this.onDataComplete();
+			this.checkDataComplete();
 		}
 		// console.log('\\o/');
 	}
@@ -325,6 +325,9 @@ DataManager.prototype.organizaPullDowns = function(){ //<-- SÓ DEPOIS Q CARREGA
 	}
 	this.pulldowns.quem._ordenado.pop();
 	this.pulldowns.quem._ordenado.sort(this.alphaSortQuem);
+	
+	//
+	this.checkDataComplete();
 }
 
 DataManager.prototype.alphaSortOque = function(a,b){
@@ -356,7 +359,7 @@ DataManager.prototype.alphaSortQuem = function(a,b){
 DataManager.prototype.onTimelineReady = function(){
 	if(this.query){
 		delete this.timeline.timelineStr;
-		this.onDataComplete();
+		this.checkDataComplete();
 	} else {
 		var f = this.timeline.dateToDv(this.timeline.first.date);
 		var l = this.timeline.dateToDv(this.timeline.last.date);
@@ -367,6 +370,12 @@ DataManager.prototype.onTimelineReady = function(){
 		this.preAtividades = [];
 		this.preAtividadesEsperadas = 1;
 		this.addJsonToArray(url, 'preAtividades', this.currentSite.id);
+	}
+}
+
+DataManager.prototype.checkDataComplete = function(){
+	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests){
+		this.onDataComplete();
 	}
 }
 
