@@ -385,6 +385,7 @@ DataManager.prototype.onDataComplete = function(){
 	this.parent.dataManager = this;
 	this.parent.init();
 	this.query ? console.log(['Init done. QUERY.', this]) : console.log(['Init done.', this]);
+	console.log(['Atividades', this.atividades]);
 }
 
 DataManager.prototype.loadActivitiesByDate = function(){
