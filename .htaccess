@@ -2,4 +2,6 @@
 #RewriteRule  ^/cafesuplicy/?$  index.html?s=s2  [NC,L]
 Options +FollowSymlinks
 RewriteEngine on
-RewriteRule ^cafesuplicy index.php?s=s2 [NC]
+# RewriteRule ^cafesuplicy/(.+)/?$ index.php?s=s2&q=$1 [NC,L]
+# RewriteRule ^cafesuplicy/(.+) index.php?s=s2&q=$1 [NC,L]
+RewriteRule ^cafesuplicy index.php?s=s2 [QSA]

@@ -14,21 +14,14 @@
 	<script type="text/javascript" charset="utf-8" src="js/DataManager.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/InterfaceManager.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/script.js"></script>
-	<script type="text/javascript" charset="utf-8">sId="<?php echo $_GET['s']; ?>";query="<?php echo $_GET['q']; ?>";</script>
+	<script type="text/javascript" charset="utf-8">sId="<?php echo $_REQUEST['s']; ?>";query="<?php echo $_REQUEST['q']; ?>";</script>
 </head>
 <body>
-	<!-- <div class='header'>
-		<img src="./img/content/logo-agenda-de-fotografia.png" />
-		<select class='oque'>
-			<option>o quê</option>
-		</select>
-		<select class='onde'>
-			<option>onde</option>
-		</select>
-		<select class='quem'>
-			<option>quem</option>
-		</select>
-	</div> -->
+	<?php 
+	var_dump($_GET);
+	// echo '<br />';
+	// var_dump($_REQUEST);
+	?>
 </body>
 </html>
 

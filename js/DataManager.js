@@ -31,12 +31,14 @@ DataManager.prototype.loadBasicInfo = function(mainKey){
 	this.loadJsonToVar(urlPessoas, 'pessoas');
 }
 
-DataManager.prototype.onJsonLoaded = function(loadedVarName){
+DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 	//acompanha e direciona o carregamento das informações
 	this.loadedRequests ++;
 	
 	switch(loadedVarName){
 		case 'sites':
+			this.currentSite = this.sites[this.sId];
+			this.updateSiteCount();
 			this.loadPulldownInfo();
 			if(this.query){
 				this.loadQueryActivities();
@@ -51,6 +53,11 @@ DataManager.prototype.onJsonLoaded = function(loadedVarName){
 				delete this.pulldownsEsperados;
 			}
 		break;
+		case 'preAtividades':
+			if(this.preAtividadesEsperadas == this.preAtividades.length){
+				this.organizaPreAtividades();
+			}
+			break;
 		case 'atividades':
 				this.confereDependencias();
 			break;
@@ -69,6 +76,26 @@ DataManager.prototype.onJsonLoaded = function(loadedVarName){
 		default:
 		break;
 	}
+}
+
+DataManager.prototype.updateSiteCount = function(){
+	this.nSites = 0;
+	for(var i in this.sites){
+		this.nSites ++;
+	}
+}
+
+DataManager.prototype.organizaPreAtividades = function(){
+	this.atividades = {};
+	for(var i in this.preAtividades){
+		var obj = this.preAtividades[i];
+		for(var j in obj){
+			var a = obj[j];
+			this.atividades[a.idSiteOriginal] ? null : this.atividades[a.idSiteOriginal] = {};
+			this.atividades[a.idSiteOriginal][a.id] = a;
+		}
+	}
+	console.log(['organizei', this]);
 }
 
 DataManager.prototype.incluiDependencias = function(){
@@ -215,10 +242,12 @@ DataManager.prototype.organizaPullDowns = function(){ //<-- SÓ DEPOIS Q CARREGA
 				var ondes = a.onde.split(', ');
 				for(var o in ondes){
 					var onde = ondes[o];
+					var label = this.espacos[onde].nome.replace(/\n/g, '')
+					var slug = DataManager.stringToSlug(label);
 					if(!this.pulldowns.onde[onde] && this.espacos && this.espacos[onde]){
-						this.pulldowns.onde[onde] = {};
-						this.pulldowns.onde[onde].id = onde;
-						this.pulldowns.onde[onde].label = this.espacos[onde].nome.replace(/\n/g, '');
+						this.pulldowns.onde[slug] = {};
+						this.pulldowns.onde[slug].id = onde;
+						this.pulldowns.onde[slug].label = label;
 					}
 				}
 			} else {
@@ -304,15 +333,17 @@ DataManager.prototype.onTimelineReady = function(){
 		var dateQuery = '&sq=!((dvi<=' + f + ' and dvf<=' + f + ') or (dvi>=' + l + ' and dvf>=' + l + ')) and publicar==1';
 		url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json' + dateQuery;
 		url = encodeURI(url);
-		this.loadJsonToVar(url, 'atividades');	
+		// this.loadJsonToVar(url, 'atividades');
+		this.preAtividades = [];
+		this.preAtividadesEsperadas = 1;
+		this.addJsonToArray(url, 'preAtividades', this.currentSite.id);
 	}
 }
 
 DataManager.prototype.onDataComplete = function(){
-	this.currentSite = this.sites[this.sId];
 	this.parent.dataManager = this;
 	this.parent.init();
-	console.log(['Init done. Site timeline.', this]);
+	this.query ? console.log(['Init done. QUERY.', this]) : console.log(['Init done.', this]);
 }
 
 DataManager.prototype.loadActivitiesByDate = function(){
@@ -323,9 +354,29 @@ DataManager.prototype.loadActivitiesByDate = function(){
 }
 
 DataManager.prototype.loadQueryActivities = function(){
-	url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json&q=' + this.query;
-	url = encodeURI(url);
-	this.loadJsonToVar(url, 'atividades');
+	this.preAtividades = [];
+	this.preAtividadesEsperadas = 0;
+	if(this.currentSite.ondebuscar){
+		var sites = this.currentSite.ondebuscar.split(', ');
+		for (var i in sites){
+			console.log('Alguns. Chamando ' + sites[i].id);
+			url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[sites[i]].key + '/2/public/basic?alt=json&q=' + this.query;
+			url = encodeURI(url);
+			// console.log(url);
+			this.preAtividadesEsperadas ++;
+			this.addJsonToArray(url, 'preAtividades', this.sites[i].id);
+		}
+	} else {
+		for(var i in this.sites){
+			var preSID = this.sites[i].id;
+			console.log('Todos. Chamando ' + preSID);
+			url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[preSID].key + '/2/public/basic?alt=json&q=' + this.query;
+			url = encodeURI(url);
+			// console.log(url);
+			this.preAtividadesEsperadas ++;
+			this.addJsonToArray(url, 'preAtividades', preSID);
+		}
+	}
 }
 
 DataManager.prototype.loadJsonToVar = function(url, vName){
@@ -337,11 +388,11 @@ DataManager.prototype.loadJsonToVar = function(url, vName){
 	$.getJSON(url, $.proxy(DataManager.jsonToVar, context));
 }
 
-DataManager.prototype.addJsonToArray = function(url, arrName){
-	// console.log(arrName);
+DataManager.prototype.addJsonToArray = function(url, arrName, preSID){
 	var context = {};
 	context.instance = this;
 	context.arrName = arrName;
+	context.preSID = preSID;
 	this.totalRequests ++;
 	$.getJSON(url, $.proxy(DataManager.jsonToArrayElement, context));
 }
@@ -352,16 +403,28 @@ DataManager.jsonToVar = function(json){
 }
 
 DataManager.jsonToArrayElement = function(json){
-	this.instance[this.arrName].push(DataManager.listToObj(json));
+	var obj = DataManager.listToObj(json);
+	// console.log(this.preSID);
+	if(this.preSID){
+		this.instance.incluiSiteDeOrigem(obj, this.preSID);
+	}
+	this.instance[this.arrName].push(obj);
 	this.instance.onJsonLoaded(this.arrName);
+}
+
+DataManager.prototype.incluiSiteDeOrigem = function(objPrincipal, idSiteOriginal){
+	for(var i in objPrincipal){
+		var o = objPrincipal[i];
+		o.idSiteOriginal = idSiteOriginal;
+	}
 }
 
 DataManager.prototype.loadPulldownInfo = function(mainKey){
 	this.pds = [];
 	this.pulldownsEsperados = 0;
-	if(this.sites[this.sId].ondebuscar){
+	if(this.currentSite.ondebuscar){
 		//busca só nos sites listados
-		var sites = this.sites[this.sId].ondebuscar.split(', ');
+		var sites = this.currentSite.ondebuscar.split(', ');
 		for(var s in sites){
 			var url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[sites[s]].key + '/3/public/basic?alt=json&sq=publicar==1';
 			this.pulldownsEsperados ++;
