@@ -1,9 +1,19 @@
+/* ====== GERAL ====== */
 body{
 	background-color:#2a2a2a;
 	font-family:'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
 	color:white;
 	font-size:11px;
 }
+.bgcover{
+	background-repeat:no-repeat;
+	background-position:center;
+	-moz-background-size:cover;
+	-webkit-background-size:cover;
+	background-size:cover;
+}
+
+/* ====== HEADER ====== */
 .header{
 	position:fixed;
 	top:0;
@@ -28,28 +38,65 @@ body{
 .header .quem{
 	margin-right:30px;
 }
+
+/* ====== BG ====== */
 .bg{
 	min-width:960px;
 	position:absolute;
-/*	background-color:rgba(255, 0, 0, .2);*/
 	z-index:1;
 }
+
+/* ====== CONTENTS ====== */
 .contents {
 	min-width:960px;
 	position:absolute;
 /*	background-color:rgba(0, 0, 255, .2);*/
 	z-index:2;
 }
-.contents .timeline{
+
+/* ====== TIMELINE ====== */
+.timeline{
 	min-width:960px;
 	position:absolute;
 	z-index:3;
 }
-.contents .activities{
+.timeline-now{
 	min-width:960px;
 	position:absolute;
 	z-index:4;
 }
+.bullet{
+	font-size:14px;
+	vertical-align:-1px;
+	margin-right:5px;
+	line-height:150px;
+}
+.line{
+	position:absolute;
+	width:1px;
+	height:100px;
+	font-size:11px;
+	text-indent:-2px;
+	color:white;
+	text-shadow: 0px 1px 3px #333;
+	background-color:rgba(255,255,255,.2);
+}
+.line span{
+	opacity:.7;
+}
+.line.t{
+	background-image: url(../img/interface/linha-tracejada.gif);
+	opacity:.2;
+}
+
+/* ====== ATIVIDADES ====== */
+.contents .activities{
+	min-width:960px;
+	position:absolute;
+	z-index:5;
+}
+
+/* ====== FOOTER ====== */
 .footer {
 	min-width:960px;
 	position:fixed;
@@ -86,11 +133,4 @@ body{
 	margin-top:-7px;
 	margin-left:15px;
 	margin-right:30px;
-}
-.bgcover{
-	background-repeat:no-repeat;
-	background-position:center;
-	-moz-background-size:cover;
-	-webkit-background-size:cover;
-	background-size:cover;
 }

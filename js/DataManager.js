@@ -157,7 +157,7 @@ DataManager.prototype.confereDependencias = function(s){
 			this.checkDataComplete();
 		}		
 	} else {
-		console.log('ERRO: confereDependencias(s) undefined');
+		console.log('ERRO: confereDependencias(' + s + ') undefined');
 	}
 }
 
@@ -232,7 +232,6 @@ DataManager.prototype.confereDependenciasGeral = function(){
 		//se precisou esperar carregar as coisas da busca
 		if(this.query){
 			this.timeline = new Timeline(this);
-			// console.log('init timeline : by query');
 			this.timeline.init();
 			this.onTimelineReady();
 		} else {
@@ -358,6 +357,7 @@ DataManager.prototype.alphaSortQuem = function(a,b){
 }
 
 DataManager.prototype.onTimelineReady = function(){
+	console.log('TIMELINE READY');
 	if(this.query){
 		delete this.timeline.timelineStr;
 		this.checkDataComplete();
@@ -375,7 +375,12 @@ DataManager.prototype.onTimelineReady = function(){
 }
 
 DataManager.prototype.checkDataComplete = function(){
-	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore){
+	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && this.timeline){
+		this.completedBefore = true;
+		this.onDataComplete();
+	} else if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && !this.timeline){
+		this.timeline = new Timeline(this);
+		this.timeline.init();
 		this.completedBefore = true;
 		this.onDataComplete();
 	}
@@ -390,7 +395,6 @@ DataManager.prototype.onDataComplete = function(){
 
 DataManager.prototype.loadActivitiesByDate = function(){
 	this.timeline = new Timeline(this);
-	// console.log('init timeline : by date');
 	this.timeline.init();
 	this.onTimelineReady();
 }
@@ -458,7 +462,7 @@ DataManager.jsonToArrayElement = function(json){
 		this.instance[this.arrName].push(obj);		
 	} else {
 		this.instance.preAtividadesEsperadas --;
-		console.log([this.arrName + ': retorno vazio', json]);
+		console.log([this.arrName + ': retorno vazio (' + this.preSID + ')', json]);
 	}
 
 	this.instance.onJsonLoaded(this.arrName, this.preSID);

@@ -7,7 +7,8 @@ InterfaceManager.prototype.init = function(vars){
 	this.drawContents();
 	this.drawFooter();
 	this.updateScreen();
-	$(window).resize(this.updateScreen);
+	var context = this;
+	$(window).resize($.proxy(this.updateScreen, context));
 }
 
 InterfaceManager.prototype.drawHeader = function(){
@@ -88,8 +89,9 @@ InterfaceManager.prototype.drawPullDowns = function(){
 InterfaceManager.prototype.drawContents = function(){
 	//escreve o HTML básico
 	$('body').append("<div class='bg'></div>");
+	$('body').append("<div class='timeline'></div>");
+	$('body').append("<div class='timeline-now'></div>");
 	$('body').append("<div class='contents'></div>");
-	$('.contents').append("<div class='timeline'></div>");
 	$('.contents').append("<div class='activities'></div>");
 	
 	//define os destaques
@@ -106,9 +108,24 @@ InterfaceManager.prototype.drawContents = function(){
 	$('.bg').smartBackgroundImage(imgURL, 'bg');
 	
 	//desenha a timeline
-	
+	this.drawTimeline();
 	
 	//desenha as atividades
+	
+}
+
+InterfaceManager.prototype.drawTimeline = function(){
+	//cria o HTML básico
+	var timeline = this.dataManager.timeline.timeMarks;
+	for(var i in timeline){
+		var html = "<div class='line l" + i + "'><span><span class='bullet'>|</span>" + timeline[i].label.replace(/ /g, '&nbsp;') + "</span></div>";
+		$('.timeline').append(html);
+	}
+	//atualiza a tela
+	this.updateScreen();
+}
+
+InterfaceManager.prototype.resizeTimeline = function(){
 	
 }
 
@@ -174,16 +191,34 @@ InterfaceManager.prototype.updateScreen = function(){
 	var ct = $('.header').height(); // contents top
 	var ch = h - $('.header').height() - $('.footer').height(); // contents height
 	
+	//ajusta a estrutura principal da página
 	$('.bg').css('width', w);
 	$('.bg').css('height', h);
 	$('.contents').css('width', w);
 	$('.contents').css('height', ch);
 	$('.contents').css('top', ct);
-	// $('.contents .timeline').css('width', w);
-	// $('.contents .timeline').css('height', ch);
 	// $('.contents .activities').css('width', w);
 	// $('.contents .activities').css('height', ch);
 	$('.footer').css('width', w);
+	
+	//ajusta a altura das linhas da timeline
+	$('.line').css('height', h);
+	
+	//ajusta a posição x das timeMarks
+	var safeMargin = 30;
+	var timeline = this.dataManager.timeline.timeMarks;
+	for(var i in timeline){
+		//define
+		var str = '.line.l' + i;
+		var element = $(str);
+		var tw = Math.max(960, w);
+		var step = ((tw - (2*safeMargin))/timeline.length);
+		var position = Math.floor(safeMargin + i * step + (step/2));
+		//armazena
+		// timeline[i].position = position;
+		//aplica
+		element.css('left', position);
+	}
 }
 
 $.fn.smartBackgroundImage = function(url, callerID){
