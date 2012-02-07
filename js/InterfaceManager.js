@@ -6,6 +6,8 @@ InterfaceManager.prototype.init = function(vars){
 	this.drawHeader();
 	this.drawContents();
 	this.drawFooter();
+	this.updateScreen();
+	$(window).resize(this.updateScreen);
 }
 
 InterfaceManager.prototype.drawHeader = function(){
@@ -84,9 +86,80 @@ InterfaceManager.prototype.drawPullDowns = function(){
 }
 
 InterfaceManager.prototype.drawContents = function(){
+	//escreve o HTML básico
+	$('body').append("<div class='bg'></div>");
+	$('body').append("<div class='contents'></div>");
+	$('.contents').append("<div class='timeline'></div>");
+	$('.contents').append("<div class='activities'></div>");
+	
+	//seleciona um destaque
+	
+	//carrega o fundo
+	$('.bg').addClass('bgcover');
+	var imgName = 'cafesuplicy_1andre_vaca.jpg';
+	var imgURL = './img/content/' + encodeURI(imgName);
+	$('.bg').smartBackgroundImage(imgURL, 'bg');
+	// $('.bg').css('background-color', 'red');
+	
+	//desenha a timeline
+	
+	//desenha as atividades
+	
+	//atualiza info
 	
 }
 
 InterfaceManager.prototype.drawFooter = function(){
+	//escreve o HTML básico
+	$('body').append("<div class='footer'></div>");
+	$('.footer').append("<div class='content-info'></div>");
+	$('.footer').append("<div class='site-info'></div>");
 	
+	//preenche o site-info
+	$('.footer .site-info').html("<p><a href'#'>sobre</a> // <a href='#'>equipe</a> // <a href='#'>contato@calendariocultural.com.br</a> // <a href='#'>+55 (11) 9934.0987</a> // <a href='#'>home</a><img src='./img/interface/logo-h2r.png' alt='Logo h2r' /></p>");
+	
+	//preenche o content-info
+	
+}
+
+InterfaceManager.prototype.updateScreen = function(){
+	var w = $(window).width();
+	var h = $(window).height();
+	var ct = $('.header').height(); // contents top
+	var ch = h - $('.header').height() - $('.footer').height(); // contents height
+	
+	$('.bg').css('width', w);
+	$('.bg').css('height', h);
+	$('.contents').css('width', w);
+	$('.contents').css('height', ch);
+	$('.contents').css('top', ct);
+	// $('.contents .timeline').css('width', w);
+	// $('.contents .timeline').css('height', ch);
+	// $('.contents .activities').css('width', w);
+	// $('.contents .activities').css('height', ch);
+	$('.footer').css('width', w);
+}
+
+$.fn.smartBackgroundImage = function(url, callerID){
+	var t = this;
+	//create an img so the browser will download the image:
+	$('<img />')
+	.attr('src', url)
+	.load(function(){ //attach onload to set background-image
+		t.each(function(){
+			console.log(url + ' CARREGOU');
+			// if(callerID){
+			// 	switch(callerID){
+			// 		case 'bg':
+			// 			checkAndFadeIn(url);
+			// 		break;
+			// 		default:
+			// 			null
+			// 		break;
+			// 	}
+			// }
+			$(this).css('backgroundImage', 'url('+url+')' );
+		});
+	});
+	return this;
 }

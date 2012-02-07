@@ -63,8 +63,8 @@ DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 		case 'repescagem_' + preSID :
 			if(this['repescagensEsperadas_' + preSID] == this['repescagem_' + preSID].length){
 				console.log('chegaram todas as repescagens de ' + preSID);
-				var n = this['repescagensEsperadas_' + preSID];
-				this.totalDeRepescagensCarregadas ? this.totalDeRepescagensCarregadas += n : this.totalDeRepescagensCarregadas = n;
+				// var n = this['repescagensEsperadas_' + preSID];
+				this.totalDeRepescagensCarregadas ? this.totalDeRepescagensCarregadas ++ : this.totalDeRepescagensCarregadas = 1;
 				this.incluiDependencias(preSID);
 			}
 		break;
@@ -113,7 +113,7 @@ DataManager.prototype.incluiDependencias = function(s){
 			}
 		}
 	}
-	delete this['repescagem_' + s];
+	// delete this['repescagem_' + s];
 	this.organizaAtividadesEmGrupos(s);
 }
 
