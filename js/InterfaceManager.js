@@ -92,14 +92,18 @@ InterfaceManager.prototype.drawContents = function(){
 	$('.contents').append("<div class='timeline'></div>");
 	$('.contents').append("<div class='activities'></div>");
 	
+	//define os destaques
+	this.defineDestaques();
+	
 	//seleciona um destaque
+	this.sorteiaDestaque();
+	var destaque = this.dataManager.destaqueSelecionado;
 	
 	//carrega o fundo
 	$('.bg').addClass('bgcover');
-	var imgName = 'cafesuplicy_1andre_vaca.jpg';
-	var imgURL = './img/content/' + encodeURI(imgName);
+	var imgName = destaque.imagens ? './img/content/' + destaque.imagens.split('\n')[0] : './img/interface/default-bg.png';
+	var imgURL = encodeURI(imgName);
 	$('.bg').smartBackgroundImage(imgURL, 'bg');
-	// $('.bg').css('background-color', 'red');
 	
 	//desenha a timeline
 	
@@ -107,6 +111,45 @@ InterfaceManager.prototype.drawContents = function(){
 	
 	//atualiza info
 	
+}
+
+InterfaceManager.prototype.defineDestaques = function(){
+	var data = this.dataManager;
+	data.destaques = [];
+	
+	//procura destaques editoriais
+	for(var s in data.atividades){
+		for(var a in data.atividades[s]){
+			var obj = data.atividades[s][a];
+			if(obj.visual == 'g'){
+				data.destaques.push(obj);
+			}
+		}
+	}
+	
+	//se não tiver nenhum, procura por estrelas (todos os 5 estrelas, depois todos os 4, 3, 2, 1 e nenhuma). Inclui todos com a maior pontuação encontrada (todos os 3 estrela, se não tiver nenhum 5 ou 4, por exemplo).
+	if(data.destaques.length < 1){
+		var encontreiCandidato = false;
+		for(var e = 5; e >= 0; e--){
+			for(var s in data.atividades){
+				for(var a in data.atividades[s]){
+					var obj = data.atividades[s][a];
+					var nEstrelas = obj.estrelas ? obj.estrelas : 0;
+					if(nEstrelas >= e){
+						encontreiCandidato = true;
+						data.destaques.push(obj);
+					}
+				}
+			}
+			if(encontreiCandidato){ break }
+		}
+	}
+}
+
+InterfaceManager.prototype.sorteiaDestaque = function(){
+	var data = this.dataManager;
+	data.indexDestaqueSelecionado = Math.floor(Math.random() * data.destaques.length);
+	data.destaqueSelecionado = data.destaques[data.indexDestaqueSelecionado];
 }
 
 InterfaceManager.prototype.drawFooter = function(){
