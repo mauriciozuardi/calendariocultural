@@ -107,9 +107,8 @@ InterfaceManager.prototype.drawContents = function(){
 	
 	//desenha a timeline
 	
-	//desenha as atividades
 	
-	//atualiza info
+	//desenha as atividades
 	
 }
 
@@ -127,7 +126,8 @@ InterfaceManager.prototype.defineDestaques = function(){
 		}
 	}
 	
-	//se não tiver nenhum, procura por estrelas (todos os 5 estrelas, depois todos os 4, 3, 2, 1 e nenhuma). Inclui todos com a maior pontuação encontrada (todos os 3 estrela, se não tiver nenhum 5 ou 4, por exemplo).
+	//Se não tiver nenhum, procura por estrelas (todos os 5 estrelas, depois todos os 4, 3, 2, 1 e nenhuma).
+	//Inclui todos com a maior pontuação encontrada. Ex: todos os 3 estrela, se não tiver nenhum 5 ou 4.
 	if(data.destaques.length < 1){
 		var encontreiCandidato = false;
 		for(var e = 5; e >= 0; e--){
@@ -159,10 +159,13 @@ InterfaceManager.prototype.drawFooter = function(){
 	$('.footer').append("<div class='site-info'></div>");
 	
 	//preenche o site-info
+	// –DEIXAR DINAMICO–
+	// –TRATAR LINKS–
 	$('.footer .site-info').html("<p><a href'#'>sobre</a> // <a href='#'>equipe</a> // <a href='#'>contato@calendariocultural.com.br</a> // <a href='#'>+55 (11) 9934.0987</a> // <a href='#'>home</a><img src='./img/interface/logo-h2r.png' alt='Logo h2r' /></p>");
 	
 	//preenche o content-info
-	
+	var destaque = this.dataManager.destaqueSelecionado;
+	// –CONTINUAR–
 }
 
 InterfaceManager.prototype.updateScreen = function(){
