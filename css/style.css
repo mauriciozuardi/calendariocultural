@@ -90,12 +90,14 @@ body{
 }
 
 /* ====== ATIVIDADES ====== */
+.contents {
+	overflow-x:hidden;
+}
 .contents .activities{
 	min-width:960px;
 	position:absolute;
 	top:55px;
 	z-index:5;
-	overflow-x:hidden;
 }
 .event{
 	display:block;

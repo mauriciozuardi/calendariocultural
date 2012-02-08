@@ -100,6 +100,7 @@ InterfaceManager.prototype.drawContents = function(){
 	//seleciona um destaque
 	this.sorteiaDestaque();
 	var destaque = this.dataManager.destaqueSelecionado;
+	InterfaceManager.selectActivity(destaque);
 	
 	//carrega o fundo
 	$('.bg').addClass('bgcover');
@@ -137,7 +138,6 @@ InterfaceManager.prototype.drawActivities = function(){
 	for(var s in atividades){
 		for(var a in atividades[s]){
 			var obj = atividades[s][a];
-			obj.context = this;
 			sorted.push(obj);
 		}
 	}

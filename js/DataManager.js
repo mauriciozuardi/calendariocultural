@@ -162,6 +162,7 @@ DataManager.prototype.confereDependencias = function(s){
 }
 
 DataManager.prototype.trataValoresDasAtividades = function(s){
+	//trata a data
 	this.datasInvalidas ? null : this.datasInvalidas = {};
 	var todasValidas = true;
 	for(var i in this.atividades[s]){
@@ -178,6 +179,8 @@ DataManager.prototype.trataValoresDasAtividades = function(s){
 			this.atividades[s][i].datainicial = new Date();
 			this.atividades[s][i].datafinal	 = new Date(Date.now() + 1);
 		}
+		//anota o contexto
+		this.atividades[s][i].context = this.parent;
 	}
 	if(todasValidas){
 		delete this.datasInvalidas;
