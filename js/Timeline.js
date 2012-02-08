@@ -37,11 +37,21 @@ Timeline.prototype.autoLabel = function(){
 		var currentMonth = (mI + i)%12;
 		var currentYear = aI + Math.floor( (mI+i)/12 );
 		// var mostraAno = (i==0 || currentMonth == 0) ? " " + currentYear : ""; // <-- mostrava ano só quando era relevante. Helena vetou.
-		var mostraAno = " " + currentYear;
-		var timelineItem = {}
-		timelineItem.date = new Date(currentYear,currentMonth,1);
-		timelineItem.label = mesCurto[currentMonth] + mostraAno;
-		this.timeMarks.push(timelineItem);
+		if(nM <= 12){
+			//se o intervalo de meses cabe confortavelmente na tela média, mostra
+			var timelineItem = {}
+			timelineItem.date = new Date(currentYear,currentMonth,1);
+			timelineItem.label = mesCurto[currentMonth] + " " + currentYear;
+			this.timeMarks.push(timelineItem);
+		} else {
+			//senão, mostra só os anos
+			if(i==0 || currentMonth == 0){
+				var timelineItem = {}
+				timelineItem.label = currentYear.toString();
+				timelineItem.date = new Date(currentYear,0,1);
+				this.timeMarks.push(timelineItem);
+			}
+		}
 	}
 }
 
