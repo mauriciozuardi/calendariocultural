@@ -3,7 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
+<<<<<<< HEAD
 	<string>js/DataManager.js</string>
+=======
+	<string>js/PageManager.js</string>
+>>>>>>> dev.tmproj
 	<key>documents</key>
 	<array>
 		<dict>
@@ -97,16 +101,26 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
+<<<<<<< HEAD
 			<integer>348</integer>
+=======
+			<integer>23</integer>
+>>>>>>> dev.tmproj
 		</dict>
 		<key>js/InterfaceManager.js</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
+<<<<<<< HEAD
 				<integer>22</integer>
 				<key>line</key>
 				<integer>49</integer>
+=======
+				<integer>30</integer>
+				<key>line</key>
+				<integer>17</integer>
+>>>>>>> dev.tmproj
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
