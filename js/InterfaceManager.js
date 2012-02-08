@@ -121,6 +121,10 @@ InterfaceManager.prototype.drawTimeline = function(){
 		var html = "<div class='line l" + i + "'><span><span class='bullet'>|</span>" + timeline[i].label.replace(/ /g, '&nbsp;') + "</span></div>";
 		$('.timeline').append(html);
 	}
+	
+	//inclui a linha tracejada (now)
+	$('.timeline-now').html("<div class='line t'></div>");
+	
 	//atualiza a tela
 	this.updateScreen();
 }
@@ -215,9 +219,50 @@ InterfaceManager.prototype.updateScreen = function(){
 		var step = ((tw - (2*safeMargin))/timeline.length);
 		var position = Math.floor(safeMargin + i * step + (step/2));
 		//armazena
-		// timeline[i].position = position;
+		timeline[i].position = position;
 		//aplica
 		element.css('left', position);
+	}
+	
+	//ajusta a linha tracejada
+	var position = InterfaceManager.timeToPosition(Date.now(), this.dataManager.timeline.timeMarks);
+	$('.line.t').css('left', position);
+}
+
+InterfaceManager.timeToPosition = function(t, timeline){
+	if(t > timeline[timeline.length-1].date.getTime()){
+		//se t for maior que a última marca da timeline
+		return $(window).width() + 50;
+	} else if(t == timeline[timeline.length-1].date.getTime()){
+			//se t for igual a ultima marca
+			return timeline[timeline.length-1].position + 1;
+	} else if(t < timeline[0].date.getTime()){
+		//se t for menor que a primeira marca da timeline
+		return -50;
+	} else if(t == timeline[0].date.getTime()){
+			//se t for igual a primeira marca da timeline
+			return timeline[0].position + 1;
+	} else {
+		//t está entre alguma das marcas
+		//identifica o intervalo
+		var t0, t1, index;
+		for(var i=0; i < timeline.length-1; i++){
+			t0 = timeline[i].date.getTime();
+			t1 = timeline[i+1].date.getTime();
+			if(t >= t0 && t < t1){
+				index = i;
+				break;
+			}
+		}
+		//posiciona t
+		var x0 = timeline[index].position;
+		var x1 = timeline[index+1].position - 1;
+		var xRange = x1 - x0;
+		var timeRange = t1 - t0;
+		var t0a1 = (t-t0)/timeRange;
+		var ml = x0 + (xRange * t0a1);
+		//retorna
+		return Math.round(ml);
 	}
 }
 
