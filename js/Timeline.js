@@ -14,7 +14,7 @@ Timeline.prototype.autoLabel = function(){
 	// console.log('autoLabel');
 	//monta a timeline baseado nas atividades carregadas
 	var datas = this.defineActivitiesRange();
-	// console.log(datas);
+	console.log(['datas', datas]);
 	
 	var aI = datas.filhoMenor.datainicial.getFullYear();
 	var aF = datas.filhoMaior.datafinal.getFullYear();
@@ -52,6 +52,14 @@ Timeline.prototype.autoLabel = function(){
 				this.timeMarks.push(timelineItem);
 			}
 		}
+	}
+	
+	if(nM > 12){
+		//inclui o ano final
+		var timelineItem = {}
+		timelineItem.label = (aF+1).toString();
+		timelineItem.date = new Date((aF+1),0,1);
+		this.timeMarks.push(timelineItem);	
 	}
 }
 

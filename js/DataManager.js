@@ -185,6 +185,8 @@ DataManager.prototype.trataValoresDasAtividades = function(s){
 	if(todasValidas){
 		delete this.datasInvalidas;
 	}
+	//anota o contexto
+	this.context = this.parent;
 }
 
 DataManager.prototype.organizaAtividadesEmGrupos = function(s){

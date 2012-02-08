@@ -1,11 +1,13 @@
 function InterfaceManager(){
-	
+	this.bgLoadControl = {}
+	this.bgLoadControl.actualURL = "";
+	this.bgLoadControl.URLtoShow = "";
 }
 
 InterfaceManager.prototype.init = function(vars){
 	this.drawHeader();
-	this.drawContents();
 	this.drawFooter();
+	this.drawContents();
 	this.updateScreen();
 	var context = this;
 	$(window).resize($.proxy(this.updateScreen, context));
@@ -93,20 +95,10 @@ InterfaceManager.prototype.drawContents = function(){
 	$('body').append("<div class='timeline-now'></div>");
 	$('body').append("<div class='contents'></div>");
 	$('.contents').append("<div class='activities'></div>");
+	$('.bg').addClass('bgcover');
 	
 	//define os destaques
 	this.defineDestaques();
-	
-	//seleciona um destaque
-	this.sorteiaDestaque();
-	var destaque = this.dataManager.destaqueSelecionado;
-	InterfaceManager.selectActivity(destaque);
-	
-	//carrega o fundo
-	$('.bg').addClass('bgcover');
-	var imgName = destaque.imagens ? './img/content/' + destaque.imagens.split('\n')[0] : './img/interface/default-bg.png';
-	var imgURL = encodeURI(imgName);
-	$('.bg').smartBackgroundImage(imgURL, 'bg');
 	
 	//desenha a timeline
 	this.drawTimeline();
@@ -114,6 +106,9 @@ InterfaceManager.prototype.drawContents = function(){
 	//desenha as atividades
 	this.drawActivities();
 	
+	//seleciona um destaque
+	this.sorteiaDestaque();
+	InterfaceManager.selectActivity(this.dataManager.destaqueSelecionado);
 }
 
 InterfaceManager.prototype.drawTimeline = function(){
@@ -160,8 +155,8 @@ InterfaceManager.prototype.drawActivities = function(){
 			break;
 		}
 	} else if(this.dataManager.query){
-		//em páginas de busca, usar ordem inversa
-		sorted.sort(InterfaceManager.ordemDataInicialAscendente);
+		//em páginas de busca, usar ordem normal
+		sorted.sort(InterfaceManager.ordemDataInicialDescendente);
 	} else {
 		//senão, default (data inicial)
 		sorted.sort(InterfaceManager.ordemDataInicialDescendente);
@@ -176,11 +171,11 @@ InterfaceManager.prototype.drawActivities = function(){
 		var past = (a.datafinal.getTime() < Date.now() && this.dataManager.currentSite.passadorelevante == '0') ? " past" : "";
 		
 		//cria o DIV com id com a bolinha, range e label dentro
-		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range'><span data-id='" + id + "' class='dot" + past + "'></span></span><span class='label'>" + labelTxt + "<img src='./img/interface/nano-balloon.gif' class='nano' /></span></div>";
+		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range'><span data-id='" + id + "' class='dot" + past + "'></span></span><span class='label" + past + "'>" + labelTxt + "<img src='./img/interface/nano-balloon.gif' class='nano' /></span></div>";
 		$('.activities').append(html);
 		
 		//aplica as classes baseado no status
-		var p = $.proxy(InterfaceManager.updateHTMLClass, a); p(this.dataManager.timeline.timeMarks);
+		var p = $.proxy(InterfaceManager.updateHTMLClass, a); p(this.dataManager.timeline.timeMarks, true);
 		
 		//aplica os cliques
 		var id = a.idSiteOriginal + '-' + a.id;
@@ -200,6 +195,12 @@ InterfaceManager.prototype.drawActivities = function(){
 	});
 }
 
+InterfaceManager.labelClicked = function(event){
+	InterfaceManager.selectActivity(this);
+	// fechaInfo();
+	// abreBalloon();
+}
+
 InterfaceManager.dotOrRangeClicked = function(event){
 	//define o elemento do HTML
 	var e = $(event.target);
@@ -216,12 +217,12 @@ InterfaceManager.dotOrRangeClicked = function(event){
 
 InterfaceManager.dotClicked = function(e, atividade){
 	InterfaceManager.selectActivity(atividade);
-	// mostraInfo();
+	InterfaceManager.mostraInfo();
 }
 
 InterfaceManager.rangeClicked = function(e, atividade){
 	InterfaceManager.selectActivity(atividade);
-	// mostraInfo();
+	InterfaceManager.mostraInfo();
 }
 
 InterfaceManager.selectActivity = function(atividade){
@@ -246,12 +247,12 @@ InterfaceManager.selectActivity = function(atividade){
 			}
 			//atualiza o visual
 			var p = $.proxy(InterfaceManager.updateHTMLClass, obj);
-			p(obj.context.dataManager.timeline.timeMarks);
+			p(obj.context.dataManager.timeline.timeMarks, false);
 		}
 	}
 }
 
-InterfaceManager.updateHTMLClass = function(timeline){
+InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
 	var id = this.idComposto;
 	var div = $('div.' + id);
 	var dot = $('div.' + id + ' .dot');
@@ -274,7 +275,7 @@ InterfaceManager.updateHTMLClass = function(timeline){
 			if(dot.hasClass('big'))					dot.removeClass('big');
 			if(!range.hasClass('mini'))			range.addClass('mini');
 			if(!label.hasClass('mini'))			label.addClass('mini');
-			// mudaFundo(this.id);
+			leaveBg ? null : InterfaceManager.mudaFundo(this);
 		break;
 		
 		//grande
@@ -291,17 +292,27 @@ InterfaceManager.updateHTMLClass = function(timeline){
 			if(!dot.hasClass('big'))				dot.addClass('big');
 			if(range.hasClass('mini'))			range.removeClass('mini');
 			if(label.hasClass('mini'))			label.removeClass('mini');
-			// mudaFundo(this.id);
+			leaveBg ? null : InterfaceManager.mudaFundo(this);
 		break;
 	}
 	
 	//posiciona
-	var t = Date.now();
-	var t0 = this.datainicial.getTime();
-	var t1 = this.datafinal.getTime();
+	InterfaceManager.posicionaAtividade(this, timeline);
+}
+
+InterfaceManager.posicionaAtividade = function(a, timeline){
+	var id = a.idComposto;
+	var div = $('div.' + id);
+	var dot = $('div.' + id + ' .dot');
+	var range = $('div.' + id + ' .range');
+	var label = $('div.' + id + ' .label');
 	
-	var COMP_DOT_BIG = 5 - dot.outerWidth(false)/2;
-	var COMP_DOT = 1;
+	var t = Date.now();
+	var t0 = a.datainicial.getTime();
+	var t1 = a.datafinal.getTime();
+	
+	var COMP_DOT_BIG = -12;
+ 	var COMP_DOT = -4;
 	var FINE_TUNING = dot.hasClass('big') ? COMP_DOT_BIG : COMP_DOT;
 	
 	// //posiciona o começo do evento
@@ -325,6 +336,73 @@ InterfaceManager.updateHTMLClass = function(timeline){
 	var ml = parseInt(dot.css('margin-left')) + dot.outerWidth(false) + 7;
 	//aplica
 	label.css('margin-left', ml);
+}
+
+InterfaceManager.mudaFundo = function(a){
+	//MUDA O BG
+	var imgName = a.imagens ? './img/content/' + a.imagens.split('\n')[0] : './img/interface/default-bg.png';
+	var imgURL = encodeURI(imgName);
+	a.context.carregaBg(imgURL);
+
+	//MUDA O NOME E O TEXTO
+	var nameParts = a.nome ? a.nome.split(' // ') : ['sem nome'];
+	var sinopse = a.sobre ? InterfaceManager.autoSinopse(a.sobre) : '-';
+	var credito = a.credito ? a.credito : 'sem crédito';
+	var remendo = "";
+	var html = "<h1>" + nameParts[0];
+	if(nameParts.length > 1){
+		html += "<em> // " + nameParts[1] + "</em>";
+		remendo = "style='opacity:.6'";
+	}
+	html += "</h1>";
+	html += "<image class='icon' src='./img/interface/micro-balloon.png'" + remendo + "/>"
+	html += "<image class='fechar' src='./img/interface/fechar.png'" + remendo + "/>"
+	html += "<p>" + sinopse + "</p>";
+	html += "<h4>" + credito + "</h4>";
+	$('.content-info').html(html);
+	
+	//ativa os cliques da area de info
+	$('.content-info h1').click(InterfaceManager.infoClicked);
+	$('.content-info .icon').click(InterfaceManager.infoClicked);
+	$('.content-info p').click(InterfaceManager.infoClicked);
+	$('.content-info .fechar').click(InterfaceManager.fechaInfo);
+}
+InterfaceManager.infoClicked = function(){
+	InterfaceManager.fechaInfo();
+	// abreBalloon();
+}
+
+InterfaceManager.fechaInfo = function(){
+	$('.content-info').addClass('closed');
+	im.updateScreen();
+}
+
+InterfaceManager.mostraInfo = function(){
+	$('.content-info').removeClass('closed');
+	im.updateScreen();
+}
+
+InterfaceManager.autoSinopse = function(bigText){
+	//cropa o texto tentando não cortar frases no meio
+	var PHRASE_SNAP_FACTOR = .2;
+	var IDEAL_SINOPSE_CHAR_COUNT = 425;
+	
+	if(bigText.length < IDEAL_SINOPSE_CHAR_COUNT * (1 + PHRASE_SNAP_FACTOR)){
+		return bigText;
+	} else {
+		var frases = bigText.split('. ');
+		var novoTexto = "";
+		var i = 0;
+		//aumenta até estar dentro da faixa mínima
+		while (novoTexto.length < IDEAL_SINOPSE_CHAR_COUNT * (1 - PHRASE_SNAP_FACTOR)){
+			novoTexto += frases[i] + ". "; i++;
+		}
+		//confere se não passou da faixa máxima
+		if(novoTexto.length > IDEAL_SINOPSE_CHAR_COUNT * (1 + PHRASE_SNAP_FACTOR)){
+			novoTexto = novoTexto.substr(0, IDEAL_SINOPSE_CHAR_COUNT) + "...";
+		}
+		return novoTexto;
+	}
 }
 
 InterfaceManager.ordemDataInicialDescendente = function(a,b){
@@ -400,10 +478,11 @@ InterfaceManager.prototype.drawFooter = function(){
 }
 
 InterfaceManager.prototype.updateScreen = function(){
+	var MARGIN_TOP = 55;
 	var w = $(window).width();
 	var h = $(window).height();
-	var ct = $('.header').height(); // contents top
-	var ch = h - $('.header').height() - $('.footer').height(); // contents height
+	var ct = $('.header').height() + MARGIN_TOP; // contents top
+	var ch = h - $('.header').height() - $('.footer').height() - MARGIN_TOP; // contents height
 	
 	//ajusta a estrutura principal da página
 	$('.bg').css('width', w);
@@ -437,6 +516,15 @@ InterfaceManager.prototype.updateScreen = function(){
 	//ajusta a linha tracejada
 	var position = InterfaceManager.timeToPosition(Date.now(), this.dataManager.timeline.timeMarks);
 	$('.line.t').css('left', position);
+	
+	//reposiciona as atividades
+	var atividades = this.dataManager.atividades;
+	for(var s in atividades){
+		for(var a in atividades[s]){
+			var obj = atividades[s][a];
+			InterfaceManager.posicionaAtividade(obj, timeline);
+		}
+	}
 }
 
 InterfaceManager.timeToPosition = function(t, timeline){
@@ -476,6 +564,26 @@ InterfaceManager.timeToPosition = function(t, timeline){
 	}
 }
 
+InterfaceManager.prototype.checkAndFadeIn = function(loadedURL){
+	if(loadedURL == this.bgLoadControl.URLtoShow){
+		//mostra
+		$('.bg').fadeIn(500, function() {
+		});
+		this.bgLoadControl.actualURL = loadedURL;
+	} else {
+		//espera pq a outra já deve estar sendo carregada, usuário clicou mais rápido que o loading
+	}
+}
+
+InterfaceManager.prototype.carregaBg = function(imgURL){
+	if(this.bgLoadControl.actualURL != imgURL){
+		this.bgLoadControl.URLtoShow = imgURL;
+		$('.bg').fadeOut(500, function() {
+			$('.bg').smartBackgroundImage(imgURL, 'bg');
+		});
+	}
+}
+
 $.fn.smartBackgroundImage = function(url, callerID){
 	var t = this;
 	//create an img so the browser will download the image:
@@ -483,17 +591,16 @@ $.fn.smartBackgroundImage = function(url, callerID){
 	.attr('src', url)
 	.load(function(){ //attach onload to set background-image
 		t.each(function(){
-			console.log(url + ' CARREGOU');
-			// if(callerID){
-			// 	switch(callerID){
-			// 		case 'bg':
-			// 			checkAndFadeIn(url);
-			// 		break;
-			// 		default:
-			// 			null
-			// 		break;
-			// 	}
-			// }
+			if(callerID){
+				switch(callerID){
+					case 'bg':
+						im.checkAndFadeIn(url); // apelei, precisei usar o nome da instancia do InterfaceManager (im)
+					break;
+					default:
+						null
+					break;
+				}
+			}
 			$(this).css('backgroundImage', 'url('+url+')' );
 		});
 	});
