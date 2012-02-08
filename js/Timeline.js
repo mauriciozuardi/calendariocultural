@@ -14,7 +14,7 @@ Timeline.prototype.autoLabel = function(){
 	// console.log('autoLabel');
 	//monta a timeline baseado nas atividades carregadas
 	var datas = this.defineActivitiesRange();
-	console.log(['datas', datas]);
+	// console.log(['datas', datas]);
 	
 	var aI = datas.filhoMenor.datainicial.getFullYear();
 	var aF = datas.filhoMaior.datafinal.getFullYear();

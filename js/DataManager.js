@@ -17,7 +17,8 @@ DataManager.prototype.wrapUrlVars = function(vars){
 }
 
 DataManager.prototype.init = function(){
-	this.sId = (this.sId == '') ? 's1' : this.sId;
+	this.sId = (this.sId == '') ? 's1' : this.sId;	
+	this.aguardandoConferirDependencias = true;
 	this.loadBasicInfo();
 }
 
@@ -34,6 +35,8 @@ DataManager.prototype.loadBasicInfo = function(mainKey){
 DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 	//acompanha e direciona o carregamento das informações
 	this.loadedRequests ++;
+	preSID ? console.log('> loaded ' + loadedVarName + '-' + preSID) : console.log('> loaded ' + loadedVarName);
+	
 	switch(loadedVarName){
 		case 'sites':
 			this.currentSite = this.sites[this.sId];
@@ -54,6 +57,7 @@ DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 		break;
 		case 'preAtividades':
 			if(this.preAtividadesEsperadas == this.preAtividades.length){
+				// this.aguardandoConferirDependencias = true;
 				this.organizaPreAtividades();
 			}
 			break;
@@ -74,6 +78,9 @@ DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 				// delete this.pds;
 				// delete this.pulldownsEsperados;
 			}
+		break;
+		case 'pessoas':
+			this.checkDataComplete();
 		break;
 		default:
 		break;
@@ -118,6 +125,7 @@ DataManager.prototype.incluiDependencias = function(s){
 }
 
 DataManager.prototype.confereDependencias = function(s){
+	console.log('conferindo dependencias')
 	if(s){
 		this.totalDeRepescagensEsperadas ? null : this.totalDeRepescagensEsperadas = 0;
 		this.sitesSemDependencias ? null : this.sitesSemDependencias = 0;
@@ -152,10 +160,20 @@ DataManager.prototype.confereDependencias = function(s){
 		} else {
 			this.organizaAtividadesEmGrupos(s);
 			this.sitesSemDependencias ++;
-			this.confereDependenciasGeral();
 			console.log(s + ': sem dependencias');
-			this.checkDataComplete();
-		}		
+		}
+		
+		//checa o carregamento geral
+		this.confereDependenciasGeral() ? this.aguardandoConferirDependencias = false : null;
+		
+		// var checkGeral = this.confereDependenciasGeral();
+		// if(checkGeral){
+		// 	console.log('checkGeral OK!');
+		// 	this.aguardandoConferirDependencias = false;
+		// } else {
+		// 	console.log('checkGeral falhou');
+		// }
+		this.checkDataComplete();
 	} else {
 		console.log('ERRO: confereDependencias(' + s + ') undefined');
 	}
@@ -166,21 +184,25 @@ DataManager.prototype.trataValoresDasAtividades = function(s){
 	this.datasInvalidas ? null : this.datasInvalidas = {};
 	var todasValidas = true;
 	for(var i in this.atividades[s]){
+		var a = this.atividades[s][i];
 		//tenta transformar em data
-		this.atividades[s][i].datainicial = new Date(this.atividades[s][i].datainicial);
-		this.atividades[s][i].datafinal	 = new Date(this.atividades[s][i].datafinal);
+		a.datainicial = new Date(a.datainicial);
+		a.datafinal	 = new Date(a.datafinal);
 		//confere se alguma é inválida
 		var inv = 'Invalid Date';
-		if(this.atividades[s][i].datainicial == inv || this.atividades[s][i].datafinal == inv){
+		if(a.datainicial == inv || a.datafinal == inv){
 			//marca na lista negra
 			todasValidas = false;
-			this.datasInvalidas[s + '-' + this.atividades[s][i].id] = this.atividades[s][i];
-			//cria datas ok para não fuder o site
-			this.atividades[s][i].datainicial = new Date();
-			this.atividades[s][i].datafinal	 = new Date(Date.now() + 1);
+			this.datasInvalidas[s + '-' + a.id] = a;
+			//cria datas fake para não fuder o site
+			a.datainicial = new Date();
+			a.datafinal	 = new Date(Date.now() + 1);
 		}
 		//anota o contexto
-		this.atividades[s][i].context = this.parent;
+		a.context = this.parent;
+		
+		//vê se já passou
+		a.isPast = (a.datafinal.getTime() < Date.now() && this.currentSite.passadorelevante == '0') ? true : false;
 	}
 	if(todasValidas){
 		delete this.datasInvalidas;
@@ -222,27 +244,41 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 	for(var i in this.pais[s]){
 		var a = this.atividades[s][this.pais[s][i]];
 		Timeline.defineParentRange(a);
+		//vê se já passou
+		a.isPast = (a.datafinal.getTime() < Date.now() && this.currentSite.passadorelevante == '0') ? true : false;
 	}
 	
-	this.confereDependenciasGeral();
+	//checa o carregamento geral
+	this.confereDependenciasGeral() ? this.aguardandoConferirDependencias = false : null;
+	this.checkDataComplete();
+	// this.confereDependenciasGeral();
 }
 
 DataManager.prototype.confereDependenciasGeral = function(){
 	// SE O TOTAL DE REPESCAGENS CHEGOU ..
 	this.nSitesParaChecar = this.currentSite.ondebuscar ? this.currentSite.ondebuscar.split(', ').length : this.nSites;
-	this.temDependencias = (this.sitesSemDependencias != this.nSitesParaChecar);
+	// this.temDependencias = (this.sitesSemDependencias != this.nSitesParaChecar);
+	this.temDependencias = (this.sitesComDependencias > 0 || this.sitesSemDependencias != this.nSitesParaChecar);
 	this.carregouTodasDependencias = (this.totalDeRepescagensCarregadas == this.totalDeRepescagensEsperadas);
 	
 	if(!this.temDependencias || (this.temDependencias && this.carregouTodasDependencias)){
-		//se precisou esperar carregar as coisas da busca
-		if(this.query){
-			this.timeline = new Timeline(this);
-			this.timeline.init();
-			this.onTimelineReady();
-		} else {
-			this.checkDataComplete();
-		}
-		// console.log('\\o/');
+		console.log('PASSOU no check geral.');
+		return true;
+		// //se precisou esperar carregar as coisas da busca
+		// if(this.query){
+		// 	this.timeline = new Timeline(this);
+		// 	this.timeline.init();
+		// 	this.onTimelineReady();
+		// } else {
+		// 	this.checkDataComplete();
+		// }
+		// // console.log('\\o/');
+	} else {
+		var problem = "";
+		problem += this.temDependencias ? " tem dependencias" : "";
+		problem += (this.temDependencias && this.carregouTodasDependencias) ? "" : " não carregou todas as dependencias"
+		console.log('NÃO passou no check geral. Problema:' + problem);
+		return false;
 	}
 }
 
@@ -380,14 +416,37 @@ DataManager.prototype.onTimelineReady = function(){
 }
 
 DataManager.prototype.checkDataComplete = function(){
-	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && this.timeline){
+	console.log('checking data ..');
+	
+	//checa o carregamento geral
+	// this.confereDependenciasGeral() ? this.aguardandoConferirDependencias = false : null;
+	
+	//checa tudo
+	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && this.timeline && !this.aguardandoConferirDependencias){
+		console.log('complete with timeline');
 		this.completedBefore = true;
 		this.onDataComplete();
 	} else if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && !this.timeline){
+		console.log('ALMOST complete. Creating timeline.');
 		this.timeline = new Timeline(this);
 		this.timeline.init();
-		this.completedBefore = true;
-		this.onDataComplete();
+		//checa o carregamento geral
+		this.confereDependenciasGeral() ? this.aguardandoConferirDependencias = false : null;
+		this.checkDataComplete();
+		// this.completedBefore = true;
+		// this.onDataComplete();
+	} else {
+		var whatsMissing = "";
+		whatsMissing += this.atividades ? "" : " atividades";
+		whatsMissing += this.sites ? "" : " sites";
+		whatsMissing += this.pessoas ? "" : " pessoas";
+		whatsMissing += this.espacos ? "" : " espacos";
+		whatsMissing += this.pulldowns ? "" : " pulldowns";
+		whatsMissing += this.totalRequests == this.loadedRequests ? "" : " requests";
+		whatsMissing += !this.completedBefore ? "" : " alreadyCompleted";
+		whatsMissing += this.timeline ? "" : " timeline";
+		whatsMissing += !this.aguardandoConferirDependencias ? "" : " aguardandoConferirDependencias";
+		console.log('NOT complete. Missing:' + whatsMissing);
 	}
 }
 
@@ -395,7 +454,7 @@ DataManager.prototype.onDataComplete = function(){
 	this.parent.dataManager = this;
 	this.parent.init();
 	this.query ? console.log(['Init done. QUERY.', this]) : console.log(['Init done.', this]);
-	console.log(['Atividades', this.atividades]);
+	// console.log(['Atividades', this.atividades]);
 }
 
 DataManager.prototype.loadActivitiesByDate = function(){

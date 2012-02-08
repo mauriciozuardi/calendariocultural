@@ -100,15 +100,15 @@ InterfaceManager.prototype.drawContents = function(){
 	//define os destaques
 	this.defineDestaques();
 	
+	//seleciona um destaque
+	this.sorteiaDestaque();
+	InterfaceManager.selectActivity(this.dataManager.destaqueSelecionado);
+	
 	//desenha a timeline
 	this.drawTimeline();
 	
 	//desenha as atividades
 	this.drawActivities();
-	
-	//seleciona um destaque
-	this.sorteiaDestaque();
-	InterfaceManager.selectActivity(this.dataManager.destaqueSelecionado);
 }
 
 InterfaceManager.prototype.drawTimeline = function(){
@@ -168,7 +168,7 @@ InterfaceManager.prototype.drawActivities = function(){
 		a.idComposto = a.idSiteOriginal + '-' + a.id;
 		var id = a.idComposto;
 		var labelTxt = a.nome;
-		var past = (a.datafinal.getTime() < Date.now() && this.dataManager.currentSite.passadorelevante == '0') ? " past" : "";
+		var past = a.isPast ? ' past' : '';
 		
 		//cria o DIV com id com a bolinha, range e label dentro
 		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range'><span data-id='" + id + "' class='dot" + past + "'></span></span><span class='label" + past + "'>" + labelTxt + "<img src='./img/interface/nano-balloon.gif' class='nano' /></span></div>";
@@ -425,16 +425,31 @@ InterfaceManager.prototype.defineDestaques = function(){
 	var data = this.dataManager;
 	data.destaques = [];
 	
+	//procura os destaques que não estão no passado
+	this.procuraDestaques();
+	
+	//se não encontrar, pega uns velhos mesmo ..
+	if(data.destaques.length < 1){
+		this.procuraDestaques(true);
+	}
+}
+
+InterfaceManager.prototype.procuraDestaques = function(incluirPassado){
+	var data = this.dataManager;
+	incluirPassado = incluirPassado ? incluirPassado : false;
+	
 	//procura destaques editoriais
 	for(var s in data.atividades){
 		for(var a in data.atividades[s]){
 			var obj = data.atividades[s][a];
-			if(obj.visual == 'g'){
+			if(!incluirPassado && !obj.isPast && obj.visual == 'g'){
+				data.destaques.push(obj);
+			} else if(obj.visual == 'g' && incluirPassado){
 				data.destaques.push(obj);
 			}
 		}
 	}
-	
+
 	//Se não tiver nenhum, procura por estrelas (todos os 5 estrelas, depois todos os 4, 3, 2, 1 e nenhuma).
 	//Inclui todos com a maior pontuação encontrada. Ex: todos os 3 estrela, se não tiver nenhum 5 ou 4.
 	if(data.destaques.length < 1){
@@ -444,7 +459,10 @@ InterfaceManager.prototype.defineDestaques = function(){
 				for(var a in data.atividades[s]){
 					var obj = data.atividades[s][a];
 					var nEstrelas = obj.estrelas ? obj.estrelas : 0;
-					if(nEstrelas >= e){
+					if(!incluirPassado && !obj.isPast && nEstrelas >= e){
+						encontreiCandidato = true;
+						data.destaques.push(obj);
+					} else if(nEstrelas >= e && incluirPassado){
 						encontreiCandidato = true;
 						data.destaques.push(obj);
 					}
