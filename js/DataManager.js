@@ -140,15 +140,19 @@ DataManager.prototype.incluiDependencias = function(s){
 }
 
 DataManager.prototype.confereDependencias = function(s){
-	console.log('conferindo dependencias ' + s);
+	//DEBUG
+	var nPreAtividades = this.preAtividades ? this.preAtividades.length : '?';
+	console.log(['conferindo dependencias ' + s + '. Pré-Atividades:', nPreAtividades]);
+	
 	if(s){
 		this.totalDeRepescagensEsperadas ? null : this.totalDeRepescagensEsperadas = 0;
 		this.sitesSemDependencias ? null : this.sitesSemDependencias = 0;
 		this.sitesComDependencias ? null : this.sitesComDependencias = 0;
 	
 		//varre as atividades procurando se alguma tem parent
-		this.pais = {};
-		this.pais[s] = [];
+		this.pais ? null : this.pais = {};
+		this.pais[s] ? console.log('OPA! Já existe ' + s) : this.pais[s] = [];
+		console.log('criei this.pais.' + s);
 		for(var i in this.atividades[s]){
 			var a = this.atividades[s][i];
 			if(a.parent){
@@ -268,11 +272,11 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 	
 	//DEBUG
 	var nPais = this.pais[s] ? this.pais[s].length : '*';
-	console.log('ORGANIZEI ' + s.toUpperCase() + ' (' + nPais + '):')
-	for(var i in this.atividades[s]){
-		console.log(this.atividades[s][i].id);
-	}
-	console.log('---');
+	console.log(['ORGANIZEI ' + s.toUpperCase() + ' (' + nPais + '):', this.pais[s]])
+	// for(var i in this.atividades[s]){
+	// 	console.log(this.atividades[s][i].id);
+	// }
+	// console.log('---');
 	
 	this.nSitesOrganizados ++;
 	
@@ -284,8 +288,12 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 
 DataManager.prototype.confereDependenciasGeral = function(){
 	// SE O TOTAL DE REPESCAGENS CHEGOU ..
-	this.nSitesParaChecar = this.currentSite.ondebuscar ? this.currentSite.ondebuscar.split(', ').length : this.nSites;
-	this.nSitesParaChecar -= this.nSitesParaDescontar ? this.nSitesParaDescontar : 0;
+	if(this.query){
+		this.nSitesParaChecar = this.currentSite.ondebuscar ? this.currentSite.ondebuscar.split(', ').length : this.nSites;
+		this.nSitesParaChecar -= this.nSitesParaDescontar ? this.nSitesParaDescontar : 0;		
+	} else {
+		this.nSitesParaChecar = 1;
+	}
 	// this.temDependencias = (this.sitesSemDependencias != this.nSitesParaChecar);
 	this.temDependencias = (this.sitesComDependencias > 0 || this.sitesSemDependencias != this.nSitesParaChecar);
 	this.carregouTodasDependencias = (this.totalDeRepescagensCarregadas == this.totalDeRepescagensEsperadas);
@@ -438,8 +446,8 @@ DataManager.prototype.onTimelineReady = function(){
 		url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json' + dateQuery;
 		url = encodeURI(url);
 		// this.loadJsonToVar(url, 'atividades');
-		this.preAtividades = [];
-		this.preAtividadesEsperadas = 1;
+		this.preAtividades ? null : this.preAtividades = [];
+		this.preAtividadesEsperadas ? null : this.preAtividadesEsperadas = 1;
 		this.addJsonToArray(url, 'preAtividades', this.currentSite.id);
 	}
 }
@@ -491,10 +499,13 @@ DataManager.prototype.loadActivitiesByDate = function(){
 }
 
 DataManager.prototype.loadQueryActivities = function(){
-	this.preAtividades = [];
-	this.preAtividadesEsperadas = 0;
+	this.preAtividades ? null : this.preAtividades = [];
+	this.preAtividadesEsperadas ? null : this.preAtividadesEsperadas = 0;
+	// this.preAtividades = [];
+	// this.preAtividadesEsperadas = 0;
 	if(this.currentSite.ondebuscar){
 		var sites = this.currentSite.ondebuscar.split(', ');
+		// console.log(['sites', sites]);
 		for (var i in sites){
 			console.log('Alguns. Chamando ' + sites[i]);
 			url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[sites[i]].key + '/2/public/basic?alt=json&q=' + this.query;
