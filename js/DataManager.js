@@ -160,11 +160,13 @@ DataManager.prototype.confereDependencias = function(s){
 		} else {
 			this.organizaAtividadesEmGrupos(s);
 			this.sitesSemDependencias ++;
+			if(this.sitesSemDependencias + this.sitesComDependencias == this.nSitesParaChecar && !this.totalDeRepescagensCarregadas){
+				this.totalDeRepescagensCarregadas = 0;
+			}
 			console.log(s + ': sem dependencias');
-		}
-		
-		//checa o carregamento geral
-		this.confereDependenciasGeral() ? this.aguardandoConferirDependencias = false : null;
+			//checa o carregamento geral
+			this.confereDependenciasGeral() ? this.aguardandoConferirDependencias = false : null;
+		}		
 		
 		// var checkGeral = this.confereDependenciasGeral();
 		// if(checkGeral){
@@ -257,6 +259,7 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 DataManager.prototype.confereDependenciasGeral = function(){
 	// SE O TOTAL DE REPESCAGENS CHEGOU ..
 	this.nSitesParaChecar = this.currentSite.ondebuscar ? this.currentSite.ondebuscar.split(', ').length : this.nSites;
+	this.nSitesParaChecar -= this.nSitesParaDescontar ? this.nSitesParaDescontar : 0;
 	// this.temDependencias = (this.sitesSemDependencias != this.nSitesParaChecar);
 	this.temDependencias = (this.sitesComDependencias > 0 || this.sitesSemDependencias != this.nSitesParaChecar);
 	this.carregouTodasDependencias = (this.totalDeRepescagensCarregadas == this.totalDeRepescagensEsperadas);
@@ -417,10 +420,7 @@ DataManager.prototype.onTimelineReady = function(){
 
 DataManager.prototype.checkDataComplete = function(){
 	console.log('checking data ..');
-	
-	//checa o carregamento geral
-	// this.confereDependenciasGeral() ? this.aguardandoConferirDependencias = false : null;
-	
+		
 	//checa tudo
 	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && this.timeline && !this.aguardandoConferirDependencias){
 		console.log('complete with timeline');
@@ -522,10 +522,10 @@ DataManager.jsonToArrayElement = function(json){
 	
 	if(objLength > 0){
 		this.instance.incluiSiteDeOrigem(obj, this.preSID);
-		// this.arrName.substr(0,11) == 'repescagem_' ? console.log([this.arrName, this]) : null;
 		this.instance[this.arrName].push(obj);		
 	} else {
 		this.instance.preAtividadesEsperadas --;
+		this.instance.nSitesParaDescontar = this.instance.nSitesParaDescontar ? this.instance.nSitesParaDescontar + 1 : 1;
 		console.log([this.arrName + ': retorno vazio (' + this.preSID + ')', json]);
 	}
 

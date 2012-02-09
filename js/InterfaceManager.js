@@ -258,7 +258,6 @@ InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
 	var dot = $('div.' + id + ' .dot');
 	var range = $('div.' + id + ' .range');
 	var label = $('div.' + id + ' .label');
-	// var ml = 0;
 	
 	switch (this.visual){
 		//pequeno
@@ -334,6 +333,8 @@ InterfaceManager.posicionaAtividade = function(a, timeline){
 	
 	//posiciona o label
 	var ml = parseInt(dot.css('margin-left')) + dot.outerWidth(false) + 7;
+	var invertLabel = (Date.now() > a.datainicial.getTime() + (a.datafinal.getTime() - a.datainicial.getTime())/2) && !a.isPast ? true : false;
+	ml -= invertLabel ? label.outerWidth(false) + dot.outerWidth(false) : 0;
 	//aplica
 	label.css('margin-left', ml);
 }
@@ -548,6 +549,7 @@ InterfaceManager.prototype.updateScreen = function(){
 InterfaceManager.timeToPosition = function(t, timeline){
 	if(t > timeline[timeline.length-1].date.getTime()){
 		//se t for maior que a última marca da timeline
+		// console.log(t + ' : ' + timeline[timeline.length-1].date.getTime() + ' (' + timeline[timeline.length-1].date + ')')
 		return $(window).width() + 50;
 	} else if(t == timeline[timeline.length-1].date.getTime()){
 			//se t for igual a ultima marca
