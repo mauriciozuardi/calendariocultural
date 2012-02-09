@@ -5,3 +5,4 @@ RewriteEngine on
 # RewriteRule ^cafesuplicy/(.+)/?$ index.php?s=s2&q=$1 [NC,L]
 # RewriteRule ^cafesuplicy/(.+) index.php?s=s2&q=$1 [NC,L]
 RewriteRule ^cafesuplicy index.php?s=s2 [QSA]
+RewriteRule ^pensamentoereflexao index.php?s=s3 [QSA]

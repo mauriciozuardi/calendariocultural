@@ -216,8 +216,8 @@ DataManager.prototype.trataValoresDasAtividades = function(s){
 			todasValidas = false;
 			this.datasInvalidas[s + '-' + a.id] = a;
 			//cria datas fake para não fuder o site
-			a.datainicial = new Date();
-			a.datafinal	 = new Date(Date.now() + 1);
+			a.datainicial = (a.parent && a.parent.datainicial != inv) ? a.datainicial = a.parent.datainicial : new Date();
+			a.datafinal	 = (a.parent && a.parent.datafinal != inv) ? a.datafinal = a.parent.datafinal : new Date(Date.now() + 1);
 		}
 		//anota o contexto
 		a.context = this.parent;
@@ -248,9 +248,12 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 		for(var j in this.pais[s]){
 			var p = this.pais[s][j];
 			// a.parent ? console.log(a.parent + ":" + p + " = " + a.id) : null;
-			if(a.parent == p){
+			// console.log([p, this.atividades[s][p]]);
+			if(a.parent == p && this.atividades[s][p] && this.atividades[s][i]){
+				console.log(p);
 				this.atividades[s][p].dependentes[a.id] = a;
 				this.atividades[s][p].nDependentes ++;
+				console.log([p, this.atividades[s][p], this.atividades[s][i].id]);
 				delete this.atividades[s][i];
 			}
 		}
@@ -265,6 +268,7 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 	//ajusta o range de todos os pais, baseado nos filhos
 	for(var i in this.pais[s]){
 		var a = this.atividades[s][this.pais[s][i]];
+		a ? null : console.log(['Atividade '+this.pais[s][i]+' inválida. Pais:', this.pais[s]]);
 		Timeline.defineParentRange(a);
 		//vê se já passou
 		a.isPast = (a.datafinal.getTime() < Date.now() && this.currentSite.passadorelevante == '0') ? true : false;
@@ -442,6 +446,8 @@ DataManager.prototype.onTimelineReady = function(){
 	} else {
 		var f = this.timeline.dateToDv(this.timeline.first.date);
 		var l = this.timeline.dateToDv(this.timeline.last.date);
+		isNaN(f) ? console.log(['ERRO: f isNaN', this.timeline.first.date]) : null;
+		isNaN(l) ? console.log(['ERRO: l isNaN', this.timeline.last.date]) : null;
 		var dateQuery = '&sq=!((dvi<=' + f + ' and dvf<=' + f + ') or (dvi>=' + l + ' and dvf>=' + l + ')) and publicar==1';
 		url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json' + dateQuery;
 		url = encodeURI(url);
@@ -449,6 +455,7 @@ DataManager.prototype.onTimelineReady = function(){
 		this.preAtividades ? null : this.preAtividades = [];
 		this.preAtividadesEsperadas ? null : this.preAtividadesEsperadas = 1;
 		this.addJsonToArray(url, 'preAtividades', this.currentSite.id);
+		console.log(url);
 	}
 }
 
@@ -547,12 +554,12 @@ DataManager.prototype.addJsonToArray = function(url, arrName, preSID){
 }
 
 DataManager.jsonToVar = function(json){
-	this.instance[this.vName] = DataManager.listToObj(json);
+	this.instance[this.vName] = DataManager.listToObj(json, this.vName);
 	this.instance.onJsonLoaded(this.vName);
 }
 
 DataManager.jsonToArrayElement = function(json){
-	var obj = DataManager.listToObj(json);
+	var obj = DataManager.listToObj(json, this.arrName);
 	var objLength = 0;
 	for(var i in obj){
 		objLength ++;
@@ -598,7 +605,8 @@ DataManager.prototype.loadPulldownInfo = function(mainKey){
 	}
 }
 
-DataManager.listToObj = function(json){
+DataManager.listToObj = function(json, debugInfo){
+	 console.log([debugInfo, json]);
 	//IMPORTANTE: PRIMEIRA COLUNA (da sheet q o json representa) NÃO É PROCESSADA pois ela vira título quando usamos list.
 	var entry = json.feed.entry;
 	var arr = [];

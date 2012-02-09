@@ -87,7 +87,8 @@ Timeline.defineParentRange = function(parent){
 	var datas = {};
 	datas.menor = 1.7976931348623157E+10308; //infinito
 	datas.maior = 0;
-
+	
+	console.log(parent);
 	for(var i in parent.dependentes){
 		var dependente = parent.dependentes[i];
 		//guarda os recordistas
@@ -129,11 +130,13 @@ Timeline.prototype.labelsToDates = function(){
 		var weekday = this.today.getDay();
 
 		this.timeMarks = this.timelineStr.split(' | ');
+		// console.log(this.timelineStr);
 		for(var i in this.timeMarks){
 			var split = this.timeMarks[i].split('=');
 			this.timeMarks[i] = {};
 			this.timeMarks[i].label = split[0];
 			this.timeMarks[i].date = split[1] ? split[1] : null;
+			// console.log(this.timeMarks[i].date);
 		}
 
 		this.first = this.timeMarks[0];
