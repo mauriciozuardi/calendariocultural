@@ -305,6 +305,7 @@ InterfaceManager.posicionaAtividade = function(a, timeline){
 	var dot = $('div.' + id + ' .dot');
 	var range = $('div.' + id + ' .range');
 	var label = $('div.' + id + ' .label');
+	var labelImg = $('div.' + id + ' .label img');
 	
 	var t = Date.now();
 	var t0 = a.datainicial.getTime();
@@ -334,9 +335,10 @@ InterfaceManager.posicionaAtividade = function(a, timeline){
 	//posiciona o label
 	var ml = parseInt(dot.css('margin-left')) + dot.outerWidth(false) + 7;
 	var invertLabel = (Date.now() > a.datainicial.getTime() + (a.datafinal.getTime() - a.datainicial.getTime())/2) && !a.isPast ? true : false;
-	ml -= invertLabel ? label.outerWidth(false) + dot.outerWidth(false) : 0;
+	ml -= invertLabel ? label.outerWidth(false) - 13 : 0;
 	//aplica
 	label.css('margin-left', ml);
+	invertLabel ? labelImg.css('margin-left', dot.outerWidth(false) + 13) : null;
 }
 
 InterfaceManager.mudaFundo = function(a){
