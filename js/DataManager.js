@@ -17,8 +17,9 @@ DataManager.prototype.wrapUrlVars = function(vars){
 }
 
 DataManager.prototype.init = function(){
-	this.sId = (this.sId == '') ? 's1' : this.sId;	
+	this.sId = (this.sId == '') ? 's1' : this.sId;
 	this.aguardandoConferirDependencias = true;
+	this.nSitesOrganizados = 0;
 	this.loadBasicInfo();
 }
 
@@ -95,16 +96,30 @@ DataManager.prototype.updateSiteCount = function(){
 }
 
 DataManager.prototype.organizaPreAtividades = function(){
+	//DEBUG
+	var nPreAtividades = this.preAtividades ? this.preAtividades.length : '*';
+	console.log('organizaPreAtividades ('+nPreAtividades+'):');
+	for(var i in this.preAtividades){
+		var nObj = 0;
+		for(var j in this.preAtividades[i]){
+			nObj ++;
+		}
+		console.log(nObj);
+	}
+	
+	//
 	this.atividades = {};
 	for(var i in this.preAtividades){
 		var obj = this.preAtividades[i];
 		for(var j in obj){
 			var a = obj[j];
 			var lastSite = a.idSiteOriginal;
+			console.log(lastSite);
 			lastSite == undefined ? console.log(['lastSite undefined for: ' + a.id, a]) : null;
 			this.atividades[a.idSiteOriginal] ? null : this.atividades[a.idSiteOriginal] = {};
 			this.atividades[a.idSiteOriginal][a.id] = a;
 		}
+		console.log('chamando confereDependencias ' + lastSite);
 		this.confereDependencias(lastSite);
 	}
 	// console.log(['organizei', this]);
@@ -125,7 +140,7 @@ DataManager.prototype.incluiDependencias = function(s){
 }
 
 DataManager.prototype.confereDependencias = function(s){
-	console.log('conferindo dependencias')
+	console.log('conferindo dependencias ' + s);
 	if(s){
 		this.totalDeRepescagensEsperadas ? null : this.totalDeRepescagensEsperadas = 0;
 		this.sitesSemDependencias ? null : this.sitesSemDependencias = 0;
@@ -214,6 +229,7 @@ DataManager.prototype.trataValoresDasAtividades = function(s){
 }
 
 DataManager.prototype.organizaAtividadesEmGrupos = function(s){
+	console.log('organizando ' + s);
 	//parse dos valores
 	this.trataValoresDasAtividades(s);
 	
@@ -249,6 +265,16 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 		//vê se já passou
 		a.isPast = (a.datafinal.getTime() < Date.now() && this.currentSite.passadorelevante == '0') ? true : false;
 	}
+	
+	//DEBUG
+	var nPais = this.pais[s] ? this.pais[s].length : '*';
+	console.log('ORGANIZEI ' + s.toUpperCase() + ' (' + nPais + '):')
+	for(var i in this.atividades[s]){
+		console.log(this.atividades[s][i].id);
+	}
+	console.log('---');
+	
+	this.nSitesOrganizados ++;
 	
 	//checa o carregamento geral
 	this.confereDependenciasGeral() ? this.aguardandoConferirDependencias = false : null;
@@ -422,11 +448,11 @@ DataManager.prototype.checkDataComplete = function(){
 	console.log('checking data ..');
 		
 	//checa tudo
-	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && this.timeline && !this.aguardandoConferirDependencias){
+	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && this.timeline && !this.aguardandoConferirDependencias && this.nSitesOrganizados == this.nSitesParaChecar){
 		console.log('complete with timeline');
 		this.completedBefore = true;
 		this.onDataComplete();
-	} else if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && !this.timeline){
+	} else if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && !this.timeline && this.nSitesOrganizados == this.nSitesParaChecar){
 		console.log('ALMOST complete. Creating timeline.');
 		this.timeline = new Timeline(this);
 		this.timeline.init();
@@ -446,6 +472,7 @@ DataManager.prototype.checkDataComplete = function(){
 		whatsMissing += !this.completedBefore ? "" : " alreadyCompleted";
 		whatsMissing += this.timeline ? "" : " timeline";
 		whatsMissing += !this.aguardandoConferirDependencias ? "" : " aguardandoConferirDependencias";
+		whatsMissing += this.nSitesOrganizados == this.nSitesParaChecar ? "" : " faltaOrganizar";
 		console.log('NOT complete. Missing:' + whatsMissing);
 	}
 }
