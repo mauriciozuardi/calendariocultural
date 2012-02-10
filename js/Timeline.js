@@ -88,7 +88,7 @@ Timeline.defineParentRange = function(parent){
 	datas.menor = 1.7976931348623157E+10308; //infinito
 	datas.maior = 0;
 	
-	console.log(parent);
+	// console.log(parent);
 	for(var i in parent.dependentes){
 		var dependente = parent.dependentes[i];
 		//guarda os recordistas

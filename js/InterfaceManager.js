@@ -46,8 +46,8 @@ InterfaceManager.prototype.onPullDownChange = function(){
 			var query = v;
 		}
 		//
-		console.log(window.location.href);
-		console.log(window.location.search);
+		// console.log(window.location.href);
+		// console.log(window.location.search);
 		
 		var newURL = window.location.search != '' ? window.location.href.toString().split(window.location.search)[0] : window.location.href;
 		newURL += '?q=' + encodeURI(query);
@@ -197,8 +197,14 @@ InterfaceManager.prototype.drawActivities = function(){
 
 InterfaceManager.labelClicked = function(event){
 	InterfaceManager.selectActivity(this);
-	// fechaInfo();
-	// abreBalloon();
+	InterfaceManager.fechaInfo();
+	
+	if(this.subsite){
+		console.log('ABRIR LINK INTERNO');
+	} else {
+		// console.log('ABRIR BALLOON');
+		this.context.abreBalloon(this);
+	}
 }
 
 InterfaceManager.dotOrRangeClicked = function(event){
@@ -344,7 +350,7 @@ InterfaceManager.posicionaAtividade = function(a, timeline){
 InterfaceManager.mudaFundo = function(a){
 	//MUDA O BG
 	var imgName = a.imagens ? './img/content/' + a.imagens.split('\n')[0] : './img/interface/default-bg.png';
-	var imgURL = encodeURI(imgName);
+	var imgURL = encodeURI(imgName.replace(/ /g, "").replace(/\n/g, ""));
 	a.context.carregaBg(imgURL);
 
 	//MUDA O NOME E O TEXTO
@@ -546,6 +552,12 @@ InterfaceManager.prototype.updateScreen = function(){
 			InterfaceManager.posicionaAtividade(obj, timeline);
 		}
 	}
+	
+	//recentraliza o balloon
+	var bt = Math.max((h - $('#balloon').height())/2, 0);
+	var bl = (w - $('#balloon').width())/2;
+	$('#balloon').css('top', bt);
+	$('#balloon').css('left', bl);
 }
 
 InterfaceManager.timeToPosition = function(t, timeline){
@@ -627,4 +639,273 @@ $.fn.smartBackgroundImage = function(url, callerID){
 		});
 	});
 	return this;
+}
+
+InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
+// function abreBalloon(idComposto, aID, skipIndex){
+	// console.log([idComposto, aID, skipIndex]);
+	// 
+	// var cID = dotSelected.id.split('-');
+	// console.log(cID);
+	// var ca_ = ca[cID[0]][cID[1]];
+	// var atalho = ca_.atividades.split(', ')[0];
+	// 
+	// skipIndex = skipIndex ? skipIndex : 0;
+	// 
+	// var hash = "";
+	// hash += ca_.siteId + "-" + ca_.id;
+	// hash += aID ? "+" + aID : "+" + atalho;
+	// hash += skipIndex ? "|" + skipIndex : "";
+	// window.location.hash = hash;
+	// 
+	// if(!ca_.siteinterno){
+		//define quem é quem no jogo do bicho
+		// if(!idComposto){
+		// 	var a_ = a[ca_.siteId][atalho];
+		// 	if(!a_.onde){ alert("Precisa cadastrar ONDE ou esconder.") }
+		// } else {
+		// 	var a_ = a[ca_.siteId][aID];
+		// 	if(!a_.onde){ alert("Precisa cadastrar ONDE ou esconder.") }
+		// }
+		
+		//define o onde que vai aparecer no topo do balloon
+		var onde;
+		!a.onde ? console.log(a.id + ' não tem onde cadastrado.') : !idOnde ? idOnde = a.onde.split(', ')[0] : "";	
+		a.context.desenhaBalloonTop(a, idOnde);
+		
+	// 	//SLIDESHOW - imgs não podem conter espaço no nome
+	// 	html = "";
+	// 	if(a_.imagens){
+	// 		var imgs = a_.imagens.split('\n');
+	// 	} else {
+	// 		var imgs = ["default-img.png"];
+	// 	}
+	// 	//atualiza as globais e os controles
+	// 	selectedSlideImgIndex = 0;
+	// 	nSlideImgs = imgs.length;
+	// 	hideOrShowSlideshowControls();
+	// 
+	// 	//escreve o HTML
+	// 	html += "<div id='slideshow-imgs'>";
+	// 	for(var i in imgs){
+	// 		html += "<div class='bg-cover slideshow-img' style='background-image: url(./img/" + encodeURI(imgs[i]) + ")'></div>";
+	// 	}
+	// 	html += "</div>";
+	// 	$('#slideshow').html(html);
+	// 
+	// 	//MINI-BALLOON - INFO DA ATIVIDADE
+	// 	var di = googleDateToDate(a_.datainicial ? a_.datainicial : new Date());
+	// 	var df = googleDateToDate(a_.datafinal ? a_.datafinal : new Date());
+	// 
+	// 	html = "";
+	// 	html += "<h2>" + a_.tipo + "</h2>";
+	// 	html += desenhaEstrelas(a_.estrelas);
+	// 	html += "<h1>" + a_.nome + "</h1>";
+	// 	html += a_.horario ? "<p><b>" + a_.horario + "</b></p>" : "<p><b>" + dataHelena(di, df) + "</b></p>"; 
+	// 	html += "<div id='sinopse'>";
+	// 	html += a_.sobre ? "<p>" + a_.sobre.replace(/\n/g, "<br />") + "</p>" : "<p>(cadastrar sinopse da atividade)</p>";
+	// 	html += "</div>";
+	// 
+	// 	var variosQuem = a_.quem;
+	// 	// console.log("variosQuem: " + variosQuem);
+	// 	if(variosQuem != undefined){
+	// 	// console.log("variosQuem: " + variosQuem);
+	// 		variosQuem = variosQuem.split(', ');
+	// 		var quem = p[string_to_slug(variosQuem[0])];
+	// 		// console.log(["quem: ", quem]);
+	// 		if(quem != undefined){
+	// 			if(quem.bio){
+	// 				html += "<div id='bio' class='hidden'></div>";
+	// 				html += "<p><span class='fake-link'>Biografia</span>";
+	// 				html += quem.site ?  " // <a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "</p>";
+	// 				$('#mini-balloon-body').html(html);
+	// 				$('#mini-balloon-body .fake-link').click(function(event){abreBio(event, quem);});
+	// 			} else {
+	// 				html += quem.site ? "<p><a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "";
+	// 				$('#mini-balloon-body').html(html);
+	// 			}
+	// 		}	else {
+	// 				$('#mini-balloon-body').html(html);
+	// 		}
+	// 	}	else {
+	// 		$('#mini-balloon-body').html(html);
+	// 	}
+	// 
+	// 	//MINI-BALLOON-FOOTER
+	// 	html = "";
+	// 	html += desenhaTwitter();
+	// 	html += desenhaFacebook();
+	// 	html += desenhaOpine();
+	// 	$('#mini-balloon-footer').html(html);
+	// 	$('#twitter').click(function(event){abreSocial(event,'t');});
+	// 	$('#facebook').click(function(event){abreSocial(event,'f');});
+	// 
+	// 	//CROSS
+	// 	//reseta o HTML pré-existente
+	// 	$('#cross').html("");
+	// 
+	// 	//recria o HTML
+	// 	if(ca_.atividades){
+	// 		var atividades = ca_.atividades.split(', ');
+	// 		var alphaStep = 80/atividades.length;
+	// 		var atividade = {};
+	// 		var nameParts = [];
+	// 		var imgs = ["default-img.png"];
+	// 		var str = "";
+	// 		var alpha = 0;
+	// 		var n = 0;
+	// 
+	// 		// console.log(ca_.atividades);
+	// 		for (i in atividades){
+	// 			// console.log(skipIndex);
+	// 			if(i != skipIndex){
+	// 				var context = {};
+	// 				atividade = a[ca_.siteId][atividades[i]];
+	// 				if(atividade){
+	// 					nameParts = atividade.nome.split(' // ');
+	// 					imgs = atividade.imagens ? atividade.imagens.split('\n') : ["default-img.png"];
+	// 					// alpha = (100 - (alphaStep * n))/100; n ++;
+	// 					alpha = 1;
+	// 
+	// 					html = "";
+	// 					html += "<div id='cross-" + i + "' class='balloon cross' style='background-color:rgba(255,255,255," + alpha + ")'>";
+	// 					html += "<div class='bg-cover cross-img' style='background-image: url(./img/" + encodeURI(imgs[0]) + ");'></div>";
+	// 					html += "<div class='reticencias' style='background-image: url(./img/reticencias.png);'></div>";
+	// 					html += "<h2>" + atividade.tipo + "</h2>";
+	// 					html += "<h1>" + nameParts[0];
+	// 					html += nameParts[1] ? "<em> // " + nameParts[1] + "</em></h1>" : "</h1>";
+	// 					html += "</div>";
+	// 					$('#cross').append(html);
+	// 
+	// 					str = "#cross-" + i;
+	// 					context.atividade = atividades[i];
+	// 					context.id = ca_.siteId + "-" + ca_.id;
+	// 					context.skipIndex = i;
+	// 					$(str).click($.proxy(crossClicked, context));
+	// 				}	
+	// 			}
+	// 		}
+	// 	}
+	// 
+	
+	//mostra
+	this.updateScreen();
+	$('#balloon').fadeIn(250);
+		
+	// 	updateMiniBalloonFooterPosition();		
+	// } else {
+	// 	chamaURLinterna(ca_);
+	// }
+}
+
+InterfaceManager.prototype.desenhaBalloonTop = function(a, idOnde){
+	//confere se o onde selecionado existe
+	if(!this.dataManager.espacos[idOnde]){
+		console.log(idOnde + ' não existe.');
+		return false;
+	} else {
+		var e = this.dataManager.espacos[idOnde];
+	}
+	
+	var imgEspaco = e.imagem ? 'content/' + encodeURI(e.imagem.replace(/ /g, "").replace(/\n/g, "")) : 'interface/default-thumb.png';
+	
+	//confere se a atividade tem espaços cadastrados
+	if(!a.onde){
+		console.log(a + ' não tem espaços cadastrados.');
+		return false;
+	} else {
+		var todosEspacosAtividade = a.onde.split(', ');
+		var nomeEspaco = "";
+	}
+	
+	//cria o pulldown se existir mais de um espaço cadastrado para a atividade
+	if(todosEspacosAtividade.length > 1){
+		var opcoes = "";
+		for (var i in todosEspacosAtividade){
+			opcoes += "<option>" + this.dataManager.espacos[todosEspacosAtividade[i]].nome + "</option>";
+		}
+		nomeEspaco += "<select class='todosEspacos'><option>+</option>" + opcoes + "</select>";
+	}
+	
+	//tira a última '/' da url do site
+	e.site ? (e.site.substr(e.site.length -1, e.site.length) == "/" ? e.site = e.site.substr(0, e.site.length -1) : null) : null;
+	
+	//cria o título com o nome do espaço, já com link
+	nomeEspaco += e.site ? "<a href='" + e.site + "' target='_BLANK'>" + e.nome + "</a>" : e.nome;
+	
+	var nLinhas = 0;
+	
+	var linha1 = ""; //rua, bairro, cidade e mapa
+	linha1 += e.mapa ? "<a href='" + e.mapa + "' target='_BLANK'>" : "";
+	
+	var partesEndereco = [];
+	e.endereco ? partesEndereco.push(e.endereco) : null;
+	e.bairro ? partesEndereco.push(e.bairro.split(', ')[0]) : null;
+	e.cidade ? partesEndereco.push(e.cidade) : null;
+	var separador = " // ";
+	for(var i in partesEndereco){
+		linha1 += partesEndereco[i] + separador;
+	}
+	linha1 = linha1.substr(0, linha1.length - separador.length); // capa o último separador
+	linha1 += e.mapa ? "<img src='./img/interface/pin.gif' class='pin' /></a>" : "";
+	linha1 != "" ? nLinhas ++ : null;
+	
+	
+	var linha2 = ""; //fone, email e site
+	if(e.fone){
+		var fone = e.fone.replace(/\./g, ''); //exclui "."
+		fone = fone.split(" "); //depois divide entre código de pais, área e telefone
+		linha2 += "<a href='tel:+" + fone[0] + "-" + fone[1] + "-" + fone[2] + "'>" + e.fone + "</a>";
+	}
+
+	if(e.email){
+		linha2 += e.fone && (e.email || e.site) ? separador : "";
+		if(e.email.substr(0,7) == 'http://'){
+			linha2 += "<a href='" + e.email + "' target='_BLANK'>contato</a>";
+		} else {
+			linha2 += "<a href='mailto:" + e.email + "' target='_BLANK'>" + e.email + "</a>";
+		}
+	}
+	
+	linha2 += ((e.fone || e.email) && e.site) ? separador : "";
+	linha2 += e.site ? "<a href='" + e.site + "' target='_BLANK'>" + e.site.replace('http://', '') + "</a>" : "";
+	linha2 != "" ? nLinhas ++ : null;
+	
+	var linha3 = ""; //horário de funcionamento (opcional?)
+	linha3 += e.horario ? e.horario.replace(/\n/g, ' // ') : "";
+	linha3 != "" ? nLinhas ++ : null;
+	
+	var html = "";
+	html += "<div class='bg-cover thumb-espaco' style='background-image: url(./img/" + encodeURI(imgEspaco) + ");'></div><img src='./img/interface/fechar.png' class='fechar'/>";
+	html += "<div id='txt-block'><h1>" + nomeEspaco + "</h1><p class='first-p'>" + linha1 + "</p><p>" + linha2 + "</p>";
+	html += "</p>" + linha3 + "</p>";
+	html += "</div>";
+	
+	//escreve o HTML
+	$('#balloon-top').html(html);
+	
+	//compensa o visual qdo tem só duas linhas
+	if(nLinhas == 2){
+		$('#balloon-top h1').css('margin-top', 18);
+		$('#balloon-top .todosEspacos').css('margin-top', -2);
+	}
+	
+	//aplica os cliques
+	$('#balloon-top .fechar').click(this.fechaBaloon);
+	var f = $.proxy(this.desenhaBalloonTopViaNome, this);
+	$('.todosEspacos').change(function(){f(a, $(this).val());});
+}
+
+InterfaceManager.prototype.desenhaBalloonTopViaNome = function(a, nomeOnde){
+	for(var i in this.dataManager.espacos){
+		var e = this.dataManager.espacos[i];
+		if(e.nome == nomeOnde){
+			this.desenhaBalloonTop(a, e.id);
+			break;
+		}
+	}
+}
+
+InterfaceManager.prototype.fechaBaloon = function(){
+	$('#balloon').fadeOut(250);
 }

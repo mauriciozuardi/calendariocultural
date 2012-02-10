@@ -42,6 +42,254 @@ em{
 	width:100%;
 	float:left;
 }
+
+/* ====== BALLOON ====== */
+#balloon{
+	position:absolute;
+	width:774px;
+/*	height:506px;*/
+	z-index:1001;
+	color:#444;
+	display:none;
+}
+#balloon p{
+	line-height:18px;
+}
+.balloon.tip{
+	float:left;
+	width:8px;
+	height:15px;
+	margin-top:54px;
+	background-image:url(../img/interface/biqueta.gif);
+}
+.mini.balloon.tip{
+	margin-left:-8px;
+	margin-top:103px;
+}
+.balloon.top img{
+	float:left;
+}
+.balloon.top .pin{
+	float:none;
+	margin-left: 4px;
+	margin-bottom: -1px;
+}
+.balloon.top h1{
+	color:#444;;
+}
+.balloon.top .fechar{
+	float:right;
+	opacity:.4;
+	cursor:pointer;
+}
+#txt-block{
+	position:relative;
+	display:inline-block;
+	margin-top:-10px;
+	margin-left:20px;
+	width:600px;
+}
+#txt-block .first-p{
+	margin-top:-2px;
+}
+#balloon-top{
+	position:relative;
+	float:right;
+	width:726px;
+	padding:20px;
+	background-color:rgba(255,255,255,1);
+}
+.todosEspacos{
+	position: absolute;
+	margin-left: -64px;
+	margin-top: 7px;
+	width: 40px;
+	font-size:11px;
+}
+.thumb-espaco{
+	width:86px;
+	height:86px;
+	float:left;
+}
+.balloon.top h1{
+	font-size:29px;
+	margin-left:-2px;
+	margin-bottom:5px;
+	margin-top:8px;
+	line-height:28px;
+}
+.balloon.top p{
+/*	font-size:29px;*/
+	margin-top:0px;
+	margin-bottom:0px;
+}
+#balloon-body{
+	position:relative;
+	float:right;
+	width:726px;
+	padding:20px;
+	background-color:rgba(255,255,255,.85);
+/*	background-color:rgba(210,210,210,.9);*/
+}
+#slideshow{
+	width:324px;
+	height:216px;
+	overflow:hidden;
+}
+#slideshow-controls{
+	width:324px;
+	height:216px;
+	position:absolute;
+	top:22px;
+	left:20px;
+/*	display:none;*/
+}
+#slideshow-controls .previous{
+	float:left;
+	opacity:.4;
+/*	margin-left:10px;*/
+	width:144px;
+	height:216px;
+	opacity:0;
+	background-image:url(../img/interface/previous.png);
+	background-repeat:no-repeat;
+	background-position:7%;
+	cursor:pointer;
+}
+#slideshow-controls .previous:hover{
+	opacity:.5;
+}
+#slideshow-controls .next{
+	float:right;
+	opacity:.4;
+/*	margin-right:10px;*/
+	width:144px;
+	height:216px;
+	opacity:0;
+	background-image:url(../img/interface/next.png);
+	background-repeat:no-repeat;
+	background-position:93%;
+	cursor:pointer;
+}
+#slideshow-controls .next:hover{
+	opacity:.5;
+}
+.slideshow-img{
+	width:324px;
+	height:216px;
+	display:inline-block;
+}
+.balloon.cross{
+	width:324px;
+	height:48px;
+	margin-top:5px;
+	background-color:white;
+	text-align:left;
+	overflow:hidden;
+	cursor:pointer;
+}
+.balloon.cross em{
+	color:#666;
+}
+.balloon.cross h2{
+	margin:0px;
+	font-size:13px;
+/*	color:white;*/
+	font-weight:normal;
+	margin-top:7px;
+	margin-left:99px;
+}
+.balloon.cross h1{
+	margin:0px;
+	font-size:15px;
+/*	color:white;*/
+	margin-top:-2px;
+	margin-left:98px;
+	white-space: nowrap;
+}
+.balloon.cross .cross-img{
+	width: 86px;
+	height: 48px;
+/*	margin-top: 5px;*/
+/*	opacity:.3;*/
+	position: absolute;
+}
+.balloon.cross .reticencias{
+	width: 36px;
+	height: 48px;
+	position: absolute;
+	margin-left: 289px;
+}
+#mini-balloon{
+	position:relative;
+	float:right;
+	width:382px;
+	background-color:rgba(255,255,255,1);
+	margin-top:-216px;
+}
+#mini-balloon-body{
+	padding:20px;
+	padding-bottom:8px;
+}
+#mini-balloon-body h2{
+	position:relative;
+	font-weight:normal;
+	margin:0px;
+	margin-top:-3px;
+	margin-bottom:-2px;
+}
+#estrelas{
+	float:right;
+	margin-top:-10px;
+}
+#opine{
+	display:none;
+	position:absolute;
+	float:right;
+	left:268px;
+	top:12px;
+}
+#estrelas-opine{
+	position:absolute;
+	float:right;
+	left:40px;
+	top:12px;
+	width:60px;
+}
+.estrela{
+	display:inline-block;
+	width:11px;
+	height:11px;
+	background-image:url(../img/interface/estrela-cinza.png);
+	cursor:pointer;
+}
+#mini-balloon-body h1{
+	font-size:20px;
+	margin:0px;
+	margin-bottom:-2px;
+	line-height: 20px;
+	margin-top: 2px;
+}
+#mini-balloon-body a, #mini-balloon-body .fake-link{
+	font-weight:bold;
+}
+#bio{
+	display:block;
+}
+#bio.hidden{
+	display:none;
+}
+#mini-balloon-footer{
+	position:absolute;
+	float:right;
+	width:342px;
+	padding:20px;
+	background-color:rgba(255,255,255,.5);
+	top:20px;
+	right:20px;
+}
+
+
 /* ====== HEADER ====== */
 .header{
 	position:fixed;
