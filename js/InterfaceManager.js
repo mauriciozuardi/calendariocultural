@@ -441,6 +441,9 @@ InterfaceManager.prototype.defineDestaques = function(){
 	if(data.destaques.length < 1){
 		this.procuraDestaques(true);
 	}
+	
+	//erro
+	data.destaques.length < 1 ? console.log('ERRO: nenhum destaque viável') : null;
 }
 
 InterfaceManager.prototype.procuraDestaques = function(incluirPassado){
