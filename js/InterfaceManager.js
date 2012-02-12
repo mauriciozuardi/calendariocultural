@@ -48,14 +48,9 @@ InterfaceManager.prototype.onPullDownChange = function(){
 		}
 		if(t.hasClass('quem')){
 			var query = v;
-		}
-		//
-		// console.log(window.location.href);
-		// console.log(window.location.search);
-		
+		}		
 		var newURL = window.location.search != '' ? window.location.href.toString().split(window.location.search)[0] : window.location.href;
 		newURL += '?q=' + encodeURI(query);
-		// console.log(newURL);
 		window.location = newURL;
 	}
 }
@@ -94,6 +89,7 @@ InterfaceManager.prototype.drawPullDowns = function(){
 
 InterfaceManager.prototype.drawContents = function(){
 	//escreve o HTML básico
+	$('body').append(InterfaceManager.balloonStructure);
 	$('body').append("<div class='bg'></div>");
 	$('body').append("<div class='timeline'></div>");
 	$('body').append("<div class='timeline-now'></div>");
@@ -113,6 +109,10 @@ InterfaceManager.prototype.drawContents = function(){
 	
 	//desenha as atividades
 	this.drawActivities();
+}
+
+InterfaceManager.balloonStructure = function(){
+	return "<div id='balloon'><div id='balloon-tip' class='balloon tip'></div><div id='balloon-top' class='balloon top'></div><div id='balloon-body'><div id='slideshow-controls'><div class='previous'></div><div class='next'></div></div><div id='slideshow'></div><div id='mini-balloon'><div id='mini-ballon-tip' class='mini balloon tip'></div><div id='mini-balloon-body'></div></div><div id='mini-balloon-footer'><div id='twitter'></div><div id='facebook'></div><!-- <div id='opine'><p>Opine:</p><div id='estrelas-opine'><div class='estrela e1'></div><div class='estrela e2'></div><div class='estrela e3'></div><div class='estrela e4'></div><div class='estrela e5'></div></div></div> --></div><div id='cross'></div></div></div>";
 }
 
 InterfaceManager.prototype.drawTimeline = function(){
@@ -206,7 +206,6 @@ InterfaceManager.labelClicked = function(event){
 	if(this.subsite){
 		console.log('ABRIR LINK INTERNO');
 	} else {
-		// console.log('ABRIR BALLOON');
 		this.context.abreBalloon(this);
 	}
 }
@@ -570,7 +569,6 @@ InterfaceManager.prototype.updateScreen = function(){
 InterfaceManager.timeToPosition = function(t, timeline){
 	if(t > timeline[timeline.length-1].date.getTime()){
 		//se t for maior que a última marca da timeline
-		// console.log(t + ' : ' + timeline[timeline.length-1].date.getTime() + ' (' + timeline[timeline.length-1].date + ')')
 		return $(window).width() + 50;
 	} else if(t == timeline[timeline.length-1].date.getTime()){
 			//se t for igual a ultima marca
@@ -680,32 +678,24 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
 		var onde;
 		!a.onde ? console.log(a.id + ' não tem onde cadastrado.') : !idOnde ? idOnde = a.onde.split(', ')[0] : "";	
 		a.context.desenhaBalloonTop(a, idOnde);
-		
-	// 	//SLIDESHOW - imgs não podem conter espaço no nome
-	// 	html = "";
-	// 	if(a_.imagens){
-	// 		var imgs = a_.imagens.split('\n');
-	// 	} else {
-	// 		var imgs = ["default-img.png"];
-	// 	}
-	// 	//atualiza as globais e os controles
-	// 	selectedSlideImgIndex = 0;
-	// 	nSlideImgs = imgs.length;
-	// 	hideOrShowSlideshowControls();
-	// 
-	// 	//escreve o HTML
-	// 	html += "<div id='slideshow-imgs'>";
-	// 	for(var i in imgs){
-	// 		html += "<div class='bg-cover slideshow-img' style='background-image: url(./img/" + encodeURI(imgs[i]) + ")'></div>";
-	// 	}
-	// 	html += "</div>";
-	// 	$('#slideshow').html(html);
 	
 		//SLIDESHOW
 		html = "";
 		var imgs = a.imagens ? a.imagens.split('\n') : ['default-img.png'];
 		var folder = a.imagens ? 'content' : 'interface';
-				
+	
+		//escreve o HTML
+		html += "<div id='slideshow-imgs'>";
+		for(var i in imgs){
+			if(imgs[i] != ''){
+				html += "<div class='bgcover slideshow-img' style='background-image: url(./img/" + folder + "/" + encodeURI(imgs[i]) + ")'></div>";	
+			} else {
+				//remove as imagens fantasmas (\n a mais no cadastro)
+				imgs.splice(i,1);
+			}
+		}
+		html += "</div>";
+		
 		//atualiza as variáveis de controle do
 		this.ballonVars ? null : this.ballonVars = {};
 		this.ballonVars.slideshow ? null : this.ballonVars.slideshow = {};
@@ -713,63 +703,65 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
 		this.ballonVars.slideshow.showingImgIndex = 0; //showing img index
 		this.ballonVars.slideshow.nImgs = imgs.length; //n images
 		this.updateSlideshowControls();
-	
-		//escreve o HTML
-		html += "<div id='slideshow-imgs'>";
-		for(var i in imgs){
-			html += "<div class='bgcover slideshow-img' style='background-image: url(./img/" + folder + "/" + encodeURI(imgs[i]) + ")'></div>";
-		}
-		html += "</div>";
 		$('#slideshow').html(html);
 	
-	// 
-	// 	//MINI-BALLOON - INFO DA ATIVIDADE
-	// 	var di = googleDateToDate(a_.datainicial ? a_.datainicial : new Date());
-	// 	var df = googleDateToDate(a_.datafinal ? a_.datafinal : new Date());
-	// 
-	// 	html = "";
-	// 	html += "<h2>" + a_.tipo + "</h2>";
-	// 	html += desenhaEstrelas(a_.estrelas);
-	// 	html += "<h1>" + a_.nome + "</h1>";
-	// 	html += a_.horario ? "<p><b>" + a_.horario + "</b></p>" : "<p><b>" + dataHelena(di, df) + "</b></p>"; 
-	// 	html += "<div id='sinopse'>";
-	// 	html += a_.sobre ? "<p>" + a_.sobre.replace(/\n/g, "<br />") + "</p>" : "<p>(cadastrar sinopse da atividade)</p>";
-	// 	html += "</div>";
-	// 
-	// 	var variosQuem = a_.quem;
-	// 	// console.log("variosQuem: " + variosQuem);
-	// 	if(variosQuem != undefined){
-	// 	// console.log("variosQuem: " + variosQuem);
-	// 		variosQuem = variosQuem.split(', ');
-	// 		var quem = p[string_to_slug(variosQuem[0])];
-	// 		// console.log(["quem: ", quem]);
-	// 		if(quem != undefined){
-	// 			if(quem.bio){
-	// 				html += "<div id='bio' class='hidden'></div>";
-	// 				html += "<p><span class='fake-link'>Biografia</span>";
-	// 				html += quem.site ?  " // <a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "</p>";
-	// 				$('#mini-balloon-body').html(html);
-	// 				$('#mini-balloon-body .fake-link').click(function(event){abreBio(event, quem);});
-	// 			} else {
-	// 				html += quem.site ? "<p><a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "";
-	// 				$('#mini-balloon-body').html(html);
-	// 			}
-	// 		}	else {
-	// 				$('#mini-balloon-body').html(html);
-	// 		}
-	// 	}	else {
-	// 		$('#mini-balloon-body').html(html);
-	// 	}
-	// 
-	// 	//MINI-BALLOON-FOOTER
-	// 	html = "";
-	// 	html += desenhaTwitter();
-	// 	html += desenhaFacebook();
-	// 	html += desenhaOpine();
-	// 	$('#mini-balloon-footer').html(html);
-	// 	$('#twitter').click(function(event){abreSocial(event,'t');});
-	// 	$('#facebook').click(function(event){abreSocial(event,'f');});
-	// 
+		//MINI-BALLOON - INFO DA ATIVIDADE
+		var di = a.datainicial;
+		var df = a.datafinal;
+		var sobre = a.sobre ? a.sobre : '(cadastrar sinopse da atividade)';
+		
+		//procura links dentro do texto e escreve o HTML correto, tb substitui \n por <br />.
+		sobre = InterfaceManager.txtToHTML(sobre);
+	
+		html = "";
+		html += "<h2>" + a.tipo + "</h2>";
+		html += InterfaceManager.desenhaEstrelas(a.estrelas);
+		html += "<h1>" + a.nome + "</h1>";
+		html += a.horario ? "<p><b>" + a.horario + "</b></p>" : "<p><b>" + InterfaceManager.dataHelena(di, df) + "</b></p>"; 
+		html += "<div id='sinopse'>";
+		// html += a.sobre ? "<p>" + a.sobre.replace(/\n/g, "<br />") + "</p>" : "<p>(cadastrar sinopse da atividade)</p>";
+		html += "<p>" + sobre + "</p>";
+		html += "</div>";
+		
+		//vê se existe quem cadastrado na atividade e se ele existe na lista de pessoas
+		var quem = a.quem ? a.quem.split(', ')[0] : null;
+		if(quem){
+			if(this.dataManager.pessoas[DataManager.stringToSlug(quem)]){
+				quem = this.dataManager.pessoas[DataManager.stringToSlug(quem)];
+			} else {
+				console.log('ERRO: ' + quem.toUpperCase() + ' não existe.');
+				return false;
+			}
+		} else {
+			console.log('ERRO: ' + a.id + ' não tem QUEM cadastrado.');
+			return false;
+		}
+		
+		//vê se o quem tem biografia
+		if(quem.bio){
+			html += "<div id='bio' class='hidden'></div>";
+			html += "<p><span class='fake-link'>Biografia</span>";
+			html += quem.site ?  " // <a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "</p>";			
+		} else {
+			html += quem.site ? "<p><a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "";
+		}
+		
+		$('#mini-balloon-body').html(html);
+		//Aplica click se existir bio
+		var c = {}; c.context = this; c.quem = quem;
+		quem.bio ? $('#mini-balloon-body .fake-link').click($.proxy(InterfaceManager.abreBio, c)) : null;
+		
+		//MINI-BALLOON-FOOTER
+		html = "";
+		html += "<div id='twitter'><img src='./img/interface/btn_tweet.png'/></div>";
+		// html += "<div id='facebook'><img src='./img/interface/btn_like.png'/></div>";
+		// html += "	<div id='opine'><p>Opine:</p><div id='estrelas-opine'><div class='estrela e1'></div><div class='estrela e2'></div><div class='estrela e3'></div><div class='estrela e4'></div><div class='estrela e5'></div></div></div>";
+		
+		$('#mini-balloon-footer').html(html);
+		InterfaceManager.updateMiniBalloonFooter(true);
+		$('#twitter').click(function(event){ InterfaceManager.abreSocial(event,'t');});
+		$('#facebook').click(function(event){InterfaceManager.abreSocial(event,'f');});
+
 	// 	//CROSS
 	// 	//reseta o HTML pré-existente
 	// 	$('#cross').html("");
@@ -819,13 +811,21 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
 	// 
 	
 	//mostra
-	this.updateScreen();
-	$('#balloon').fadeIn(250);
-		
-	// 	updateMiniBalloonFooterPosition();		
-	// } else {
-	// 	chamaURLinterna(ca_);
-	// }
+	var update = function(){
+		this.updateScreen();
+		$('#balloon').fadeIn(250);		
+	}
+	setTimeout($.proxy(update, this), 500);
+}
+
+InterfaceManager.prototype.desenhaBalloonTopViaNome = function(a, nomeOnde){
+	for(var i in this.dataManager.espacos){
+		var e = this.dataManager.espacos[i];
+		if(e.nome == nomeOnde){
+			this.desenhaBalloonTop(a, e.id);
+			break;
+		}
+	}
 }
 
 InterfaceManager.prototype.desenhaBalloonTop = function(a, idOnde){
@@ -944,6 +944,48 @@ InterfaceManager.prototype.updateSlideshowControls = function(){
 	}
 }
 
+InterfaceManager.desenhaEstrelas = function(nEstrelas){
+	if(nEstrelas){
+		var n = Math.round(parseFloat(nEstrelas));
+		var str = "<div id='estrelas'>";
+		for(var i=1; i<=5; i++){
+			str += i <= n ? "<img src='./img/interface/estrela-amarela.png'/>" : "<img src='./img/interface/estrela-cinza.png'/>"
+		}
+		str += "</div>";
+	} else {
+		var str = "";
+	}
+	return str;
+}
+
+InterfaceManager.dataHelena = function(di, df){
+	var str = "";
+	// var semana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab" ];
+	// var mesCurto = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+	var mesLongo = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+	var mesInicial = di.getMonth();
+	var mesFinal = df.getMonth();
+	var anoInicial = di.getFullYear();
+	var anoFinal = df.getFullYear();
+	var horaComZero = function(n){
+		return (n<10) ? "0" + n : n;
+	}
+
+	if(anoInicial == anoFinal){
+		if(mesInicial == mesFinal){
+			//De 12 a 20 de Outubro
+			str = "De " +horaComZero(di.getDate())+ " até " +horaComZero(df.getDate())+ " de " +mesLongo[mesInicial] + " de " + anoFinal;
+		} else {
+			//De 12 de Jan. a 15 de Out.
+			str = "De " +horaComZero(di.getDate())+ " de " +mesLongo[mesInicial]+ " até " +horaComZero(df.getDate())+ " de " +mesLongo[mesFinal]+ " de " + anoFinal;
+		}
+	} else {
+		//De 10 de Dez. 2011 a 15 Fev. 2012
+		str = "De " +horaComZero(di.getDate())+ " de " +mesLongo[mesInicial]+ " " +anoInicial+ " até " +horaComZero(df.getDate())+ " de " +mesLongo[mesFinal]+ " de " + anoFinal;
+	}
+	return str;
+}
+
 InterfaceManager.prototype.nextSlideImg = function(){	
 	if(this.ballonVars.slideshow.showingImgIndex < this.ballonVars.slideshow.nImgs-1){
 		var element = $('#slideshow-imgs');
@@ -966,15 +1008,137 @@ InterfaceManager.prototype.prevSlideImg = function(){
 	}
 }
 
-InterfaceManager.prototype.desenhaBalloonTopViaNome = function(a, nomeOnde){
-	for(var i in this.dataManager.espacos){
-		var e = this.dataManager.espacos[i];
-		if(e.nome == nomeOnde){
-			this.desenhaBalloonTop(a, e.id);
-			break;
+InterfaceManager.txtToHTML = function(txt){
+	// procura links num dos formatos abaixo:
+	// http://mnmo.com.br
+	// http://mnmo.com.br :: [clique aqui]
+	// Sempre começando com 'http://'. A parte opcional, vai virar o label do link, sem os [].
+	
+	var paragrafos = txt.split('\n');
+	var html = '';
+	
+	for(var p in paragrafos){
+		var palavras = paragrafos[p].split(' ');
+
+		for(var i=0; i<palavras.length; i++){
+			var part = palavras[i];
+			if(part.substr(0,7) == 'http://'){
+
+				//é um link
+				var nextPart = palavras[i+1];
+				var labelStart = palavras[i+2];
+
+				if(nextPart == '::' && labelStart.substr(0,1) == '['){
+					//tem custom label
+					var skipNIndexes = 2;
+					//reconstrói o custom label
+					var label = labelStart + ' ';
+					for(var j = i+3; j < palavras.length; j++){
+						var labelEndCandidate = palavras[j];
+						if(labelEndCandidate.substr(labelEndCandidate.length-1, 1) == ']'){
+							label += labelEndCandidate;
+							var foundLabelEnd = true;
+							skipNIndexes ++;
+							break;
+						} else {
+							label += labelEndCandidate + ' ';
+						}
+						skipNIndexes ++;
+					}
+					if(foundLabelEnd){
+						i += skipNIndexes;
+						var label = label.substr(1, label.length-2); //tira os []
+						var link = part;
+						var ponto = '';
+						//confere se tem um ponto final colado no fim do link
+						if(link.substr(link.length - 1, 1) == '.'){
+							link = link.substr(0, link.length-1); //tira o ponto do link
+							ponto = '.'; //anota para incluir o ponto de volta no texto
+						}
+						html += "<a href='" + link + "'>" + label + "</a>" + ponto + ' ';
+					} else {
+						console.log(['ERRO: Link mal-formatado no texto:', [txt]]);
+					}
+				} else {
+					//usa o próprio link como label
+					var link = part;
+					var ponto = '';
+					//confere se tem um ponto final colado no fim do link
+					if(link.substr(link.length - 1, 1) == '.'){
+						link = link.substr(0, link.length-1); //tira o ponto do link
+						ponto = '.'; //anota para incluir o ponto de volta no texto
+					}
+					var autoLabel = link.replace('http://', '');
+					html += "<a href='" + link + "'>" + autoLabel + "</a>" + ponto + ' ';
+				}
+			} else {
+				html += part + ' ';
+			}
 		}
+		
+		html = html.substr(0, html.length-1) + '\n'; //tira o último espaço, inclui uma quebra de linha
+	}
+	
+	html = html.substr(0, html.length-1); //tira a última quebra de linha
+	
+	//substitui as quebras de linha por br
+	html.replace(/\n/g, '<br />');
+	return html;
+}
+
+InterfaceManager.abreBio = function(){	
+	var divBio = $('#bio');
+	var linkBio = $('#mini-balloon-body .fake-link');
+	
+	if(divBio.hasClass('hidden')){
+		divBio.html('<p>//</p><p>' + InterfaceManager.txtToHTML(this.quem.bio) + '<p>');
+		linkBio.html("Fechar Bio");
+	} else {
+		divBio.html("");
+		linkBio.html("Biografia");
+	}
+	//
+	$('#bio').toggleClass('hidden');
+	InterfaceManager.updateMiniBalloonFooter();
+}
+
+InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo){
+	var updateSoon = function(){
+		//reposiciona o footer
+		var miniBalloonBodyHeight = $('#mini-balloon-body').outerHeight(false);
+		var top = 20 + miniBalloonBodyHeight;
+		$('#mini-balloon-footer').css('top', top);
+
+		//ajusta o tamanho mínimo do balloon
+		var minHeight = $('#mini-balloon-footer').outerHeight(false) + top - 20;
+		$('#balloon-body').css('min-height', minHeight);
+		
+		//
+		updateScreenToo ? im.updateScreen() : null;
+	}
+	if(updateScreenToo){
+		setTimeout(updateSoon, 510);	
+	} else {
+		updateSoon();
 	}
 }
+
+InterfaceManager.abreSocial = function(event, serviceCode){
+	switch(serviceCode){
+		case 't':
+			var baseURL = "http://twitter.com/home?status=";
+		break;
+		case 'f':
+			var baseURL = "http://www.facebook.com/share.php?u=";
+		break;
+		default:
+		break;
+	}
+	var actualURL = window.location.toString();
+	var msg = 'Recomendo: ' + actualURL;
+	window.open(baseURL + encodeURI(msg), '_BLANK');
+}
+
 
 InterfaceManager.prototype.fechaBaloon = function(){
 	$('#balloon').fadeOut(250);

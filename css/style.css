@@ -288,6 +288,13 @@ em{
 	top:20px;
 	right:20px;
 }
+#facebook{
+	display:inline-block;
+	margin-left:10px;
+}
+#twitter{
+	display:inline-block;
+}
 
 
 /* ====== HEADER ====== */

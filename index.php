@@ -22,31 +22,6 @@
 	// echo '<br />';
 	// var_dump($_REQUEST);
 	?>
-	<div id="balloon">
-		<div id="balloon-tip" class="balloon tip"></div>
-		<div id="balloon-top" class="balloon top"></div>
-		<div id="balloon-body">
-			<div id="slideshow-controls"><div class="previous"></div><div class="next"></div></div>
-			<div id="slideshow">
-			</div>
-			<div id="mini-balloon">
-				<div id="mini-ballon-tip" class="mini balloon tip"></div>
-				<div id="mini-balloon-body">
-				</div>
-			</div>
-			<div id="mini-balloon-footer">
-				<div id="twitter"></div>
-				<div id="facebook"></div>
-				<!-- <div id="opine"><p>Opine:</p>
-					<div id="estrelas-opine">
-						<div class="estrela e1"></div><div class="estrela e2"></div><div class="estrela e3"></div><div class="estrela e4"></div><div class="estrela e5"></div>
-					</div>
-				</div> -->
-			</div>
-			<div id="cross">
-			</div>
-		</div>
-	</div>
 </body>
 </html>
 
