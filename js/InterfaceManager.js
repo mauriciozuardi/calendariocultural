@@ -11,6 +11,10 @@ InterfaceManager.prototype.init = function(vars){
 	this.updateScreen();
 	var context = this;
 	$(window).resize($.proxy(this.updateScreen, context));
+	
+	//aplica controle fixos do balloon
+	$('#slideshow-controls .previous').click($.proxy(this.prevSlideImg, context));
+	$('#slideshow-controls .next').click($.proxy(this.nextSlideImg, context));
 }
 
 InterfaceManager.prototype.drawHeader = function(){
@@ -645,6 +649,7 @@ $.fn.smartBackgroundImage = function(url, callerID){
 }
 
 InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
+	var html;
 // function abreBalloon(idComposto, aID, skipIndex){
 	// console.log([idComposto, aID, skipIndex]);
 	// 
@@ -671,7 +676,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
 		// 	if(!a_.onde){ alert("Precisa cadastrar ONDE ou esconder.") }
 		// }
 		
-		//define o onde que vai aparecer no topo do balloon
+		//BALLOON TOP
 		var onde;
 		!a.onde ? console.log(a.id + ' não tem onde cadastrado.') : !idOnde ? idOnde = a.onde.split(', ')[0] : "";	
 		a.context.desenhaBalloonTop(a, idOnde);
@@ -695,6 +700,28 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
 	// 	}
 	// 	html += "</div>";
 	// 	$('#slideshow').html(html);
+	
+		//SLIDESHOW
+		html = "";
+		var imgs = a.imagens ? a.imagens.split('\n') : ['default-img.png'];
+		var folder = a.imagens ? 'content' : 'interface';
+				
+		//atualiza as variáveis de controle do
+		this.ballonVars ? null : this.ballonVars = {};
+		this.ballonVars.slideshow ? null : this.ballonVars.slideshow = {};
+		this.ballonVars.slideshow.IMG_WIDTH = 324; //width
+		this.ballonVars.slideshow.showingImgIndex = 0; //showing img index
+		this.ballonVars.slideshow.nImgs = imgs.length; //n images
+		this.updateSlideshowControls();
+	
+		//escreve o HTML
+		html += "<div id='slideshow-imgs'>";
+		for(var i in imgs){
+			html += "<div class='bgcover slideshow-img' style='background-image: url(./img/" + folder + "/" + encodeURI(imgs[i]) + ")'></div>";
+		}
+		html += "</div>";
+		$('#slideshow').html(html);
+	
 	// 
 	// 	//MINI-BALLOON - INFO DA ATIVIDADE
 	// 	var di = googleDateToDate(a_.datainicial ? a_.datainicial : new Date());
@@ -897,6 +924,46 @@ InterfaceManager.prototype.desenhaBalloonTop = function(a, idOnde){
 	$('#balloon-top .fechar').click(this.fechaBaloon);
 	var f = $.proxy(this.desenhaBalloonTopViaNome, this);
 	$('.todosEspacos').change(function(){f(a, $(this).val());});
+}
+
+InterfaceManager.prototype.updateSlideshowControls = function(){
+	if(this.ballonVars.slideshow.nImgs > 1){
+		if(this.ballonVars.slideshow.showingImgIndex == 0){
+			$('#slideshow-controls .next').css('display', 'block');
+			$('#slideshow-controls .previous').css('display', 'none');
+		} else if(this.ballonVars.slideshow.showingImgIndex == this.ballonVars.slideshow.nImgs-1){
+			$('#slideshow-controls .next').css('display', 'none');
+			$('#slideshow-controls .previous').css('display', 'block');
+		} else {
+			$('#slideshow-controls .next').css('display', 'block');
+			$('#slideshow-controls .previous').css('display', 'block');	
+		}
+	} else {
+		$('#slideshow-controls .next').css('display', 'none');
+		$('#slideshow-controls .previous').css('display', 'none');
+	}
+}
+
+InterfaceManager.prototype.nextSlideImg = function(){	
+	if(this.ballonVars.slideshow.showingImgIndex < this.ballonVars.slideshow.nImgs-1){
+		var element = $('#slideshow-imgs');
+		var ml = parseInt(element.css('margin-left'));
+		ml -= this.ballonVars.slideshow.IMG_WIDTH;
+		element.css('margin-left', ml);
+		this.ballonVars.slideshow.showingImgIndex ++;
+		this.updateSlideshowControls();
+	}
+}
+
+InterfaceManager.prototype.prevSlideImg = function(){
+	if(this.ballonVars.slideshow.showingImgIndex > 0){
+		var element = $('#slideshow-imgs');
+		var ml = parseInt(element.css('margin-left'));
+		ml += this.ballonVars.slideshow.IMG_WIDTH;
+		element.css('margin-left', ml);
+		this.ballonVars.slideshow.showingImgIndex --;
+		this.updateSlideshowControls();
+	}
 }
 
 InterfaceManager.prototype.desenhaBalloonTopViaNome = function(a, nomeOnde){
