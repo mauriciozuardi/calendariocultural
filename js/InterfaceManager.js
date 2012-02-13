@@ -1109,12 +1109,6 @@ InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo){
 		//ajusta o tamanho mínimo do balloon
 		var minHeight = $('#mini-balloon-footer').outerHeight(false) + top - 20;
 		
-		//GAMBIARRA-FORTE (não sei pq, a primeira vez q o balloon abria, errava a conta .. então compensei)
-		console.log('e ficou: ' + im.ballonVars.showedBalloon);
-		if(!im.ballonVars.showedBalloon){
-			minHeight += 20;
-		}
-		
 		//aplica
 		$('#balloon-body').css('min-height', minHeight);
 		updateScreenToo ? im.updateScreen() : null;

@@ -288,10 +288,10 @@ em{
 	font-weight:bold;
 }
 #bio{
-	display:block;
+	opacity:1;
 }
 #bio.hidden{
-	display:none;
+	opacity:0;
 }
 #mini-balloon-footer{
 	position:absolute;
