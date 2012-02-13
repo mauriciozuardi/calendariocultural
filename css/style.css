@@ -61,10 +61,12 @@ em{
 	height:15px;
 	margin-top:54px;
 	background-image:url(../img/interface/biqueta.gif);
+	display:none;
 }
 .mini.balloon.tip{
 	margin-left:-8px;
 	margin-top:103px;
+	display:block;
 }
 .balloon.top img{
 	float:left;
@@ -299,10 +301,10 @@ em{
 	background-color:rgba(255,255,255,.5);
 	top:20px;
 	right:20px;
-	display:none;
+	opacity:0;
 }
 #mini-balloon-footer.show{
-	display:block;
+	opacity:1;
 }
 #facebook{
 	display:inline-block;
@@ -342,7 +344,7 @@ em{
 /* ====== BG ====== */
 .bg{
 	min-width:960px;
-	position:absolute;
+	position:fixed;
 	z-index:1;
 }
 
@@ -357,12 +359,12 @@ em{
 /* ====== TIMELINE ====== */
 .timeline{
 	min-width:960px;
-	position:absolute;
+	position:fixed;
 	z-index:3;
 }
 .timeline-now{
 	min-width:960px;
-	position:absolute;
+	position:fixed;
 	z-index:4;
 }
 .bullet{
@@ -392,6 +394,13 @@ em{
 /* ====== ATIVIDADES ====== */
 .contents {
 	overflow-x:hidden;
+	overflow-y:hidden;
+}
+.scroller {
+	position:absolute;
+	z-index:-1;
+/*	background-color:rgba(0,255,0,.5);*/
+/*	z-index:1001;*/
 }
 .contents .activities{
 	min-width:960px;

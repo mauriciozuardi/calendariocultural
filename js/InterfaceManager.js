@@ -11,6 +11,7 @@ InterfaceManager.prototype.init = function(vars){
 	this.updateScreen();
 	var context = this;
 	$(window).resize($.proxy(this.updateScreen, context));
+	$(window).scroll($.proxy(this.updateScreen, context));
 	
 	//aplica controle fixos do balloon
 	$('#slideshow-controls .previous').click($.proxy(this.prevSlideImg, context));
@@ -90,6 +91,7 @@ InterfaceManager.prototype.drawPullDowns = function(){
 InterfaceManager.prototype.drawContents = function(){
 	//escreve o HTML básico
 	$('body').append(InterfaceManager.balloonStructure);
+	$('body').append("<div class='scroller'></div>");
 	$('body').append("<div class='bg'></div>");
 	$('body').append("<div class='timeline'></div>");
 	$('body').append("<div class='timeline-now'></div>");
@@ -225,11 +227,13 @@ InterfaceManager.dotOrRangeClicked = function(event){
 }
 
 InterfaceManager.dotClicked = function(e, atividade){
+	InterfaceManager.fechaBaloon();
 	InterfaceManager.selectActivity(atividade);
 	InterfaceManager.mostraInfo();
 }
 
 InterfaceManager.rangeClicked = function(e, atividade){
+	InterfaceManager.fechaBaloon();
 	InterfaceManager.selectActivity(atividade);
 	InterfaceManager.mostraInfo();
 }
@@ -381,7 +385,7 @@ InterfaceManager.mudaFundo = function(a){
 }
 InterfaceManager.infoClicked = function(){
 	InterfaceManager.fechaInfo();
-	// abreBalloon();
+	im.abreBalloon(im.dataManager.atividadeSelecionada);
 }
 
 InterfaceManager.fechaInfo = function(){
@@ -504,18 +508,17 @@ InterfaceManager.prototype.drawFooter = function(){
 	// –DEIXAR DINAMICO–
 	// –TRATAR LINKS–
 	$('.footer .site-info').html("<p><a href'#'>sobre</a> // <a href='#'>equipe</a> // <a href='#'>contato@calendariocultural.com.br</a> // <a href='#'>+55 (11) 9934.0987</a> // <a href='#'>home</a><img src='./img/interface/logo-h2r.png' alt='Logo h2r' /></p>");
-	
-	//preenche o content-info
-	var destaque = this.dataManager.destaqueSelecionado;
-	// –CONTINUAR–
 }
 
 InterfaceManager.prototype.updateScreen = function(){
 	var MARGIN_TOP = 55;
 	var w = $(window).width();
 	var h = $(window).height();
-	var ct = $('.header').height() + MARGIN_TOP; // contents top
+	var ct = $('.header').height() + MARGIN_TOP + $(window).scrollTop(); // contents top
 	var ch = h - $('.header').height() - $('.footer').height() - MARGIN_TOP; // contents height
+	
+	var at = $('.header').height() + MARGIN_TOP;
+	var ah = $('.contents .activities').height() + $('.footer').height();
 	
 	//ajusta a estrutura principal da página
 	$('.bg').css('width', w);
@@ -523,9 +526,12 @@ InterfaceManager.prototype.updateScreen = function(){
 	$('.contents').css('width', w);
 	$('.contents').css('height', ch);
 	$('.contents').css('top', ct);
-	// $('.contents .activities').css('width', w);
-	// $('.contents .activities').css('height', ch);
 	$('.footer').css('width', w);
+	
+	$('.scroller').css('width', w/2);
+	$('.scroller').css('height', ah);
+	$('.scroller').css('top', at);
+	$('.contents .activities').css('top', -$(window).scrollTop());
 	
 	//ajusta a altura das linhas da timeline
 	$('.line').css('height', h);
@@ -648,188 +654,101 @@ $.fn.smartBackgroundImage = function(url, callerID){
 
 InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	var html;
-// function abreBalloon(idComposto, aID, skipIndex){
-	// console.log([idComposto, aID, skipIndex]);
-	// 
-	// var cID = dotSelected.id.split('-');
-	// console.log(cID);
-	// var ca_ = ca[cID[0]][cID[1]];
-	// var atalho = ca_.atividades.split(', ')[0];
-	// 
-	// skipIndex = skipIndex ? skipIndex : 0;
-	// 
-	// var hash = "";
-	// hash += ca_.siteId + "-" + ca_.id;
-	// hash += aID ? "+" + aID : "+" + atalho;
-	// hash += skipIndex ? "|" + skipIndex : "";
-	// window.location.hash = hash;
-	// 
-	// if(!ca_.siteinterno){
-		//define quem é quem no jogo do bicho
-		// if(!idComposto){
-		// 	var a_ = a[ca_.siteId][atalho];
-		// 	if(!a_.onde){ alert("Precisa cadastrar ONDE ou esconder.") }
-		// } else {
-		// 	var a_ = a[ca_.siteId][aID];
-		// 	if(!a_.onde){ alert("Precisa cadastrar ONDE ou esconder.") }
-		// }
-		
-		//BALLOON TOP
-		var onde;
-		!a.onde ? console.log(a.id + ' não tem onde cadastrado.') : !idOnde ? idOnde = a.onde.split(', ')[0] : "";	
-		a.context.desenhaBalloonTop(a, idOnde);
-	
-		//SLIDESHOW
-		html = "";
-		var imgs = a.imagens ? a.imagens.split('\n') : ['default-img.png'];
-		var folder = a.imagens ? 'content' : 'interface';
-	
-		//escreve o HTML
-		html += "<div id='slideshow-imgs'>";
-		for(var i in imgs){
-			if(imgs[i] != ''){
-				html += "<div class='bgcover slideshow-img' style='background-image: url(./img/" + folder + "/" + encodeURI(imgs[i]) + ")'></div>";	
-			} else {
-				//remove as imagens fantasmas (\n a mais no cadastro)
-				imgs.splice(i,1);
-			}
-		}
-		html += "</div>";
-		
-		//atualiza as variáveis de controle do
-		this.ballonVars ? null : this.ballonVars = {};
-		this.ballonVars.slideshow ? null : this.ballonVars.slideshow = {};
-		this.ballonVars.slideshow.IMG_WIDTH = 324; //width
-		this.ballonVars.slideshow.showingImgIndex = 0; //showing img index
-		this.ballonVars.slideshow.nImgs = imgs.length; //n images
-		this.updateSlideshowControls();
-		$('#slideshow').html(html);
-	
-		//MINI-BALLOON - INFO DA ATIVIDADE
-		var di = a.datainicial;
-		var df = a.datafinal;
-		var sobre = a.sobre ? a.sobre : '(cadastrar sinopse da atividade)';
-		
-		//procura links dentro do texto e escreve o HTML correto, tb substitui \n por <br />.
-		sobre = InterfaceManager.txtToHTML(sobre);
-	
-		html = "";
-		html += "<h2>" + a.tipo + "</h2>";
-		html += InterfaceManager.desenhaEstrelas(a.estrelas);
-		html += "<h1>" + a.nome + "</h1>";
-		html += a.horario ? "<p><b>" + a.horario + "</b></p>" : "<p><b>" + InterfaceManager.dataHelena(di, df) + "</b></p>"; 
-		html += "<div id='sinopse'>";
-		// html += a.sobre ? "<p>" + a.sobre.replace(/\n/g, "<br />") + "</p>" : "<p>(cadastrar sinopse da atividade)</p>";
-		html += "<p>" + sobre + "</p>";
-		html += "</div>";
-		
-		//vê se existe quem cadastrado na atividade e se ele existe na lista de pessoas
-		var quem = a.quem ? a.quem.split(', ')[0] : null;
-		if(quem){
-			if(this.dataManager.pessoas[DataManager.stringToSlug(quem)]){
-				quem = this.dataManager.pessoas[DataManager.stringToSlug(quem)];
-			} else {
-				console.log('WARNING: ' + quem.toUpperCase() + ' não existe.');
-			}
-		} else {
-			console.log('WARNING: ' + a.id + ' não tem QUEM cadastrado.');
-			quem = {};
-		}
-		
-		//vê se o quem tem biografia
-		if(quem.bio){
-			html += "<div id='bio' class='hidden'></div>";
-			html += "<p><span class='fake-link'>Biografia</span>";
-			html += quem.site ?  " // <a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "</p>";			
-		} else {
-			html += quem.site ? "<p><a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "";
-		}
-		
-		$('#mini-balloon-body').html(html);
-		//Aplica click se existir bio
-		var c = {}; c.context = this; c.quem = quem;
-		quem.bio ? $('#mini-balloon-body .fake-link').click($.proxy(InterfaceManager.abreBio, c)) : null;
-		
-		//MINI-BALLOON-FOOTER
-		html = "";
-		html += "<div id='twitter'><img src='./img/interface/btn_tweet.png'/></div>";
-		// html += "<div id='facebook'><img src='./img/interface/btn_like.png'/></div>";
-		// html += "	<div id='opine'><p>Opine:</p><div id='estrelas-opine'><div class='estrela e1'></div><div class='estrela e2'></div><div class='estrela e3'></div><div class='estrela e4'></div><div class='estrela e5'></div></div></div>";
-		
-		$('#mini-balloon-footer').html(html);
-		InterfaceManager.updateMiniBalloonFooter(true);
-		$('#twitter').click(function(event){ InterfaceManager.abreSocial(event,'t', a);});
-		$('#facebook').click(function(event){InterfaceManager.abreSocial(event,'f', a);});
+			
+	//BALLOON TOP
+	var onde;
+	!a.onde ? console.log(a.id + ' não tem onde cadastrado.') : !idOnde ? idOnde = a.onde.split(', ')[0] : "";	
+	a.context.desenhaBalloonTop(a, idOnde);
 
-	// 	//CROSS
-	// 	//reseta o HTML pré-existente
-	// 	$('#cross').html("");
-	// 
-	// 	//recria o HTML
-	// 	if(ca_.atividades){
-	// 		var atividades = ca_.atividades.split(', ');
-	// 		var alphaStep = 80/atividades.length;
-	// 		var atividade = {};
-	// 		var nameParts = [];
-	// 		var imgs = ["default-img.png"];
-	// 		var str = "";
-	// 		var alpha = 0;
-	// 		var n = 0;
-	// 
-	// 		// console.log(ca_.atividades);
-	// 		for (i in atividades){
-	// 			// console.log(skipIndex);
-	// 			if(i != skipIndex){
-	// 				var context = {};
-	// 				atividade = a[ca_.siteId][atividades[i]];
-	// 				if(atividade){
-	// 					nameParts = atividade.nome.split(' // ');
-	// 					imgs = atividade.imagens ? atividade.imagens.split('\n') : ["default-img.png"];
-	// 					// alpha = (100 - (alphaStep * n))/100; n ++;
-	// 					alpha = 1;
-	// 
-	// 					html = "";
-	// 					html += "<div id='cross-" + i + "' class='balloon cross' style='background-color:rgba(255,255,255," + alpha + ")'>";
-	// 					html += "<div class='bg-cover cross-img' style='background-image: url(./img/" + encodeURI(imgs[0]) + ");'></div>";
-	// 					html += "<div class='reticencias' style='background-image: url(./img/reticencias.png);'></div>";
-	// 					html += "<h2>" + atividade.tipo + "</h2>";
-	// 					html += "<h1>" + nameParts[0];
-	// 					html += nameParts[1] ? "<em> // " + nameParts[1] + "</em></h1>" : "</h1>";
-	// 					html += "</div>";
-	// 					$('#cross').append(html);
-	// 
-	// 					str = "#cross-" + i;
-	// 					context.atividade = atividades[i];
-	// 					context.id = ca_.siteId + "-" + ca_.id;
-	// 					context.skipIndex = i;
-	// 					$(str).click($.proxy(crossClicked, context));
-	// 				}	
-	// 			}
-	// 		}
-	// 	}
-	// 
+	//SLIDESHOW
+	html = "";
+	var imgs = a.imagens ? a.imagens.split('\n') : ['default-img.png'];
+	var folder = a.imagens ? 'content' : 'interface';
+
+	//escreve o HTML
+	html += "<div id='slideshow-imgs'>";
+	for(var i in imgs){
+		if(imgs[i] != ''){
+			html += "<div class='bgcover slideshow-img' style='background-image: url(./img/" + folder + "/" + encodeURI(imgs[i]) + ")'></div>";	
+		} else {
+			//remove as imagens fantasmas (\n a mais no cadastro)
+			imgs.splice(i,1);
+		}
+	}
+	html += "</div>";
+	
+	//atualiza as variáveis de controle do
+	this.ballonVars ? null : this.ballonVars = {};
+	this.ballonVars.slideshow ? null : this.ballonVars.slideshow = {};
+	this.ballonVars.slideshow.IMG_WIDTH = 324; //width
+	this.ballonVars.slideshow.showingImgIndex = 0; //showing img index
+	this.ballonVars.slideshow.nImgs = imgs.length; //n images
+	this.updateSlideshowControls();
+	$('#slideshow').html(html);
+
+	//MINI-BALLOON - INFO DA ATIVIDADE
+	var di = a.datainicial;
+	var df = a.datafinal;
+	var sobre = a.sobre ? a.sobre : '(cadastrar sinopse da atividade)';
+	
+	//procura links dentro do texto e escreve o HTML correto, tb substitui \n por <br />.
+	sobre = InterfaceManager.txtToHTML(sobre);
+
+	html = "";
+	html += "<h2>" + a.tipo + "</h2>";
+	html += InterfaceManager.desenhaEstrelas(a.estrelas);
+	html += "<h1>" + a.nome + "</h1>";
+	html += a.horario ? "<p><b>" + a.horario + "</b></p>" : "<p><b>" + InterfaceManager.dataHelena(di, df) + "</b></p>"; 
+	html += "<div id='sinopse'>";
+	html += "<p>" + sobre + "</p>";
+	html += "</div>";
+	
+	//vê se existe quem cadastrado na atividade e se ele existe na lista de pessoas
+	var quem = a.quem ? a.quem.split(', ')[0] : null;
+	if(quem){
+		if(this.dataManager.pessoas[DataManager.stringToSlug(quem)]){
+			quem = this.dataManager.pessoas[DataManager.stringToSlug(quem)];
+		} else {
+			console.log('WARNING: ' + quem.toUpperCase() + ' não existe.');
+		}
+	} else {
+		console.log('WARNING: ' + a.id + ' não tem QUEM cadastrado.');
+		quem = {};
+	}
+	
+	//vê se o quem tem biografia
+	if(quem.bio){
+		html += "<div id='bio' class='hidden'></div>";
+		html += "<p><span class='fake-link'>Biografia</span>";
+		html += quem.site ?  " // <a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "</p>";			
+	} else {
+		html += quem.site ? "<p><a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "";
+	}
+	
+	$('#mini-balloon-body').html(html);
+	//Aplica click se existir bio
+	var c = {}; c.context = this; c.quem = quem;
+	quem.bio ? $('#mini-balloon-body .fake-link').click($.proxy(InterfaceManager.abreBio, c)) : null;
+	
+	//MINI-BALLOON-FOOTER
+	html = "";
+	html += "<div id='twitter'><img src='./img/interface/btn_tweet.png'/></div>";
+	// html += "<div id='facebook'><img src='./img/interface/btn_like.png'/></div>";
+	// html += "	<div id='opine'><p>Opine:</p><div id='estrelas-opine'><div class='estrela e1'></div><div class='estrela e2'></div><div class='estrela e3'></div><div class='estrela e4'></div><div class='estrela e5'></div></div></div>";
+	
+	$('#mini-balloon-footer').html(html);
+	InterfaceManager.updateMiniBalloonFooter(true);
+	$('#twitter').click(function(event){ InterfaceManager.abreSocial(event,'t', a);});
+	$('#facebook').click(function(event){InterfaceManager.abreSocial(event,'f', a);});
 	
 	//CROSS
 	//reseta o HTML pré-existente (para o caso do balloon anterior ter preenchido o cross)
 	$('#cross').html("");
 	
-	// 
-	// 	//recria o HTML
-	// 	if(ca_.atividades){
-	// 		var atividades = ca_.atividades.split(', ');
-	// 		var alphaStep = 80/atividades.length;
-	// 		var atividade = {};
-	// 		var nameParts = [];
-	// 		var imgs = ["default-img.png"];
-	// 		var str = "";
-	// 		var alpha = 0;
-	// 		var n = 0;
-	
 	//descobre quem é a atividade principal (pai)
 	var crossList = [];
 	if(a.parent){
 		var pai = this.dataManager.atividades[a.idSiteOriginal][a.parent];
-		console.log(['clicou num filho de:', pai, this]);
 	} else if(a.dependentes){
 		var pai = a;
 	}
@@ -841,39 +760,6 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 			crossList.push(pai.dependentes[i]);
 		}		
 	}
-	
-	// 
-	// 		// console.log(ca_.atividades);
-	// 		for (i in atividades){
-	// 			// console.log(skipIndex);
-	// 			if(i != skipIndex){
-	// 				var context = {};
-	// 				atividade = a[ca_.siteId][atividades[i]];
-	// 				if(atividade){
-	// 					nameParts = atividade.nome.split(' // ');
-	// 					imgs = atividade.imagens ? atividade.imagens.split('\n') : ["default-img.png"];
-	// 					// alpha = (100 - (alphaStep * n))/100; n ++;
-	// 					alpha = 1;
-	// 
-	// 					html = "";
-	// 					html += "<div id='cross-" + i + "' class='balloon cross' style='background-color:rgba(255,255,255," + alpha + ")'>";
-	// 					html += "<div class='bg-cover cross-img' style='background-image: url(./img/" + encodeURI(imgs[0]) + ");'></div>";
-	// 					html += "<div class='reticencias' style='background-image: url(./img/reticencias.png);'></div>";
-	// 					html += "<h2>" + atividade.tipo + "</h2>";
-	// 					html += "<h1>" + nameParts[0];
-	// 					html += nameParts[1] ? "<em> // " + nameParts[1] + "</em></h1>" : "</h1>";
-	// 					html += "</div>";
-	// 					$('#cross').append(html);
-	// 
-	// 					str = "#cross-" + i;
-	// 					context.atividade = atividades[i];
-	// 					context.id = ca_.siteId + "-" + ca_.id;
-	// 					context.skipIndex = i;
-	// 					$(str).click($.proxy(crossClicked, context));
-	// 				}	
-	// 			}
-	// 		}
-	// 	}
 	
 	//monta o cross
 	if(crossList.length > 0){
@@ -914,7 +800,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 		this.updateScreen();
 		$('#balloon').fadeIn(250);		
 	}
-	setTimeout($.proxy(update, this), 1);
+	setTimeout($.proxy(update, this), 10);
 }
 
 InterfaceManager.abreBalloonCross = function(){
@@ -922,6 +808,7 @@ InterfaceManager.abreBalloonCross = function(){
 }
 
 InterfaceManager.prototype.desenhaBalloonTopViaNome = function(a, nomeOnde){
+	console.log(nomeOnde);
 	for(var i in this.dataManager.espacos){
 		var e = this.dataManager.espacos[i];
 		if(e.nome == nomeOnde){
@@ -1024,7 +911,7 @@ InterfaceManager.prototype.desenhaBalloonTop = function(a, idOnde){
 	}
 	
 	//aplica os cliques
-	$('#balloon-top .fechar').click(this.fechaBaloon);
+	$('#balloon-top .fechar').click(InterfaceManager.fechaBaloon);
 	var f = $.proxy(this.desenhaBalloonTopViaNome, this);
 	$('.todosEspacos').change(function(){f(a, $(this).val());});
 }
@@ -1221,7 +1108,7 @@ InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo){
 		updateScreenToo ? im.updateScreen() : null;
 	}
 	if(updateScreenToo){
-		setTimeout(updateSoon, 10);	
+		setTimeout(updateSoon, 20);	
 	} else {
 		updateSoon();
 	}
@@ -1244,6 +1131,6 @@ InterfaceManager.abreSocial = function(event, serviceCode, a){
 }
 
 
-InterfaceManager.prototype.fechaBaloon = function(){
+InterfaceManager.fechaBaloon = function(){
 	$('#balloon').fadeOut(250);
 }
