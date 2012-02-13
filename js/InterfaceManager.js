@@ -1078,7 +1078,7 @@ InterfaceManager.txtToHTML = function(txt){
 	html = html.substr(0, html.length-1); //tira a última quebra de linha
 	
 	//substitui as quebras de linha por br
-	html.replace(/\n/g, '<br />');
+	html = html.replace(/\n/gi, '<br />');
 	return html;
 }
 
