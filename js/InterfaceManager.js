@@ -759,8 +759,8 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
 		
 		$('#mini-balloon-footer').html(html);
 		InterfaceManager.updateMiniBalloonFooter(true);
-		$('#twitter').click(function(event){ InterfaceManager.abreSocial(event,'t');});
-		$('#facebook').click(function(event){InterfaceManager.abreSocial(event,'f');});
+		$('#twitter').click(function(event){ InterfaceManager.abreSocial(event,'t', a);});
+		$('#facebook').click(function(event){InterfaceManager.abreSocial(event,'f', a);});
 
 	// 	//CROSS
 	// 	//reseta o HTML pré-existente
@@ -1123,7 +1123,7 @@ InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo){
 	}
 }
 
-InterfaceManager.abreSocial = function(event, serviceCode){
+InterfaceManager.abreSocial = function(event, serviceCode, a){
 	switch(serviceCode){
 		case 't':
 			var baseURL = "http://twitter.com/home?status=";
@@ -1135,7 +1135,7 @@ InterfaceManager.abreSocial = function(event, serviceCode){
 		break;
 	}
 	var actualURL = window.location.toString();
-	var msg = 'Recomendo: ' + actualURL;
+	var msg = a.nome + ' no Calendário Cultural. Recomendo: ' + actualURL;
 	window.open(baseURL + encodeURI(msg), '_BLANK');
 }
 
