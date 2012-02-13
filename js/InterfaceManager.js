@@ -4,7 +4,10 @@ function InterfaceManager(){
 	this.bgLoadControl.URLtoShow = "";
 }
 
-InterfaceManager.prototype.init = function(vars){
+InterfaceManager.prototype.init = function(){
+	this.ballonVars ? null : this.ballonVars = {};
+	this.ballonVars.showedBalloon = false;
+	
 	this.drawHeader();
 	this.drawFooter();
 	this.drawContents();
@@ -566,7 +569,7 @@ InterfaceManager.prototype.updateScreen = function(){
 	}
 	
 	//recentraliza o balloon
-	var bt = Math.max((h - $('#balloon').height())/2, 0);
+	var bt = Math.max((h - $('#balloon').height())/2, $('.header').height()+1);
 	var bl = (w - $('#balloon').width())/2;
 	$('#balloon').css('top', bt);
 	$('#balloon').css('left', bl);
@@ -678,7 +681,6 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	html += "</div>";
 	
 	//atualiza as variáveis de controle do
-	this.ballonVars ? null : this.ballonVars = {};
 	this.ballonVars.slideshow ? null : this.ballonVars.slideshow = {};
 	this.ballonVars.slideshow.IMG_WIDTH = 324; //width
 	this.ballonVars.slideshow.showingImgIndex = 0; //showing img index
@@ -796,9 +798,14 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	}
 	
 	//mostra
+	var callback = function(){
+		im.ballonVars.showedBalloon = true;
+	}
+	
 	var update = function(){
 		this.updateScreen();
-		$('#balloon').fadeIn(250);		
+		$('#balloon').fadeIn(250, callback);
+		console.log('era: ' + this.ballonVars.showedBalloon);		
 	}
 	setTimeout($.proxy(update, this), 10);
 }
@@ -808,10 +815,9 @@ InterfaceManager.abreBalloonCross = function(){
 }
 
 InterfaceManager.prototype.desenhaBalloonTopViaNome = function(a, nomeOnde){
-	console.log(nomeOnde);
 	for(var i in this.dataManager.espacos){
 		var e = this.dataManager.espacos[i];
-		if(e.nome == nomeOnde){
+		if(DataManager.stringToSlug(e.nome) == DataManager.stringToSlug(nomeOnde)){
 			this.desenhaBalloonTop(a, e.id);
 			break;
 		}
@@ -1102,9 +1108,15 @@ InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo){
 
 		//ajusta o tamanho mínimo do balloon
 		var minHeight = $('#mini-balloon-footer').outerHeight(false) + top - 20;
-		$('#balloon-body').css('min-height', minHeight);
 		
-		//
+		//GAMBIARRA-FORTE (não sei pq, a primeira vez q o balloon abria, errava a conta .. então compensei)
+		console.log('e ficou: ' + im.ballonVars.showedBalloon);
+		if(!im.ballonVars.showedBalloon){
+			minHeight += 20;
+		}
+		
+		//aplica
+		$('#balloon-body').css('min-height', minHeight);
 		updateScreenToo ? im.updateScreen() : null;
 	}
 	if(updateScreenToo){
