@@ -188,6 +188,9 @@ em{
 	overflow:hidden;
 	cursor:pointer;
 }
+.balloon.cross.selected{
+	cursor:default;
+}
 .balloon.cross em{
 	color:#666;
 }
@@ -199,6 +202,9 @@ em{
 	margin-top:7px;
 	margin-left:99px;
 }
+.balloon.cross.selected h2{
+	opacity:.5;
+}
 .balloon.cross h1{
 	margin:0px;
 	font-size:15px;
@@ -207,12 +213,18 @@ em{
 	margin-left:98px;
 	white-space: nowrap;
 }
+.balloon.cross.selected h1{
+	opacity:.5;
+}
 .balloon.cross .cross-img{
 	width: 86px;
 	height: 48px;
 /*	margin-top: 5px;*/
 /*	opacity:.3;*/
 	position: absolute;
+}
+.balloon.cross.selected .cross-img{
+	opacity:.5;
 }
 .balloon.cross .reticencias{
 	width: 36px;
@@ -287,6 +299,10 @@ em{
 	background-color:rgba(255,255,255,.5);
 	top:20px;
 	right:20px;
+	display:none;
+}
+#mini-balloon-footer.show{
+	display:block;
 }
 #facebook{
 	display:inline-block;

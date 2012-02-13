@@ -646,7 +646,7 @@ $.fn.smartBackgroundImage = function(url, callerID){
 	return this;
 }
 
-InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
+InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	var html;
 // function abreBalloon(idComposto, aID, skipIndex){
 	// console.log([idComposto, aID, skipIndex]);
@@ -729,12 +729,11 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
 			if(this.dataManager.pessoas[DataManager.stringToSlug(quem)]){
 				quem = this.dataManager.pessoas[DataManager.stringToSlug(quem)];
 			} else {
-				console.log('ERRO: ' + quem.toUpperCase() + ' não existe.');
-				return false;
+				console.log('WARNING: ' + quem.toUpperCase() + ' não existe.');
 			}
 		} else {
-			console.log('ERRO: ' + a.id + ' não tem QUEM cadastrado.');
-			return false;
+			console.log('WARNING: ' + a.id + ' não tem QUEM cadastrado.');
+			quem = {};
 		}
 		
 		//vê se o quem tem biografia
@@ -810,12 +809,116 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde, nomeOnde){
 	// 	}
 	// 
 	
+	//CROSS
+	//reseta o HTML pré-existente (para o caso do balloon anterior ter preenchido o cross)
+	$('#cross').html("");
+	
+	// 
+	// 	//recria o HTML
+	// 	if(ca_.atividades){
+	// 		var atividades = ca_.atividades.split(', ');
+	// 		var alphaStep = 80/atividades.length;
+	// 		var atividade = {};
+	// 		var nameParts = [];
+	// 		var imgs = ["default-img.png"];
+	// 		var str = "";
+	// 		var alpha = 0;
+	// 		var n = 0;
+	
+	//descobre quem é a atividade principal (pai)
+	var crossList = [];
+	if(a.parent){
+		var pai = this.dataManager.atividades[a.idSiteOriginal][a.parent];
+		console.log(['clicou num filho de:', pai, this]);
+	} else if(a.dependentes){
+		var pai = a;
+	}
+	
+	//inclui pai e filhos na lista de cross
+	if(pai){
+		crossList.push(pai);
+		for(var i in pai.dependentes){
+			crossList.push(pai.dependentes[i]);
+		}		
+	}
+	
+	// 
+	// 		// console.log(ca_.atividades);
+	// 		for (i in atividades){
+	// 			// console.log(skipIndex);
+	// 			if(i != skipIndex){
+	// 				var context = {};
+	// 				atividade = a[ca_.siteId][atividades[i]];
+	// 				if(atividade){
+	// 					nameParts = atividade.nome.split(' // ');
+	// 					imgs = atividade.imagens ? atividade.imagens.split('\n') : ["default-img.png"];
+	// 					// alpha = (100 - (alphaStep * n))/100; n ++;
+	// 					alpha = 1;
+	// 
+	// 					html = "";
+	// 					html += "<div id='cross-" + i + "' class='balloon cross' style='background-color:rgba(255,255,255," + alpha + ")'>";
+	// 					html += "<div class='bg-cover cross-img' style='background-image: url(./img/" + encodeURI(imgs[0]) + ");'></div>";
+	// 					html += "<div class='reticencias' style='background-image: url(./img/reticencias.png);'></div>";
+	// 					html += "<h2>" + atividade.tipo + "</h2>";
+	// 					html += "<h1>" + nameParts[0];
+	// 					html += nameParts[1] ? "<em> // " + nameParts[1] + "</em></h1>" : "</h1>";
+	// 					html += "</div>";
+	// 					$('#cross').append(html);
+	// 
+	// 					str = "#cross-" + i;
+	// 					context.atividade = atividades[i];
+	// 					context.id = ca_.siteId + "-" + ca_.id;
+	// 					context.skipIndex = i;
+	// 					$(str).click($.proxy(crossClicked, context));
+	// 				}	
+	// 			}
+	// 		}
+	// 	}
+	
+	//monta o cross
+	if(crossList.length > 0){
+		//ordena por datainicial
+		crossList.sort(InterfaceManager.ordemDataInicialAscendente);
+		for(var i in crossList){
+			var atividade = crossList[i];
+			var nameParts = atividade.nome.split(' // ');
+			var img = atividade.imagens ? 'content/' + atividade.imagens.split('\n')[0] : 'interface/default-img.png';
+			
+			//clareia si mesma
+			var cssClass = atividade != a ? '' : ' selected';
+
+			html = "";
+			html += "<div id='cross-" + i + "' class='balloon cross" + cssClass + "' style='background-color:rgba(255,255,255,1)'>";
+			html += "<div class='bgcover cross-img" + cssClass + "' style='background-image: url(./img/" + encodeURI(img) + ");'></div>";
+			html += "<div class='reticencias" + cssClass + "' style='background-image: url(./img/interface/reticencias.png);'></div>";
+			html += "<h2>" + atividade.tipo + "</h2>";
+			html += "<h1>" + nameParts[0];
+			html += nameParts[1] ? "<em> // " + nameParts[1] + "</em></h1>" : "</h1>";
+			html += "</div>";
+			$('#cross').append(html);
+			
+			// coloca o clique em todas, menos si mesma
+			if(atividade != a){
+				var str = "#cross-" + i;
+				var c = {};
+				c.context = this;
+				c.a = atividade;
+				var f = $.proxy(InterfaceManager.abreBalloonCross, c);
+				$(str).click(f);
+			}
+		}
+	}
+	
 	//mostra
 	var update = function(){
 		this.updateScreen();
 		$('#balloon').fadeIn(250);		
 	}
-	setTimeout($.proxy(update, this), 500);
+	setTimeout($.proxy(update, this), 1);
+}
+
+InterfaceManager.abreBalloonCross = function(){
+	this.context.abreBalloon(this.a);
 }
 
 InterfaceManager.prototype.desenhaBalloonTopViaNome = function(a, nomeOnde){
@@ -1108,6 +1211,7 @@ InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo){
 		var miniBalloonBodyHeight = $('#mini-balloon-body').outerHeight(false);
 		var top = 20 + miniBalloonBodyHeight;
 		$('#mini-balloon-footer').css('top', top);
+		$('#mini-balloon-footer').addClass('show');
 
 		//ajusta o tamanho mínimo do balloon
 		var minHeight = $('#mini-balloon-footer').outerHeight(false) + top - 20;
@@ -1117,7 +1221,7 @@ InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo){
 		updateScreenToo ? im.updateScreen() : null;
 	}
 	if(updateScreenToo){
-		setTimeout(updateSoon, 510);	
+		setTimeout(updateSoon, 10);	
 	} else {
 		updateSoon();
 	}
