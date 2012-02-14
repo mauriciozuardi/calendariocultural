@@ -514,8 +514,6 @@ InterfaceManager.prototype.drawFooter = function(){
 	$('.footer').append("<div class='site-info'></div>");
 	
 	//preenche o site-info
-	// –DEIXAR DINAMICO–
-	// –TRATAR LINKS–
 	var data = this.dataManager;
 	var footer = data.currentSite.footer ? data.currentSite.footer : 'sobre // equipe // contato@calendariocultural.com.br // +55 (11) 9934.0987 // home';
 	var html = "";
@@ -563,7 +561,27 @@ InterfaceManager.prototype.drawFooter = function(){
 }
 
 InterfaceManager.abreFooterInfoLink = function(event){
-	console.log($(event.target).text());
+	var titulo = $(event.target).text();
+	var conteudo = im.dataManager.currentSite.footercontent[titulo].replace(/\n/g, '<br />');
+	// var c = conteudo.replace(/\n/g, '<br />');
+	// var paragrafos = conteudo.split('\n');
+
+	var html = "";
+	html += "<h1>" + titulo + "</h1>";
+	html += "<image class='icon' src='./img/interface/micro-balloon.png' style='opacity:0'/>"
+	html += "<image class='fechar' src='./img/interface/fechar.png'/>";
+	html += "<p>" + conteudo + "</p>"
+	html += "<h4> </h4>";
+	
+	$('.content-info').html(html);
+	InterfaceManager.mostraInfo();
+	im.updateScreen();
+	
+	//ativa os cliques da area de info
+	// $('.content-info h1').click(InterfaceManager.infoClicked);
+	// $('.content-info .icon').click(InterfaceManager.infoClicked);
+	// $('.content-info p').click(InterfaceManager.infoClicked);
+	$('.content-info .fechar').click(InterfaceManager.fechaInfo);
 }
 
 InterfaceManager.prototype.updateScreen = function(){
