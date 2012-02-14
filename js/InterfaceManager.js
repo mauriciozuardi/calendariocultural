@@ -769,6 +769,9 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	
 	//procura links dentro do texto e escreve o HTML correto, tb substitui \n por <br />.
 	sobre = InterfaceManager.txtToHTML(sobre);
+	
+	//inclui o form se existir
+	(a.formtxt || a.formupload) ? sobre = InterfaceManager.insertForm(a, sobre) : null;
 
 	html = "";
 	html += "<h2>" + a.tipo + "</h2>";
@@ -1099,14 +1102,27 @@ InterfaceManager.txtToHTML = function(txt){
 				//é um link
 				var nextPart = palavras[i+1];
 				var labelStart = palavras[i+2];
-
-				if(nextPart == '::' && labelStart.substr(0,1) == '['){
-					//tem custom label
+				
+				if(nextPart == '::' && labelStart.substr(0,1) == '[' && labelStart.substr(labelStart.length-1, 1) == ']'){
+					//tem custom label - de uma palavra só. Ex: [regulamento]
+					i += 2;
+					labelStart = labelStart.substr(1, labelStart.length-2); //tira os []
+					var link = part;
+					var ponto = '';
+					//confere se tem um ponto final colado no fim do link
+					if(link.substr(link.length - 1, 1) == '.'){
+						link = link.substr(0, link.length-1); //tira o ponto do link
+						ponto = '.'; //anota para incluir o ponto de volta no texto
+					}
+					html += "<a href='" + link + "'>" + labelStart + "</a>" + ponto + ' ';
+				} else if(nextPart == '::' && labelStart.substr(0,1) == '['){
+					//tem custom label - de mais de uma palavra. Ex: [clique aqui]
 					var skipNIndexes = 2;
 					//reconstrói o custom label
 					var label = labelStart + ' ';
 					for(var j = i+3; j < palavras.length; j++){
 						var labelEndCandidate = palavras[j];
+						console.log(labelEndCandidate);
 						if(labelEndCandidate.substr(labelEndCandidate.length-1, 1) == ']'){
 							label += labelEndCandidate;
 							var foundLabelEnd = true;
@@ -1156,6 +1172,18 @@ InterfaceManager.txtToHTML = function(txt){
 	//substitui as quebras de linha por br
 	html = html.replace(/\n/gi, '<br />');
 	return html;
+}
+
+InterfaceManager.insertForm = function(a, sobre){
+	var regEx = /\[INSERT-FORM-HERE\]/;
+	var formTxt = "[FORM]";
+	
+	if(regEx.exec(sobre) == null){
+		//se não encontrou o [INSERT-FORM-HERE] em nenhum lugar do texto, coloca no final;
+		return sobre + '<br /><br />' + formTxt;
+	} else {
+		return sobre.replace(regEx, formTxt);
+	}
 }
 
 InterfaceManager.abreBio = function(){
