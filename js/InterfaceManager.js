@@ -115,6 +115,9 @@ InterfaceManager.prototype.drawContents = function(){
 	this.sorteiaDestaque();
 	InterfaceManager.selectActivity(this.dataManager.destaqueSelecionado);
 	
+	//abre um dos links do footer qdo abrir o site
+	this.dataManager.currentSite.footerlinkaberto ? InterfaceManager.desenhaContentInfoFromFooter(this.dataManager.currentSite.footerlinkaberto) : null;
+	
 	//desenha a timeline
 	this.drawTimeline();
 	
@@ -561,11 +564,14 @@ InterfaceManager.prototype.drawFooter = function(){
 }
 
 InterfaceManager.abreFooterInfoLink = function(event){
+	InterfaceManager.fechaBaloon();
 	var titulo = $(event.target).text();
-	var conteudo = im.dataManager.currentSite.footercontent[titulo].replace(/\n/g, '<br />');
-	// var c = conteudo.replace(/\n/g, '<br />');
-	// var paragrafos = conteudo.split('\n');
+	InterfaceManager.desenhaContentInfoFromFooter(titulo);
+}
 
+InterfaceManager.desenhaContentInfoFromFooter = function(titulo){
+	var conteudo = im.dataManager.currentSite.footercontent[titulo].replace(/\n/g, '<br />');
+	
 	var html = "";
 	html += "<h1>" + titulo + "</h1>";
 	html += "<image class='icon' src='./img/interface/micro-balloon.png' style='opacity:0'/>"
@@ -1176,11 +1182,35 @@ InterfaceManager.txtToHTML = function(txt){
 
 InterfaceManager.insertForm = function(a, sobre){
 	var regEx = /\[INSERT-FORM-HERE\]/;
-	var formTxt = "[FORM]";
+	var formTxt = "";
+	var br = '<br />';
+	var txtField 					= "[txt field]";
+	var txtFieldMust 			= "[txt field obrigatorio]";
+	var uploadField 			= "[file upload field]";
+	var uploadFieldMust 	= "[file upload field obrigatorio]";
+	var botaoSubmit				= "[enviar]";
+	
+	if(a.formtxt){
+		var arrFormTxt = a.formtxt.split(', ');
+		for(var i in arrFormTxt){
+			var ft = arrFormTxt[i];
+			ft.substr(0,1) == '*' ? formTxt += ft + br + txtFieldMust + br + br : formTxt += ft + br + txtField + br + br;
+		}		
+	}
+	
+	if(a.formupload){
+		var arrFormUp = a.formupload.split(', ');
+		for(var i in arrFormUp){
+			var fu = arrFormUp[i];
+			fu.substr(0,1) == '*' ? formTxt += fu + br + uploadFieldMust + br + br : formTxt += fu + br + uploadField + br + br;
+		}
+	}
+	
+	formTxt += botaoSubmit;
 	
 	if(regEx.exec(sobre) == null){
 		//se não encontrou o [INSERT-FORM-HERE] em nenhum lugar do texto, coloca no final;
-		return sobre + '<br /><br />' + formTxt;
+		return sobre + br + br + formTxt;
 	} else {
 		return sobre.replace(regEx, formTxt);
 	}

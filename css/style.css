@@ -626,7 +626,7 @@ em{
 	text-decoration:none;
 	color:rgba(255,255,255,.6);
 }
-.footer .site-info a:hover, .footer .site-info .fake-link:hover{
+.footer .site-info a:hover, .footer .site-info .fake-link:hover, .footer .site-info .fake-link .open{
 	color:rgba(255,255,255,1);
 }
 .footer .site-info img{
