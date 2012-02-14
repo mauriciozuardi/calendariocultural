@@ -25,9 +25,12 @@ InterfaceManager.prototype.drawHeader = function(){
 	//escreve o HTML
 	$('body').append("<div class='header'></div>");
 	var html = "";
-	html += "<img src='./img/content/" + this.dataManager.currentSite.logo + "' />";
+	html += "<img src='./img/" + this.dataManager.currentSite.id + "/" + this.dataManager.currentSite.logo + "' />";
 	html += this.drawPullDowns();
+	html += this.dataManager.query ? "<button type='submit' class='back'>voltar</button>" : "";
 	$('.header').html(html);
+	
+	this.dataManager.query ? $('.quem').addClass('backButtonPresent') : null;
 	
 	var context = {}
 	context.instance = this;
@@ -37,6 +40,9 @@ InterfaceManager.prototype.drawHeader = function(){
 	$('.oque').change(onPullDownChange);
 	$('.onde').change(onPullDownChange);
 	$('.quem').change(onPullDownChange);
+	$('.back').click(function(){
+		history.go(-1);
+	});
 }
 
 InterfaceManager.prototype.onPullDownChange = function(){
@@ -359,7 +365,7 @@ InterfaceManager.posicionaAtividade = function(a, timeline){
 
 InterfaceManager.mudaFundo = function(a){
 	//MUDA O BG
-	var imgName = a.imagens ? './img/content/' + a.imagens.split('\n')[0] : './img/interface/default-bg.png';
+	var imgName = a.imagens ? './img/' + a.idSiteOriginal + '/' + a.imagens.split('\n')[0] : './img/interface/default-bg.png';
 	var imgURL = encodeURI(imgName.replace(/ /g, "").replace(/\n/g, ""));
 	a.context.carregaBg(imgURL);
 
@@ -510,7 +516,39 @@ InterfaceManager.prototype.drawFooter = function(){
 	//preenche o site-info
 	// –DEIXAR DINAMICO–
 	// –TRATAR LINKS–
-	$('.footer .site-info').html("<p><a href'#'>sobre</a> // <a href='#'>equipe</a> // <a href='#'>contato@calendariocultural.com.br</a> // <a href='#'>+55 (11) 9934.0987</a> // <a href='#'>home</a><img src='./img/interface/logo-h2r.png' alt='Logo h2r' /></p>");
+	var data = this.dataManager;
+	var footer = data.currentSite.footer ? data.currentSite.footer : 'sobre // equipe // contato@calendariocultural.com.br // +55 (11) 9934.0987 // home';
+	var html = "";
+	
+	//separa as partes do rodapé
+	footer = footer.split(' // ');
+	
+	//procura por emails, telefones ou links externos. Não achou nada, verifica se é um link interno.
+	for(var i in footer){
+		var part = footer[i];
+		if(part.substr(0,7) == 'http://'){
+			//é link externo
+			console.log(InterfaceManager.txtToHTML(part));
+		} else if(part.substr(0,1) == '+'){
+			//é telefone
+			// "<a href='tel:+1800229933'>Call us free!</a>"
+			console.log('tel:' + part.replace(/[ \(\)\.]/g, ''));
+		} else if(part.indexOf('@') != -1){
+			//é email
+			console.log('mailto:' + part);
+		} else {
+			if(data.currentSite.footercontent && data.currentSite.footercontent[part]){
+				//é link interno
+				console.log('link interno: ' + part);
+			} else {
+				//não é link
+				console.log('texto: ' + part);
+			}
+		}
+	}
+	
+	$('.footer .site-info').html(html);
+	// $('.footer .site-info').html("<p><a href'#'>sobre</a> // <a href='#'>equipe</a> // <a href='#'>contato@calendariocultural.com.br</a> // <a href='#'>+55 (11) 9934.0987</a> // <a href='#'>home</a><img src='./img/interface/logo-h2r.png' alt='Logo h2r' /></p>");
 }
 
 InterfaceManager.prototype.updateScreen = function(){
@@ -666,13 +704,16 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	//SLIDESHOW
 	html = "";
 	var imgs = a.imagens ? a.imagens.split('\n') : ['default-img.png'];
-	var folder = a.imagens ? 'content' : 'interface';
+	var creditos = a.credito ? a.credito.split(', ') : [''];
+	var folder = a.imagens ? a.idSiteOriginal : 'interface';
 
 	//escreve o HTML
 	html += "<div id='slideshow-imgs'>";
 	for(var i in imgs){
 		if(imgs[i] != ''){
-			html += "<div class='bgcover slideshow-img' style='background-image: url(./img/" + folder + "/" + encodeURI(imgs[i]) + ")'></div>";	
+			var credito = (creditos.length == 1) ? creditos[0] : creditos[i];
+			credito != '' ? credito = '<span>' + credito + '</span>' : null;
+			html += "<div class='bgcover slideshow-img' style='background-image: url(./img/" + folder + "/" + encodeURI(imgs[i]) + ")'><h5>" + credito + "</h5></div>";
 		} else {
 			//remove as imagens fantasmas (\n a mais no cadastro)
 			imgs.splice(i,1);
@@ -739,7 +780,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	// html += "	<div id='opine'><p>Opine:</p><div id='estrelas-opine'><div class='estrela e1'></div><div class='estrela e2'></div><div class='estrela e3'></div><div class='estrela e4'></div><div class='estrela e5'></div></div></div>";
 	
 	$('#mini-balloon-footer').html(html);
-	InterfaceManager.updateMiniBalloonFooter(true);
+	InterfaceManager.updateMiniBalloonFooter(true, (quem.bio ? true : false));
 	$('#twitter').click(function(event){ InterfaceManager.abreSocial(event,'t', a);});
 	$('#facebook').click(function(event){InterfaceManager.abreSocial(event,'f', a);});
 	
@@ -770,7 +811,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 		for(var i in crossList){
 			var atividade = crossList[i];
 			var nameParts = atividade.nome.split(' // ');
-			var img = atividade.imagens ? 'content/' + atividade.imagens.split('\n')[0] : 'interface/default-img.png';
+			var img = atividade.imagens ? atividade.idSiteOriginal + '/' + atividade.imagens.split('\n')[0] : 'interface/default-img.png';
 			
 			//clareia si mesma
 			var cssClass = atividade != a ? '' : ' selected';
@@ -805,7 +846,9 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	var update = function(){
 		this.updateScreen();
 		$('#balloon').fadeIn(250, callback);
-		console.log('era: ' + this.ballonVars.showedBalloon);		
+		// console.log('era: ' + this.ballonVars.showedBalloon);
+		// var bt = $('#balloon').css('top') + $(window).scrollTop();
+		// setTimeout(function(){$('#balloon').css('top', $(window).scrollTop());}, 1);
 	}
 	setTimeout($.proxy(update, this), 10);
 }
@@ -902,7 +945,7 @@ InterfaceManager.prototype.desenhaBalloonTop = function(a, idOnde){
 	linha3 != "" ? nLinhas ++ : null;
 	
 	var html = "";
-	html += "<div class='bg-cover thumb-espaco' style='background-image: url(./img/" + encodeURI(imgEspaco) + ");'></div><img src='./img/interface/fechar.png' class='fechar'/>";
+	html += "<div class='bgcover thumb-espaco' style='background-image: url(./img/" + encodeURI(imgEspaco) + ");'></div><img src='./img/interface/fechar.png' class='fechar'/>";
 	html += "<div id='txt-block'><h1>" + nomeEspaco + "</h1><p class='first-p'>" + linha1 + "</p><p>" + linha2 + "</p>";
 	html += "</p>" + linha3 + "</p>";
 	html += "</div>";
@@ -1082,7 +1125,7 @@ InterfaceManager.txtToHTML = function(txt){
 	return html;
 }
 
-InterfaceManager.abreBio = function(){	
+InterfaceManager.abreBio = function(){
 	var divBio = $('#bio');
 	var linkBio = $('#mini-balloon-body .fake-link');
 	
@@ -1098,7 +1141,7 @@ InterfaceManager.abreBio = function(){
 	InterfaceManager.updateMiniBalloonFooter();
 }
 
-InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo){
+InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo, temBio){
 	var updateSoon = function(){
 		//reposiciona o footer
 		var miniBalloonBodyHeight = $('#mini-balloon-body').outerHeight(false);
@@ -1108,6 +1151,10 @@ InterfaceManager.updateMiniBalloonFooter = function(updateScreenToo){
 
 		//ajusta o tamanho mínimo do balloon
 		var minHeight = $('#mini-balloon-footer').outerHeight(false) + top - 20;
+		
+		//GAMBI
+		// im.currentSite.id == 's3' ? minHeight -= 10 : null;
+		// (im.ballonVars.showedBalloon && temBio) ? null : minHeight += 20;
 		
 		//aplica
 		$('#balloon-body').css('min-height', minHeight);

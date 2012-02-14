@@ -18,48 +18,64 @@ Timeline.prototype.autoLabel = function(){
 	
 	var aI = datas.filhoMenor.datainicial.getFullYear();
 	var aF = datas.filhoMaior.datafinal.getFullYear();
-	var dA = aF - aI;
+	var nA = aF - aI;
 	var mI = datas.filhoMenor.datainicial.getMonth();
 	var mF = datas.filhoMaior.datafinal.getMonth();
 	
-	if(dA > 0){
+	if(nA > 0){
 		//tem mais de um ano entre as datas
-		var nM = (dA*12) - mI + mF;
+		var nM = (nA*12) - mI + mF;
 	} else {
 		//está tudo dentro do mesmo ano
 		var nM = mF - mI;
+		if(nM == 0){
+			var dI = datas.filhoMenor.datainicial.getDate();
+			var dF = datas.filhoMaior.datafinal.getDate();
+			var nD = dF - dI;
+		}
 	}
 	
 	var mesCurto = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 	this.timeMarks = [];
 	
-	for(var i=0; i<=nM+1; i++){
-		var currentMonth = (mI + i)%12;
-		var currentYear = aI + Math.floor( (mI+i)/12 );
-		// var mostraAno = (i==0 || currentMonth == 0) ? " " + currentYear : ""; // <-- mostrava ano só quando era relevante. Helena vetou.
-		if(nM <= 12){
-			//se o intervalo de meses cabe confortavelmente na tela média, mostra
+	if(nM == 0 && nD <= 7){
+		//se tudo rola na mesma semana
+		for(var i=0; i<=nD; i++){
+			var currentDay = dI + i;
 			var timelineItem = {}
-			timelineItem.date = new Date(currentYear,currentMonth,1);
-			timelineItem.label = mesCurto[currentMonth] + " " + currentYear;
+			timelineItem.date = new Date(aI,mI,currentDay);
+			timelineItem.label = currentDay + " " + mesCurto[mI] + " " + aI;
 			this.timeMarks.push(timelineItem);
-		} else {
-			//senão, mostra só os anos
-			if(i==0 || currentMonth == 0){
+			console.log(timelineItem.label);
+		}
+	} else {
+		for(var i=0; i<=nM+1; i++){
+			var currentMonth = (mI + i)%12;
+			var currentYear = aI + Math.floor( (mI+i)/12 );
+			// var mostraAno = (i==0 || currentMonth == 0) ? " " + currentYear : ""; // <-- mostrava ano só quando era relevante. Helena vetou.
+			if(nM <= 12){
+				//se o intervalo de meses cabe confortavelmente na tela média, mostra
 				var timelineItem = {}
-				timelineItem.label = currentYear.toString();
-				timelineItem.date = new Date(currentYear,0,1);
+				timelineItem.date = new Date(currentYear,currentMonth,1);
+				timelineItem.label = mesCurto[currentMonth] + " " + currentYear;
 				this.timeMarks.push(timelineItem);
+			} else {
+				//senão, mostra só os anos
+				if(i==0 || currentMonth == 0){
+					var timelineItem = {}
+					timelineItem.label = currentYear.toString();
+					timelineItem.date = new Date(currentYear,0,1);
+					this.timeMarks.push(timelineItem);
+				}
 			}
 		}
-	}
-	
-	if(nM > 12){
-		//inclui o ano final
-		var timelineItem = {}
-		timelineItem.label = (aF+1).toString();
-		timelineItem.date = new Date((aF+1),0,1);
-		this.timeMarks.push(timelineItem);	
+		if(nM > 12){
+			//inclui o ano final
+			var timelineItem = {}
+			timelineItem.label = (aF+1).toString();
+			timelineItem.date = new Date((aF+1),0,1);
+			this.timeMarks.push(timelineItem);	
+		}
 	}
 }
 

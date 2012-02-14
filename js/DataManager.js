@@ -48,6 +48,7 @@ DataManager.prototype.onJsonLoaded = function(loadedVarName, preSID){
 			} else {
 				this.loadActivitiesByDate();
 			}
+			this.trataValoresSites();
 			break;
 		case 'pds':
 			if(this.pds && this.espacos && this.pulldownsEsperados == this.pds.length){
@@ -224,12 +225,32 @@ DataManager.prototype.trataValoresDasAtividades = function(s){
 		
 		//vê se já passou
 		a.isPast = (a.datafinal.getTime() < Date.now() && this.currentSite.passadorelevante == '0') ? true : false;
+		
+		//preenche o visual default se não tiver nenhum
+		a.visual ? null : a.visual = 'p';
 	}
 	if(todasValidas){
 		delete this.datasInvalidas;
 	}
 	//anota o contexto
 	this.context = this.parent;
+}
+
+DataManager.prototype.trataValoresSites = function(){
+	//varre os sites
+	for(var i in this.sites){
+		var s = this.sites[i];
+		//trata footercontent, transformando uma string num objeto
+		if(s.footercontent){
+			var footercontent = {};
+			var parts = s.footercontent.split('\n•••\n\n');
+			for(var j in parts){
+				var arr = parts[j].split('\n•\n');
+				arr[0] != '' ? footercontent[arr[0]] = arr[1] : null;
+			}
+			this.sites[i].footercontent = footercontent;
+		}
+	}
 }
 
 DataManager.prototype.organizaAtividadesEmGrupos = function(s){
