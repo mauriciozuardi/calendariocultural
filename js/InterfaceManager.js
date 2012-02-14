@@ -521,34 +521,49 @@ InterfaceManager.prototype.drawFooter = function(){
 	var html = "";
 	
 	//separa as partes do rodapé
-	footer = footer.split(' // ');
+	var separador = ' // ';
+	footer = footer.split(separador);
+	// console.log(footer);
 	
 	//procura por emails, telefones ou links externos. Não achou nada, verifica se é um link interno.
 	for(var i in footer){
 		var part = footer[i];
 		if(part.substr(0,7) == 'http://'){
 			//é link externo
-			console.log(InterfaceManager.txtToHTML(part));
+			// console.log(InterfaceManager.txtToHTML(part));
+			html += InterfaceManager.txtToHTML(part);
 		} else if(part.substr(0,1) == '+'){
 			//é telefone
-			// "<a href='tel:+1800229933'>Call us free!</a>"
-			console.log('tel:' + part.replace(/[ \(\)\.]/g, ''));
+			// console.log('tel:' + part.replace(/[ \(\)\.]/g, ''));
+			html += "<a href='tel:" + part.replace(/[ \(\)\.]/g, '') + "'>" + part + "</a>";
 		} else if(part.indexOf('@') != -1){
 			//é email
-			console.log('mailto:' + part);
+			// console.log('mailto:' + part);
+			html += "<a href='mailto:" + part + "'>" + part + "</a>";
 		} else {
 			if(data.currentSite.footercontent && data.currentSite.footercontent[part]){
 				//é link interno
-				console.log('link interno: ' + part);
+				// console.log('link interno: ' + part);
+				html += "<span class='fake-link footer-info-link'>" + part + "</span>";
+			} else if(part == 'home'){
+				html += "<a href='http://calendariocultural.com.br'>home</a>";
 			} else {
 				//não é link
-				console.log('texto: ' + part);
+				// console.log('texto: ' + part);
+				html += part;
 			}
 		}
+		html += separador;
 	}
 	
+	html = html.substr(0, html.length - separador.length); //exclui o último separador
+	html = "<p>" + html + "<img src='./img/interface/logo-h2r.png' /></p>";
 	$('.footer .site-info').html(html);
-	// $('.footer .site-info').html("<p><a href'#'>sobre</a> // <a href='#'>equipe</a> // <a href='#'>contato@calendariocultural.com.br</a> // <a href='#'>+55 (11) 9934.0987</a> // <a href='#'>home</a><img src='./img/interface/logo-h2r.png' alt='Logo h2r' /></p>");
+	$('.footer-info-link').click(function(event){InterfaceManager.abreFooterInfoLink(event)})
+}
+
+InterfaceManager.abreFooterInfoLink = function(event){
+	console.log($(event.target).text());
 }
 
 InterfaceManager.prototype.updateScreen = function(){
