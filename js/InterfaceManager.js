@@ -1184,29 +1184,69 @@ InterfaceManager.insertForm = function(a, sobre){
 	var regEx = /\[INSERT-FORM-HERE\]/;
 	var formTxt = "";
 	var br = '<br />';
-	var txtField 					= "[txt field]";
-	var txtFieldMust 			= "[txt field obrigatorio]";
-	var uploadField 			= "[file upload field]";
-	var uploadFieldMust 	= "[file upload field obrigatorio]";
-	var botaoSubmit				= "[enviar]";
+	// var txtField 					= "[txt field]";
+	// var txtFieldMust 			= "[txt field obrigatorio]";
+	// var uploadField 			= "[file upload field]";
+	// var uploadFieldMust 	= "[file upload field obrigatorio]";
+	// var botaoSubmit				= "[enviar]";
+	// 
+	// if(a.formtxt){
+	// 	var arrFormTxt = a.formtxt.split(', ');
+	// 	for(var i in arrFormTxt){
+	// 		var ft = arrFormTxt[i];
+	// 		ft.substr(0,1) == '*' ? formTxt += ft + br + txtFieldMust + br + br : formTxt += ft + br + txtField + br + br;
+	// 	}		
+	// }
+	// 
+	// if(a.formupload){
+	// 	var arrFormUp = a.formupload.split(', ');
+	// 	for(var i in arrFormUp){
+	// 		var fu = arrFormUp[i];
+	// 		fu.substr(0,1) == '*' ? formTxt += fu + br + uploadFieldMust + br + br : formTxt += fu + br + uploadField + br + br;
+	// 	}
+	// }
+	// 
+	// formTxt += botaoSubmit;
 	
-	if(a.formtxt){
-		var arrFormTxt = a.formtxt.split(', ');
-		for(var i in arrFormTxt){
-			var ft = arrFormTxt[i];
-			ft.substr(0,1) == '*' ? formTxt += ft + br + txtFieldMust + br + br : formTxt += ft + br + txtField + br + br;
-		}		
+	var toVarName = function(s){
+	  return s.toLowerCase()
+	          .replace(/\*/ig,     '')
+	          .replace(/[ -]/ig,  '_')
+	          .replace(/[áãâ]/ig, 'a')
+	          .replace(/[éê]/ig,  'e')
+	          .replace(/[óõô]/ig, 'o')
+	          .replace(/ç/ig,     'c')
+	          .replace(/í/ig,     'i');
 	}
 	
-	if(a.formupload){
-		var arrFormUp = a.formupload.split(', ');
-		for(var i in arrFormUp){
-			var fu = arrFormUp[i];
-			fu.substr(0,1) == '*' ? formTxt += fu + br + uploadFieldMust + br + br : formTxt += fu + br + uploadField + br + br;
-		}
+	var generateFieldHTML = function(formid, field, type){
+	  var is_required = field.charAt(0) == '*';
+	  var field_name = toVarName(field);
+	  var id = formid+'_'+field_name;
+	  var classname = is_required ? 'class="required"' : '';
+	  if (is_required) { field = field.substring(1, field.length);}
+	  return  '  <label for="'+id+'"'+classname+'>'+field+"</label>\n" +
+	          '  <input type="'+type+'" name="'+field_name+'" id="'+id+'" '+classname+' />'+"\n";
+	}
+
+	var generateForm = function(formid, formtxt, formupload){
+	  var standard_fields = formtxt.split(', ');
+	  var extra_fields = formupload.split(', ');
+	  var form_html = '<form enctype="multipart/form-data" action="submit_form.php" method="POST">'+"\n";
+	  form_html +=    '  <input type="hidden" name="form_id" value="'+formid+'" />'+"\n";
+	  $.each(standard_fields, function(index, field){
+	    form_html += generateFieldHTML(formid, field, 'text');
+	  });
+	  $.each(extra_fields, function(index, field){
+	    form_html += generateFieldHTML(formid, field, 'file');
+	  });
+	  form_html +=    '  <input type="submit" value="Enviar" />'
+	  form_html +=    '</form>'
+	  return form_html;
 	}
 	
-	formTxt += botaoSubmit;
+	var formTxt = generateForm(a.idSiteOriginal + '-' + a.id, a.formtxt, a.formupload);
+	// console.log(test);
 	
 	if(regEx.exec(sobre) == null){
 		//se não encontrou o [INSERT-FORM-HERE] em nenhum lugar do texto, coloca no final;

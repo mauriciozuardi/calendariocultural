@@ -636,3 +636,15 @@ em{
 	margin-left:15px;
 	margin-right:15px;
 }
+
+/* ====== FORMS ====== */
+#mini-balloon-body input{
+	width:335px;
+	margin-top:0.5em;
+	margin-bottom:1em;
+}
+#mini-balloon-body label{
+}
+#mini-balloon-body label.required:before {
+	content: "* ";
+}
