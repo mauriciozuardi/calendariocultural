@@ -12,6 +12,7 @@ InterfaceManager.prototype.init = function(){
 	this.drawFooter();
 	this.drawContents();
 	this.updateScreen();
+	
 	var context = this;
 	$(window).resize($.proxy(this.updateScreen, context));
 	$(window).scroll($.proxy(this.updateScreen, context));
@@ -19,6 +20,8 @@ InterfaceManager.prototype.init = function(){
 	//aplica controle fixos do balloon
 	$('#slideshow-controls .previous').click($.proxy(this.prevSlideImg, context));
 	$('#slideshow-controls .next').click($.proxy(this.nextSlideImg, context));
+	
+	this.updateScreen();
 }
 
 InterfaceManager.prototype.drawHeader = function(){

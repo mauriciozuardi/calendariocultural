@@ -642,8 +642,12 @@ em{
 	width:335px;
 	margin-top:0.5em;
 	margin-bottom:1em;
+	font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-size:11px;
 }
-#mini-balloon-body label{
+#mini-balloon-body input[type='submit'], #mini-balloon-body button{
+	height:19px;
+	margin-bottom:0px;
 }
 #mini-balloon-body label.required:before {
 	content: "* ";
