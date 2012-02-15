@@ -1202,11 +1202,15 @@ function validaForm(element){
     }
   });
   if (missing_fields.length > 0){
-    alert('Os campos: '+missing_fields.join(', ')+'são obrigatórios.');
+    alert('Os campos: '+missing_fields.join(', ')+' são obrigatórios.');
     return false;
   } else{
     return true;
   }
+}
+
+function labelEnviando(element){
+  $(element).attr('value', 'Enviando...');
 }
 
 InterfaceManager.insertForm = function(a, sobre){
@@ -1271,7 +1275,7 @@ InterfaceManager.insertForm = function(a, sobre){
 	  $.each(extra_fields, function(index, field){
 	    form_html += generateFieldHTML(formid, field, 'file');
 	  });
-	  form_html +=    '  <input type="submit" value="Enviar" id="submit_button"/>';
+	  form_html +=    '  <input type="submit" value="Enviar" id="submit_button" onclick="labelEnviando(this);"/>';
 	  form_html +=    '</form><iframe name="hiddenIframe" id="hiddenIframe" style="display: none;" onload="iframeLoaded(this);"/>';
 	  return form_html;
 	}
