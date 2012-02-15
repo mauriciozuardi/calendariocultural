@@ -1180,6 +1180,17 @@ InterfaceManager.txtToHTML = function(txt){
 	return html;
 }
 
+function iframeLoaded(element){
+  var formResponse = element.contentDocument.getElementsByTagName('body')[0].innerHTML;
+  if (formResponse == '') { return }
+  if (formResponse == 'success') { 
+    $('#submit_button').attr('disabled', "disabled");
+    $('#submit_button').attr('value', 'Enviado com sucesso!');
+  } else{
+    alert('Erro no envio. Tente novamente mais tarde.');
+  }
+}
+
 InterfaceManager.insertForm = function(a, sobre){
 	var regEx = /\[INSERT-FORM-HERE\]/;
 	var formTxt = "";
@@ -1232,7 +1243,7 @@ InterfaceManager.insertForm = function(a, sobre){
 	var generateForm = function(formid, formtxt, formupload){
 	  var standard_fields = formtxt.split(', ');
 	  var extra_fields = formupload.split(', ');
-	  var form_html = '<form enctype="multipart/form-data" action="submit_form.php" method="POST">'+"\n";
+	  var form_html = '<form enctype="multipart/form-data" action="submit_form.php" method="POST" target="hiddenIframe">'+"\n";
 	  form_html +=    '  <input type="hidden" name="form_id" value="'+formid+'" />'+"\n";
 	  $.each(standard_fields, function(index, field){
 	    form_html += generateFieldHTML(formid, field, 'text');
@@ -1240,8 +1251,8 @@ InterfaceManager.insertForm = function(a, sobre){
 	  $.each(extra_fields, function(index, field){
 	    form_html += generateFieldHTML(formid, field, 'file');
 	  });
-	  form_html +=    '  <input type="submit" value="Enviar" />'
-	  form_html +=    '</form>'
+	  form_html +=    '  <input type="submit" value="Enviar" id="submit_button"/>';
+	  form_html +=    '</form><iframe name="hiddenIframe" id="hiddenIframe" style="display: none;" onload="iframeLoaded(this);"/>';
 	  return form_html;
 	}
 	
