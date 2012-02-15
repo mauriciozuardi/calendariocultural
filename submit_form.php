@@ -12,7 +12,7 @@ if ($_POST){
   $uploaddir .=  '/' . $_POST['form_id'];
   $uploaddir .=  '/' . substr(str_replace(':','.', date(DATE_ATOM)), 0, -6);
   if (strlen($_POST['nome']) > 0){
-    $uploaddir .= '_' . $_POST['nome'];
+    $uploaddir .= '_' . str_replace(' ','_',$_POST['nome']);
   }
   if (!is_dir($uploaddir)){
     if (!mkdir($uploaddir, 0777, true)) {
@@ -64,6 +64,20 @@ if ($_POST){
         // echo("Missing file: $fieldname");
       }
     }
+  }
+  if (strlen($_POST['notificar_email']) > 3){
+    $recipient = $_POST['notificar_email'];
+    $url = 'http://calendariocultural.com.br' . str_replace('//','/',substr($uploaddir,1));
+    $body = "== Novo formulário submetido ==\n\n$dados";
+    $body .= "\nAcesse os arquivos submetidos clicando pela URL abaixo:\n$url";
+    $subject = "[calendariocultural] Novo formulário: " . $_POST['nome'];
+    $sender = 'sistema@calendariocultural.com.br';
+    $headers = "From: $sender \r\n" .
+               'X-Mailer: PHP/' . phpversion();
+    mail($recipient, $subject, $body, $headers);
+    
+    
+    
   }
   echo "success";
 }
