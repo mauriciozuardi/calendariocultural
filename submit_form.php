@@ -9,11 +9,11 @@ if ($_POST){
   }
   // echo ('<br>POST<br>');
   // var_dump(json_encode($_POST));
-  $uploaddir .=  '/' . $_POST['form_id'];
-  $uploaddir .=  '/' . substr(str_replace(':','.', date(DATE_ATOM)), 0, -6);
+  $uploaddir .=  '/' . $_POST['form_id'] . '/';
   if (strlen($_POST['nome']) > 0){
-    $uploaddir .= '_' . str_replace(' ','_',$_POST['nome']);
+    $uploaddir .= str_replace(' ','_',$_POST['nome']) . '_';
   }
+  $uploaddir .=  substr(str_replace(':','.', date(DATE_ATOM)), 0, -6);
   if (!is_dir($uploaddir)){
     if (!mkdir($uploaddir, 0777, true)) {
         die('Failed to create folders...');
