@@ -642,8 +642,8 @@ em{
 	width:335px;
 	margin-top:0.5em;
 	margin-bottom:1em;
-}
-#mini-balloon-body label{
+	font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-size:11px;
 }
 #mini-balloon-body label.required:before {
 	content: "* ";
