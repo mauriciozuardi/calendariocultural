@@ -1258,10 +1258,10 @@ InterfaceManager.insertForm = function(a, sobre){
 	          '  <input type="'+type+'" name="'+field_name+'" id="'+id+'" '+classname+' />'+"\n";
 	}
 
-	var generateForm = function(formid, formtxt, formupload){
+	var generateForm = function(formid, formtxt, formupload, mailto){
 	  var standard_fields = formtxt.split(', ');
 	  var extra_fields = formupload.split(', ');
-	  var email = 'fabricio@fabricio.org';
+	  var email = mailto;
 	  var form_html = '<form enctype="multipart/form-data" action="submit_form.php" method="POST" target="hiddenIframe" onsubmit="return validaForm(this);">'+"\n";
 	  form_html +=    '  <input type="hidden" name="form_id" value="'+formid+'" />'+"\n";
 	  form_html +=    '  <input type="hidden" name="notificar_email" value="'+email+'" />'+"\n";
@@ -1276,7 +1276,7 @@ InterfaceManager.insertForm = function(a, sobre){
 	  return form_html;
 	}
 	
-	var formTxt = generateForm(a.idSiteOriginal + '-' + a.id, a.formtxt, a.formupload);
+	var formTxt = generateForm(a.idSiteOriginal + '-' + a.id, a.formtxt, a.formupload, a.mailto);
 	// console.log(test);
 	
 	if(regEx.exec(sobre) == null){
