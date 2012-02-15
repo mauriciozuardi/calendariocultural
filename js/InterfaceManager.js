@@ -116,7 +116,7 @@ InterfaceManager.prototype.drawContents = function(){
 	InterfaceManager.selectActivity(this.dataManager.destaqueSelecionado);
 	
 	//abre um dos links do footer qdo abrir o site
-	this.dataManager.currentSite.footerlinkaberto ? InterfaceManager.desenhaContentInfoFromFooter(this.dataManager.currentSite.footerlinkaberto) : null;
+	(this.dataManager.currentSite.footerlinkaberto && !this.dataManager.query) ? InterfaceManager.desenhaContentInfoFromFooter(this.dataManager.currentSite.footerlinkaberto) : null;
 	
 	//desenha a timeline
 	this.drawTimeline();
