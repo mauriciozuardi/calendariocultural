@@ -1194,6 +1194,22 @@ function iframeLoaded(element){
   }
 }
 
+function validaForm(element){
+  console.log('valida form');
+  var missing_fields = [];
+  $(element).find('input.required').each(function(index, item){
+    if ($(item).attr('value') == ''){
+      missing_fields.push($(item).prev().html());
+    }
+  });
+  if (missing_fields.length > 0){
+    alert('Os campos: '+missing_fields.join(', ')+'são obrigatórios.');
+    return false;
+  } else{
+    return true;
+  }
+}
+
 InterfaceManager.insertForm = function(a, sobre){
 	var regEx = /\[INSERT-FORM-HERE\]/;
 	var formTxt = "";
@@ -1246,7 +1262,7 @@ InterfaceManager.insertForm = function(a, sobre){
 	var generateForm = function(formid, formtxt, formupload){
 	  var standard_fields = formtxt.split(', ');
 	  var extra_fields = formupload.split(', ');
-	  var form_html = '<form enctype="multipart/form-data" action="submit_form.php" method="POST" target="hiddenIframe">'+"\n";
+	  var form_html = '<form enctype="multipart/form-data" action="submit_form.php" method="POST" target="hiddenIframe" onsubmit="return validaForm(this);">'+"\n";
 	  form_html +=    '  <input type="hidden" name="form_id" value="'+formid+'" />'+"\n";
 	  $.each(standard_fields, function(index, field){
 	    form_html += generateFieldHTML(formid, field, 'text');
