@@ -21,6 +21,14 @@ Timeline.prototype.autoLabel = function(){
 	var nA = aF - aI;
 	var mI = datas.filhoMenor.datainicial.getMonth();
 	var mF = datas.filhoMaior.datafinal.getMonth();
+	var tI = datas.filhoMenor.datainicial.getTime();
+	var tF = datas.filhoMaior.datafinal.getTime();
+	var nT = tF - tI;
+	var hI = datas.filhoMenor.datainicial.getHours();
+	var hF = datas.filhoMaior.datafinal.getHours();
+	var nH = hF - hI;
+	var minI = datas.filhoMenor.datainicial.getMinutes();
+	var minF = datas.filhoMaior.datafinal.getMinutes();
 	
 	if(nA > 0){
 		//tem mais de um ano entre as datas
@@ -37,8 +45,19 @@ Timeline.prototype.autoLabel = function(){
 	
 	var mesCurto = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 	this.timeMarks = [];
-	
-	if(nM == 0 && nD <= 7){
+
+	console.log(nH);
+	if(nD == 0 && nH > 1){
+		// se tudo rola no mesmo dia, em horas diferentes
+		for(var i=0; i<=nH; i++){
+			var currentHour = hI + i;
+			var timelineItem = {}
+			timelineItem.date = new Date(tI + 1000*60*60*i);
+			timelineItem.label = dI + " " + mesCurto[mI] + " " + aI + " às " + currentHour + ":00h";
+			this.timeMarks.push(timelineItem);
+			console.log(timelineItem.label);
+		}
+	} else if(nM == 0 && nD > 0 && nD <= 7){
 		//se tudo rola na mesma semana
 		for(var i=0; i<=nD; i++){
 			var currentDay = dI + i;
