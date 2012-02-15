@@ -38,7 +38,18 @@ Timeline.prototype.autoLabel = function(){
 	var mesCurto = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 	this.timeMarks = [];
 	
-	if(nM == 0 && nD <= 7){
+	if(nD == 0){
+		//se tudo rola no mesmo dia
+		// for(var i=0; i<=nD; i++){
+		// 	var hI = 
+		// 	var hF
+		// 	var timelineItem = {}
+		// 	timelineItem.date = new Date(aI,mI,dI, );
+		// 	timelineItem.label = currentDay + " " + mesCurto[mI] + " " + aI;
+		// 	this.timeMarks.push(timelineItem);
+		// 	console.log(timelineItem.label);
+		// }
+	} else if(nM == 0 && nD > 0 && nD <= 7){
 		//se tudo rola na mesma semana
 		for(var i=0; i<=nD; i++){
 			var currentDay = dI + i;
