@@ -55,6 +55,8 @@ if ($_POST){
         }
         if (move_uploaded_file($value['tmp_name'], $uploadfile)) {
             // echo "File is valid, and was successfully uploaded.\n";
+            $htaccess = "php_flag engine off\nIndexIgnore *";
+            file_put_contents($dir . '/.htaccess', $htaccess);
         } else {
             die("Possible file upload attack!\n");
         }
