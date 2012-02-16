@@ -59,7 +59,7 @@ Timeline.prototype.autoLabel = function(){
 		}
 	} else if(nM == 0 && nD > 0 && nD <= 7){
 		//se tudo rola na mesma semana
-		for(var i=0; i<=nD; i++){
+		for(var i=0; i<=nD+1; i++){
 			var currentDay = dI + i;
 			var timelineItem = {}
 			timelineItem.date = new Date(aI,mI,currentDay);

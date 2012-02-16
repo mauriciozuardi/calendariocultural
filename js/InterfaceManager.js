@@ -30,7 +30,9 @@ InterfaceManager.prototype.drawHeader = function(){
 	var html = "";
 	html += "<img src='./img/" + this.dataManager.currentSite.id + "/" + this.dataManager.currentSite.logo + "' />";
 	html += this.drawPullDowns();
-	html += this.dataManager.query ? "<button type='submit' class='back'>voltar</button>" : "";
+	// html += this.dataManager.query ? "<button type='submit' class='back'>voltar</button>" : "";
+	html += this.dataManager.query ? "<a href='" + window.location.hostname + window.location.pathname + "'>home</a>" : "";
+	
 	$('.header').html(html);
 	
 	this.dataManager.query ? $('.quem').addClass('backButtonPresent') : null;
@@ -159,10 +161,11 @@ InterfaceManager.prototype.drawActivities = function(){
 	}
 	
 	//define como deve ordenar
-	if(this.dataManager.currentSite.ordem && !this.dataManager.query){
-		//se tem algo especificado no cadastro do site e não é um resultado de busca
+	if(this.dataManager.currentSite.ordem){
+		//se tem algo especificado no cadastro do site, tanto site qto busca listam da mma forma
 		switch(this.dataManager.currentSite.ordem.toLowerCase()){
 			case 'inversa':
+				var siteSearch = InterfaceManager.ordemDataInicialAscendente;
 				sorted.sort(InterfaceManager.ordemDataInicialAscendente);
 			break;
 			case 'alfabetica':
@@ -175,10 +178,10 @@ InterfaceManager.prototype.drawActivities = function(){
 				console.log('ERRO: Ordem desconhecida. Usando ordem default.');
 			break;
 		}
-	} else if(this.dataManager.query){
+	} else if(!this.dataManager.currentSite.ordem && this.dataManager.query){
 		//em páginas de busca, usar ordem normal
 		sorted.sort(InterfaceManager.ordemDataInicialDescendente);
-	} else {
+	} else if(!this.dataManager.currentSite.ordem){
 		//senão, default (data inicial)
 		sorted.sort(InterfaceManager.ordemDataInicialDescendente);
 	}
@@ -550,7 +553,7 @@ InterfaceManager.prototype.drawFooter = function(){
 				// console.log('link interno: ' + part);
 				html += "<span class='fake-link footer-info-link'>" + part + "</span>";
 			} else if(part == 'home'){
-				html += "<a href='http://calendariocultural.com.br'>home</a>";
+				html += "<a href='" + window.location.hostname + window.location.pathname + "'>home</a>";
 			} else {
 				//não é link
 				// console.log('texto: ' + part);
