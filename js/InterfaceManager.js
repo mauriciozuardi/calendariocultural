@@ -31,7 +31,7 @@ InterfaceManager.prototype.drawHeader = function(){
 	html += "<img src='./img/" + this.dataManager.currentSite.id + "/" + this.dataManager.currentSite.logo + "' />";
 	html += this.drawPullDowns();
 	// html += this.dataManager.query ? "<button type='submit' class='back'>voltar</button>" : "";
-	html += this.dataManager.query ? "<a href='" + window.location.hostname + window.location.pathname + "'>home</a>" : "";
+	html += this.dataManager.query ? "<a href='" + window.location.pathname + "'>home</a>" : "";
 	
 	$('.header').html(html);
 	
@@ -553,7 +553,7 @@ InterfaceManager.prototype.drawFooter = function(){
 				// console.log('link interno: ' + part);
 				html += "<span class='fake-link footer-info-link'>" + part + "</span>";
 			} else if(part == 'home'){
-				html += "<a href='" + window.location.hostname + window.location.pathname + "'>home</a>";
+				html += "<a href='" + window.location.pathname + "'>home</a>";
 			} else {
 				//não é link
 				// console.log('texto: ' + part);
