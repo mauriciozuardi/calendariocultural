@@ -22,6 +22,9 @@ InterfaceManager.prototype.init = function(){
 	$('#slideshow-controls .next').click($.proxy(this.nextSlideImg, context));
 	
 	this.updateScreen();
+	
+	//força todos os links abrirem em blank
+	$("a[href^='http:']").attr('target','_blank');
 }
 
 InterfaceManager.prototype.drawHeader = function(){
@@ -400,6 +403,9 @@ InterfaceManager.mudaFundo = function(a){
 	$('.content-info .icon').click(InterfaceManager.infoClicked);
 	$('.content-info p').click(InterfaceManager.infoClicked);
 	$('.content-info .fechar').click(InterfaceManager.fechaInfo);
+	
+	//força todos os links abrirem em blank
+	$("a[href^='http:']").attr('target','_blank');
 }
 InterfaceManager.infoClicked = function(){
 	InterfaceManager.fechaInfo();
@@ -594,6 +600,9 @@ InterfaceManager.desenhaContentInfoFromFooter = function(titulo){
 	// $('.content-info .icon').click(InterfaceManager.infoClicked);
 	// $('.content-info p').click(InterfaceManager.infoClicked);
 	$('.content-info .fechar').click(InterfaceManager.fechaInfo);
+	
+	//força todos os links abrirem em blank
+	$("a[href^='http:']").attr('target','_blank');
 }
 
 InterfaceManager.prototype.updateScreen = function(){
@@ -899,6 +908,9 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 		// setTimeout(function(){$('#balloon').css('top', $(window).scrollTop());}, 1);
 	}
 	setTimeout($.proxy(update, this), 10);
+	
+	//força todos os links abrirem em blank
+	$("a[href^='http:']").attr('target','_blank');
 }
 
 InterfaceManager.abreBalloonCross = function(){
@@ -1100,90 +1112,98 @@ InterfaceManager.txtToHTML = function(txt){
 	// http://mnmo.com.br
 	// http://mnmo.com.br :: [clique aqui]
 	// Sempre começando com 'http://'. A parte opcional, vai virar o label do link, sem os [].
+	// 
+	// var paragrafos = txt.split('\n');
+	// var html = '';
+	// 
+	// for(var p in paragrafos){
+	// 	var palavras = paragrafos[p].split(' ');
+	// 
+	// 	for(var i=0; i<palavras.length; i++){
+	// 		var part = palavras[i];
+	// 		if(part.substr(0,7) == 'http://'){
+	// 
+	// 			//é um link
+	// 			var nextPart = palavras[i+1];
+	// 			var labelStart = palavras[i+2];
+	// 			
+	// 			if(nextPart == '::' && labelStart.substr(0,1) == '[' && labelStart.substr(labelStart.length-1, 1) == ']'){
+	// 				//tem custom label - de uma palavra só. Ex: [regulamento]
+	// 				i += 2;
+	// 				labelStart = labelStart.substr(1, labelStart.length-2); //tira os []
+	// 				var link = part;
+	// 				var ponto = '';
+	// 				//confere se tem um ponto final colado no fim do link
+	// 				if(link.substr(link.length - 1, 1) == '.'){
+	// 					link = link.substr(0, link.length-1); //tira o ponto do link
+	// 					ponto = '.'; //anota para incluir o ponto de volta no texto
+	// 				}
+	// 				html += "<a href='" + link + "' target='_BLANK'>" + labelStart + "</a>" + ponto + ' ';
+	// 			} else if(nextPart == '::' && labelStart.substr(0,1) == '['){
+	// 				//tem custom label - de mais de uma palavra. Ex: [clique aqui]
+	// 				var skipNIndexes = 2;
+	// 				//reconstrói o custom label
+	// 				var label = labelStart + ' ';
+	// 				for(var j = i+3; j < palavras.length; j++){
+	// 					var labelEndCandidate = palavras[j];
+	// 					console.log(labelEndCandidate);
+	// 					if(labelEndCandidate.substr(labelEndCandidate.length-1, 1) == ']'){
+	// 						label += labelEndCandidate;
+	// 						var foundLabelEnd = true;
+	// 						skipNIndexes ++;
+	// 						break;
+	// 					} else {
+	// 						label += labelEndCandidate + ' ';
+	// 					}
+	// 					skipNIndexes ++;
+	// 				}
+	// 				if(foundLabelEnd){
+	// 					i += skipNIndexes;
+	// 					var label = label.substr(1, label.length-2); //tira os []
+	// 					var link = part;
+	// 					var ponto = '';
+	// 					//confere se tem um ponto final colado no fim do link
+	// 					if(link.substr(link.length - 1, 1) == '.'){
+	// 						link = link.substr(0, link.length-1); //tira o ponto do link
+	// 						ponto = '.'; //anota para incluir o ponto de volta no texto
+	// 					}
+	// 					html += "<a href='" + link + "'>" + label + "</a>" + ponto + ' ';
+	// 				} else {
+	// 					console.log(['ERRO: Link mal-formatado no texto:', [txt]]);
+	// 				}
+	// 			} else {
+	// 				//usa o próprio link como label
+	// 				var link = part;
+	// 				var ponto = '';
+	// 				//confere se tem um ponto final colado no fim do link
+	// 				if(link.substr(link.length - 1, 1) == '.'){
+	// 					link = link.substr(0, link.length-1); //tira o ponto do link
+	// 					ponto = '.'; //anota para incluir o ponto de volta no texto
+	// 				}
+	// 				var autoLabel = link.replace('http://', '');
+	// 				html += "<a href='" + link + "'>" + autoLabel + "</a>" + ponto + ' ';
+	// 			}
+	// 		} else {
+	// 			html += part + ' ';
+	// 		}
+	// 	}
+	// 	
+	// 	html = html.substr(0, html.length-1) + '\n'; //tira o último espaço, inclui uma quebra de linha
+	// }
+	// 
+	// html = html.substr(0, html.length-1); //tira a última quebra de linha
+	// 
+	// //substitui as quebras de linha por br
+	// html = html.replace(/\n/gi, '<br />');
 	
-	var paragrafos = txt.split('\n');
-	var html = '';
+	//FABRECIO
+	// var re = /(http:\/\/|ftp:\/\/|https:\/\/|www\.|ftp\.[\w]+)([\w\-\.,@?^=%&amp;:\/~\+#]*[\w\-\@?^=%&amp;\/~\+#])/gi;
+	// var result = txt.replace(re, '<a href="$1$2" >$1$2</a>')
+	// return result;
 	
-	for(var p in paragrafos){
-		var palavras = paragrafos[p].split(' ');
-
-		for(var i=0; i<palavras.length; i++){
-			var part = palavras[i];
-			if(part.substr(0,7) == 'http://'){
-
-				//é um link
-				var nextPart = palavras[i+1];
-				var labelStart = palavras[i+2];
-				
-				if(nextPart == '::' && labelStart.substr(0,1) == '[' && labelStart.substr(labelStart.length-1, 1) == ']'){
-					//tem custom label - de uma palavra só. Ex: [regulamento]
-					i += 2;
-					labelStart = labelStart.substr(1, labelStart.length-2); //tira os []
-					var link = part;
-					var ponto = '';
-					//confere se tem um ponto final colado no fim do link
-					if(link.substr(link.length - 1, 1) == '.'){
-						link = link.substr(0, link.length-1); //tira o ponto do link
-						ponto = '.'; //anota para incluir o ponto de volta no texto
-					}
-					html += "<a href='" + link + "'>" + labelStart + "</a>" + ponto + ' ';
-				} else if(nextPart == '::' && labelStart.substr(0,1) == '['){
-					//tem custom label - de mais de uma palavra. Ex: [clique aqui]
-					var skipNIndexes = 2;
-					//reconstrói o custom label
-					var label = labelStart + ' ';
-					for(var j = i+3; j < palavras.length; j++){
-						var labelEndCandidate = palavras[j];
-						console.log(labelEndCandidate);
-						if(labelEndCandidate.substr(labelEndCandidate.length-1, 1) == ']'){
-							label += labelEndCandidate;
-							var foundLabelEnd = true;
-							skipNIndexes ++;
-							break;
-						} else {
-							label += labelEndCandidate + ' ';
-						}
-						skipNIndexes ++;
-					}
-					if(foundLabelEnd){
-						i += skipNIndexes;
-						var label = label.substr(1, label.length-2); //tira os []
-						var link = part;
-						var ponto = '';
-						//confere se tem um ponto final colado no fim do link
-						if(link.substr(link.length - 1, 1) == '.'){
-							link = link.substr(0, link.length-1); //tira o ponto do link
-							ponto = '.'; //anota para incluir o ponto de volta no texto
-						}
-						html += "<a href='" + link + "'>" + label + "</a>" + ponto + ' ';
-					} else {
-						console.log(['ERRO: Link mal-formatado no texto:', [txt]]);
-					}
-				} else {
-					//usa o próprio link como label
-					var link = part;
-					var ponto = '';
-					//confere se tem um ponto final colado no fim do link
-					if(link.substr(link.length - 1, 1) == '.'){
-						link = link.substr(0, link.length-1); //tira o ponto do link
-						ponto = '.'; //anota para incluir o ponto de volta no texto
-					}
-					var autoLabel = link.replace('http://', '');
-					html += "<a href='" + link + "'>" + autoLabel + "</a>" + ponto + ' ';
-				}
-			} else {
-				html += part + ' ';
-			}
-		}
-		
-		html = html.substr(0, html.length-1) + '\n'; //tira o último espaço, inclui uma quebra de linha
-	}
-	
-	html = html.substr(0, html.length-1); //tira a última quebra de linha
-	
-	//substitui as quebras de linha por br
-	html = html.replace(/\n/gi, '<br />');
-	return html;
+	//MARKDOWN CONVERTER
+	var converter = new Markdown.Converter().makeHtml;
+	return converter(txt);
 }
 
 function iframeLoaded(element){

@@ -1,0 +1,61 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Using Showdown with and without jQuery: demo</title>
+<style>
+ textarea, #preview { width: 500px; height: 150px; margin-bottom: 1em; padding: .5em 1em; }
+ #preview { border: 1px solid #666; }
+</style>
+<link rel="first" href="/notes/showdown-javascript-jquery" title="Using Showdown with and without jQuery">
+<link rel="prefetch" href="/notes/showdown-javascript-jquery" title="Using Showdown with and without jQuery">
+<p>For more information, read <a href="/notes/showdown-javascript-jquery" title="Using Showdown with and without jQuery">Using Showdown with and without jQuery</a>.</p>
+<textarea autofocus>This is a **test**.</textarea>
+<script src="http://pagedown.googlecode.com/hg/Markdown.Converter.js"></script>
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>-->
+<script>
+ (function() {
+  // When using more than one `textarea` on your page, change the following line to match the one you’re after
+  var textarea = document.getElementsByTagName('textarea')[0],
+      preview = document.createElement('div'),
+      converter = new Markdown.Converter().makeHtml;
+  function update() {
+   preview.innerHTML = converter(textarea.value);
+  }
+  // Continue only if the `textarea` is found
+  if (textarea) {
+   preview.id = 'preview';
+   // Insert the preview `div` after the `textarea`
+   textarea.parentNode.insertBefore(preview, textarea.nextSibling);
+   textarea.oninput = function() {
+    textarea.onkeyup = null;
+    update();
+   };
+   textarea.onkeyup = update;
+   // Trigger the `onkeyup` event
+   textarea.onkeyup.call(textarea);
+  };
+ }());
+
+// Using jQuery? You might want to use this instead:
+/*
+ $(function() {
+  // When using more than one `textarea` on your page, change the following line to match the one you’re after
+  var $textarea = $('textarea'),
+      $preview = $('<div id="preview" />').insertAfter($textarea),
+      converter = new Markdown.Converter();
+  $textarea.keyup(function() {
+   $preview.html(converter.makeHtml($textarea.val()));
+  }).trigger('keyup');
+ });
+*/
+
+ // Optimized Google Analytics snippet
+ // See http://mathiasbynens.be/notes/async-analytics-snippet
+ var _gaq = [['_setAccount', 'UA-6065217-11'], ['_trackPageview']];
+ (function(d, t) {
+  var g = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+  g.async = 1;
+  g.src = '//www.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g, s);
+ })(document, 'script');
+</script>

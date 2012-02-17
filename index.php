@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="css/normalize.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script type="text/javascript" charset="utf-8" src="js/jquery-1.7.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/Markdown.Converter.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/Timeline.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/DataManager.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/InterfaceManager.js"></script>
