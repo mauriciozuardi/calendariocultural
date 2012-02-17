@@ -606,6 +606,18 @@ InterfaceManager.desenhaContentInfoFromFooter = function(titulo){
 }
 
 InterfaceManager.prototype.updateScreen = function(){
+	//ajusta os min-width em função do header
+	var mw = 60 + $('.header img').width() + $('.oque').outerWidth(true) + $('.onde').outerWidth(true) + $('.quem').outerWidth(true);
+	$('.header').css('min-width', mw);
+	$('.bg').css('min-width', mw);
+	$('.contents').css('min-width', mw);
+	$('.timeline').css('min-width', mw);
+	$('.timeline-now').css('min-width', mw);
+	$('.contents .activities').css('min-width', mw);
+	$('.content-info').css('min-width', mw);
+	$('.footer').css('min-width', mw);	
+	$('.footer .site-info').css('min-width', mw);
+	
 	var MARGIN_TOP = 55;
 	var w = $(window).width();
 	var h = $(window).height();
@@ -638,7 +650,7 @@ InterfaceManager.prototype.updateScreen = function(){
 		//define
 		var str = '.line.l' + i;
 		var element = $(str);
-		var tw = Math.max(960, w);
+		var tw = Math.max(mw, w);
 		var step = ((tw - (2*safeMargin))/timeline.length);
 		var position = Math.floor(safeMargin + i * step + (step/2));
 		//armazena
