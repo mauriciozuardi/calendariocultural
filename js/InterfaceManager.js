@@ -368,11 +368,11 @@ InterfaceManager.posicionaAtividade = function(a, timeline){
 	
 	//posiciona o label
 	var ml = parseInt(dot.css('margin-left')) + dot.outerWidth(false) + 7;
-	var invertLabel = (Date.now() > a.datainicial.getTime() + (a.datafinal.getTime() - a.datainicial.getTime())/2) && !a.isPast ? true : false;
-	ml -= invertLabel ? label.outerWidth(false) - 13 : 0;
+	// var invertLabel = (Date.now() > a.datainicial.getTime() + (a.datafinal.getTime() - a.datainicial.getTime())/2) && !a.isPast ? true : false;
+	// ml -= invertLabel ? label.outerWidth(false) - 13 : 0;
 	//aplica
 	label.css('margin-left', ml);
-	invertLabel ? labelImg.css('margin-left', dot.outerWidth(false) + 13) : null;
+	// invertLabel ? labelImg.css('margin-left', dot.outerWidth(false) + 13) : null;
 }
 
 InterfaceManager.mudaFundo = function(a){
@@ -829,7 +829,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	}
 	
 	//vê se o quem tem biografia
-	if(quem.bio && !this.dataManager.currentSite.esconderbio){
+	if(quem.bio && this.dataManager.currentSite.esconderbio == '0'){
 		html += "<div id='bio' class='hidden'></div>";
 		html += "<p><span class='fake-link'>Biografia</span>";
 		html += quem.site ?  " // <a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "</p>";			
