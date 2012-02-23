@@ -375,12 +375,17 @@ DataManager.prototype.organizaPullDowns = function(){ //<-- SÓ DEPOIS Q CARREGA
 				var ondes = a.onde.split(', ');
 				for(var o in ondes){
 					var onde = ondes[o];
-					var label = this.espacos[onde].nome.replace(/\n/g, '')
-					var slug = DataManager.stringToSlug(label);
-					if(!this.pulldowns.onde[onde] && this.espacos && this.espacos[onde]){
-						this.pulldowns.onde[slug] = {};
-						this.pulldowns.onde[slug].id = onde;
-						this.pulldowns.onde[slug].label = label;
+					if(this.espacos[onde]){
+						var label = this.espacos[onde].nome.replace(/\n/g, '')
+						var slug = DataManager.stringToSlug(label);
+						if(!this.pulldowns.onde[onde] && this.espacos && this.espacos[onde]){
+							this.pulldowns.onde[slug] = {};
+							this.pulldowns.onde[slug].id = onde;
+							this.pulldowns.onde[slug].label = label;
+						}						
+					} else {
+						// console.log('ERRO: ' + onde + ' não existe.');
+						alert('ERRO: ' + onde + ' não existe.');
 					}
 				}
 			} else {

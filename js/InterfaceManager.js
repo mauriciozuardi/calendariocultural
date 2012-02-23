@@ -384,7 +384,7 @@ InterfaceManager.mudaFundo = function(a){
 	//MUDA O NOME E O TEXTO
 	var nameParts = a.nome ? a.nome.split(' // ') : ['sem nome'];
 	var sinopse = a.sobre ? InterfaceManager.autoSinopse(a.sobre) : '-';
-	var credito = a.credito ? a.credito : 'sem crédito';
+	var credito = a.credito ? a.credito.split(', ')[0] : 'sem crédito';
 	var remendo = "";
 	var html = "<h1>" + nameParts[0];
 	if(nameParts.length > 1){
@@ -829,7 +829,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	}
 	
 	//vê se o quem tem biografia
-	if(quem.bio){
+	if(quem.bio && !this.dataManager.currentSite.esconderbio){
 		html += "<div id='bio' class='hidden'></div>";
 		html += "<p><span class='fake-link'>Biografia</span>";
 		html += quem.site ?  " // <a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "</p>";			
@@ -846,12 +846,15 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	html = "";
 	html += "<div id='twitter'><img src='./img/interface/btn_tweet.png'/></div>";
 	// html += "<div id='facebook'><img src='./img/interface/btn_like.png'/></div>";
+	html += "<div id='facebook'><a name='fb_share'></a><script src='http://static.ak.fbcdn.net/connect.php/js/FB.Share' type='text/javascript'></script></div>";
+	// html += "<a name='fb_share'></a><script src='http://static.ak.fbcdn.net/connect.php/js/FB.Share' type='text/javascript'></script>";
+	// html += "<a name='fb_share' type='icon' share_url='http://calendariocultural.com.br/pensamentoereflexao'><script src='http://static.ak.fbcdn.net/connect.php/js/FB.Share' type='text/javascript'></script>";
 	// html += "	<div id='opine'><p>Opine:</p><div id='estrelas-opine'><div class='estrela e1'></div><div class='estrela e2'></div><div class='estrela e3'></div><div class='estrela e4'></div><div class='estrela e5'></div></div></div>";
 	
 	$('#mini-balloon-footer').html(html);
 	InterfaceManager.updateMiniBalloonFooter(true, (quem.bio ? true : false));
 	$('#twitter').click(function(event){ InterfaceManager.abreSocial(event,'t', a);});
-	$('#facebook').click(function(event){InterfaceManager.abreSocial(event,'f', a);});
+	// $('#facebook').click(function(event){InterfaceManager.abreSocial(event,'f', a);});
 	
 	//CROSS
 	//reseta o HTML pré-existente (para o caso do balloon anterior ter preenchido o cross)

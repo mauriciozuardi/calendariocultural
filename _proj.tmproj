@@ -26,43 +26,57 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>13</integer>
+				<integer>9</integer>
 				<key>line</key>
-				<integer>648</integer>
+				<integer>326</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>608</integer>
+			<integer>304</integer>
+		</dict>
+		<key>js/DataManager.js</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>49</integer>
+				<key>line</key>
+				<integer>386</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>365</integer>
 		</dict>
 		<key>js/InterfaceManager.js</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>14</integer>
+				<integer>12</integer>
 				<key>line</key>
-				<integer>1182</integer>
+				<integer>772</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>405</integer>
+			<integer>751</integer>
 			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
-				<integer>15</integer>
+				<integer>5</integer>
 				<key>line</key>
-				<integer>1182</integer>
+				<integer>772</integer>
 			</dict>
 			<key>selectTo</key>
 			<dict>
 				<key>column</key>
-				<integer>14</integer>
+				<integer>12</integer>
 				<key>line</key>
-				<integer>1182</integer>
+				<integer>772</integer>
 			</dict>
 		</dict>
 	</dict>
@@ -70,6 +84,7 @@
 	<array>
 		<string>css/style.css</string>
 		<string>js/InterfaceManager.js</string>
+		<string>js/DataManager.js</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>

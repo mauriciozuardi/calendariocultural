@@ -325,7 +325,9 @@ em{
 }
 #facebook{
 	display:inline-block;
-	margin-left:10px;
+	margin-left:14px;
+	padding-top:1px;
+	position:absolute;
 }
 #twitter{
 	display:inline-block;
@@ -445,6 +447,7 @@ em{
 }
 .event.past{
 /*	opacity:.8;*/
+	display:none;
 }
 .dot{
 	position:relative;
