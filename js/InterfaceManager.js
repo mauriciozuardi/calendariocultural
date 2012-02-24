@@ -23,6 +23,13 @@ InterfaceManager.prototype.init = function(){
 	
 	this.updateScreen();
 	
+	//tentativa TOSCA de sumir com um bug no content-info
+	var wr = function(){
+		window.resizeTo($(window).width()+1,$(window).height()+1);
+		window.resizeTo($(window).width()-1,$(window).height()-1);
+	}
+	setTimeout(wr, 500);
+	
 	//força todos os links abrirem em blank
 	$("a[href^='http:']").attr('target','_blank');
 }
