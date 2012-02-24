@@ -195,7 +195,7 @@ InterfaceManager.prototype.drawActivities = function(){
 		a.idComposto = a.idSiteOriginal + '-' + a.id;
 		var id = a.idComposto;
 		var labelTxt = a.nome;
-		var past = a.isPast ? ' past' : '';
+		var past = a.isPast && !this.dataManager.query ? ' past' : '';
 		
 		//cria o DIV com id com a bolinha, range e label dentro
 		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range'><span data-id='" + id + "' class='dot" + past + "'></span></span><span class='label" + past + "'>" + labelTxt + "<img src='./img/interface/nano-balloon.gif' class='nano' /></span></div>";
