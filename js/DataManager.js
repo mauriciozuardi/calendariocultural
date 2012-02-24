@@ -541,7 +541,7 @@ DataManager.prototype.loadQueryActivities = function(){
 		// console.log(['sites', sites]);
 		for (var i in sites){
 			// console.log('Alguns. Chamando ' + sites[i]);
-			url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[sites[i]].key + '/2/public/basic?alt=json&q=' + this.query;
+			url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[sites[i]].key + '/2/public/basic?alt=json&q=' + this.query + '&sq=publicar==1';
 			url = encodeURI(url);
 			// console.log(url);
 			this.preAtividadesEsperadas ++;
@@ -551,7 +551,7 @@ DataManager.prototype.loadQueryActivities = function(){
 		for(var i in this.sites){
 			var preSID = this.sites[i].id;
 			// console.log('Todos. Chamando ' + preSID);
-			url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[preSID].key + '/2/public/basic?alt=json&q=' + this.query;
+			url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[preSID].key + '/2/public/basic?alt=json&q=' + this.query + '&sq=publicar==1';
 			url = encodeURI(url);
 			// console.log(url);
 			this.preAtividadesEsperadas ++;
@@ -561,7 +561,7 @@ DataManager.prototype.loadQueryActivities = function(){
 }
 
 DataManager.prototype.loadJsonToVar = function(url, vName){
-	// console.log(vName);
+	console.log(['JsontoVar: ' + vName, url]);
 	var context = {};
 	context.instance = this;
 	context.vName = vName;
@@ -570,11 +570,11 @@ DataManager.prototype.loadJsonToVar = function(url, vName){
 }
 
 DataManager.prototype.addJsonToArray = function(url, arrName, preSID){
+	console.log(['JsontoArray: ' + arrName, url]);
 	var context = {};
 	context.instance = this;
 	context.arrName = arrName;
 	context.preSID = preSID;
-	// console.log(context)
 	this.totalRequests ++;
 	$.getJSON(url, $.proxy(DataManager.jsonToArrayElement, context));
 }
@@ -597,7 +597,7 @@ DataManager.jsonToArrayElement = function(json){
 	} else {
 		this.instance.preAtividadesEsperadas --;
 		this.instance.nSitesParaDescontar = this.instance.nSitesParaDescontar ? this.instance.nSitesParaDescontar + 1 : 1;
-		// console.log([this.arrName + ': retorno vazio (' + this.preSID + ')', json]);
+		console.log([this.arrName + ': retorno vazio (' + this.preSID + ')', json]);
 	}
 
 	this.instance.onJsonLoaded(this.arrName, this.preSID);
