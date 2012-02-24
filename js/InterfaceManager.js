@@ -53,7 +53,7 @@ InterfaceManager.prototype.drawHeader = function(){
 	});
 }
 
-InterfaceManager.prototype.onPullDownChange = function(){
+InterfaceManager.prototype.onPullDownChange = function(event){
 	var t = $(event.target);
 	var v = t.val();
 	
