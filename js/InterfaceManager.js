@@ -227,7 +227,7 @@ InterfaceManager.labelClicked = function(event){
 	InterfaceManager.fechaInfo();
 	
 	if(this.subsite){
-		console.log('ABRIR LINK INTERNO');
+		window.location = this.subsite;
 	} else {
 		this.context.abreBalloon(this);
 	}
