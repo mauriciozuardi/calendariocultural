@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="css/normalize.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script type="text/javascript" charset="utf-8" src="js/jquery-1.7.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/Markdown.Converter.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/Timeline.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/DataManager.js"></script>
@@ -18,6 +19,15 @@
 	<script type="text/javascript" charset="utf-8">sId="<?php echo $_REQUEST['s']; ?>";query="<?php echo $_REQUEST['q']; ?>";</script>
 </head>
 <body>
+  <style>
+   /* 
+    CSS rules to use for styling the overlay:
+      .chromeFrameOverlayContent
+      .chromeFrameOverlayContent iframe
+      .chromeFrameOverlayCloseBar
+      .chromeFrameOverlayUnderlay
+   */
+  </style> 
 	<?php 
 	// var_dump($_GET);
 	// echo '<br />';
