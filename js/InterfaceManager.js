@@ -233,7 +233,7 @@ InterfaceManager.labelClicked = function(event){
 	InterfaceManager.fechaInfo();
 	
 	if(this.subsite){
-		window.location = this.subsite;
+		window.open(this.subsite, '_BLANK');
 	} else {
 		this.context.abreBalloon(this);
 	}
