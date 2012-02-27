@@ -202,9 +202,10 @@ InterfaceManager.prototype.drawActivities = function(){
 		var id = a.idComposto;
 		var labelTxt = a.nome;
 		var past = a.isPast && !this.dataManager.query ? ' past' : '';
+		var icon = a.subsite ? "<img src='./img/interface/nano-seta.gif' class='nano' />" : "<img src='./img/interface/nano-balloon.gif' class='nano' />";
 		
 		//cria o DIV com id com a bolinha, range e label dentro
-		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range'><span data-id='" + id + "' class='dot" + past + "'></span></span><span class='label" + past + "'>" + labelTxt + "<img src='./img/interface/nano-balloon.gif' class='nano' /></span></div>";
+		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range'><span data-id='" + id + "' class='dot" + past + "'></span></span><span class='label" + past + "'>" + labelTxt + icon + "</span></div>";
 		$('.activities').append(html);
 		
 		//aplica as classes baseado no status
@@ -399,8 +400,9 @@ InterfaceManager.mudaFundo = function(a){
 	}
 	html += "</h1>";
 	html += "<h2>&nbsp;</h2>";
-	html += "<image class='icon' src='./img/interface/micro-balloon.png'" + remendo + "/>"
-	html += "<image class='fechar' src='./img/interface/fechar.png'" + remendo + "/>"
+	html += a.subsite ? "<img src='./img/interface/micro-seta.gif' " + remendo + " />" : "<img src='./img/interface/micro-balloon.png' " + remendo + "/>";
+	// html += "<image class='icon' src='./img/interface/micro-balloon.png'" + remendo + "/>";
+	html += "<image class='fechar' src='./img/interface/fechar.png'" + remendo + "/>";
 	html += "<p>" + sinopse + "</p>";
 	html += "<h4>" + credito + "</h4>";
 	$('.content-info').html(html);
@@ -594,7 +596,8 @@ InterfaceManager.desenhaContentInfoFromFooter = function(titulo){
 	var html = "";
 	html += "<h1>" + titulo + "</h1>";
 	html += "<h2>&nbsp;</h2>";
-	html += "<image class='icon' src='./img/interface/micro-balloon.png' style='opacity:0'/>"
+	html += a.subsite ? "<img src='./img/interface/micro-seta.gif' " + remendo + " />" : "<img src='./img/interface/micro-balloon.png' " + remendo + "/>";
+	// html += "<image class='icon' src='./img/interface/micro-balloon.png' style='opacity:0'/>"
 	html += "<image class='fechar' src='./img/interface/fechar.png'/>";
 	html += "<p>" + conteudo + "</p>"
 	html += "<h4> </h4>";
