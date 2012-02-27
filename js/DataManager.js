@@ -220,6 +220,10 @@ DataManager.prototype.trataValoresDasAtividades = function(s){
 			a.datainicial = (a.parent && a.parent.datainicial != inv) ? a.datainicial = a.parent.datainicial : new Date();
 			a.datafinal	 = (a.parent && a.parent.datafinal != inv) ? a.datafinal = a.parent.datafinal : new Date(Date.now() + 1);
 		}
+		
+		//confere se data inicial é menor que final
+		a.datainicial.getTime() > a.datafinal.getTime() ? alert('ERRO: ' + a.id + ' tem data inicial menor que final.') : null;
+		
 		//anota o contexto
 		a.context = this.parent;
 		
