@@ -25,7 +25,7 @@ InterfaceManager.prototype.init = function(){
 	
 	//tentativa um pouco menos tosca de resolver o bug do content-info
 	var laterUpdate = function(){
-		this.updateScreen();
+		im.updateScreen();
 	}
 	setTimeout(laterUpdate, 500);
 	
@@ -596,8 +596,8 @@ InterfaceManager.desenhaContentInfoFromFooter = function(titulo){
 	var html = "";
 	html += "<h1>" + titulo + "</h1>";
 	html += "<h2>&nbsp;</h2>";
-	html += a.subsite ? "<img src='./img/interface/micro-seta.gif' " + remendo + " />" : "<img src='./img/interface/micro-balloon.png' " + remendo + "/>";
-	// html += "<image class='icon' src='./img/interface/micro-balloon.png' style='opacity:0'/>"
+	// html += a.subsite ? "<img src='./img/interface/micro-seta.gif' " + remendo + " />" : "<img src='./img/interface/micro-balloon.png' " + remendo + "/>";
+	html += "<image class='icon' src='./img/interface/micro-balloon.png' style='opacity:0'/>"
 	html += "<image class='fechar' src='./img/interface/fechar.png'/>";
 	html += "<p>" + conteudo + "</p>"
 	html += "<h4> </h4>";
