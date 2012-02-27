@@ -398,6 +398,7 @@ InterfaceManager.mudaFundo = function(a){
 		remendo = "style='opacity:.6'";
 	}
 	html += "</h1>";
+	html += "<h2>&nbsp;</h2>";
 	html += "<image class='icon' src='./img/interface/micro-balloon.png'" + remendo + "/>"
 	html += "<image class='fechar' src='./img/interface/fechar.png'" + remendo + "/>"
 	html += "<p>" + sinopse + "</p>";
@@ -592,6 +593,7 @@ InterfaceManager.desenhaContentInfoFromFooter = function(titulo){
 	
 	var html = "";
 	html += "<h1>" + titulo + "</h1>";
+	html += "<h2>&nbsp;</h2>";
 	html += "<image class='icon' src='./img/interface/micro-balloon.png' style='opacity:0'/>"
 	html += "<image class='fechar' src='./img/interface/fechar.png'/>";
 	html += "<p>" + conteudo + "</p>"

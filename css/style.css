@@ -587,12 +587,15 @@ em{
 	font-style:normal;
 	color:rgba(255,255,255,.6);
 }
+.content-info h2{
+	margin-bottom:-10px;
+}
 .content-info .icon{
-	display:inline-block;
-	margin-top: 20px;
+	display: inline-block;
+	margin-top: 13px;
 	padding-left: 8px;
-	margin-bottom: -3px;
-	cursor:pointer;
+	margin-bottom: 5px;
+	cursor: pointer;
 }
 .content-info .fechar{
 	opacity: .4;
