@@ -7,6 +7,7 @@
 	<title>Calendário Cultural</title>
 	<meta name="generator" content="TextMate http://macromates.com/">
 	<meta name="author" content="Mauricio Zuardi">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<link rel="stylesheet" href="css/normalize.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script type="text/javascript" charset="utf-8" src="js/jquery-1.7.min.js"></script>
