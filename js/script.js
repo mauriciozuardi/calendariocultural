@@ -1,7 +1,8 @@
 function init(){	
 	// Chrome Frame check. Mostra para todos os IEs.
   CFInstall.check({
-    mode: "overlay"
+    mode: "overlay",
+    preventInstallDetection: 'true'
   });
 
 	//checa requisitos
