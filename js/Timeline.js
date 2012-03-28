@@ -7,7 +7,23 @@ function Timeline(caller){
 }
 
 Timeline.prototype.init = function(){
-	this.parent.query ? this.autoLabel() : this.labelsToDates();
+	// this.parent.query ? this.autoLabel() : this.labelsToDates();
+	this.parent.query ? this.autoLabel() : this.parent.when ? this.whenLabel() : this.labelsToDates();
+}
+
+Timeline.prototype.whenLabel = function(){
+	this.timeMarks = [];
+	var epochs = this.parent.when.split(',');
+	for(var i in epochs){
+		var e = epochs[i];
+		var date = new Date(parseInt(e));
+		var mesLongo = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+		
+		var timelineItem = {}
+		timelineItem.label = (i == epochs.length - 1) ? ' ' : mesLongo[date.getMonth()] + ' ' + date.getFullYear();
+		timelineItem.date = date;
+		this.timeMarks.push(timelineItem);
+	}
 }
 
 Timeline.prototype.autoLabel = function(){

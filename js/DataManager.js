@@ -5,7 +5,8 @@ function DataManager(caller){
 	this.parent = caller;
 	this.totalRequests = 0;
 	this.loadedRequests = 0;
-	this.mainKey = "0AnLIuvvW8l93dDViZURvYkRGTFZldXpTbVIwNnlTOUE";
+	// this.mainKey = "0AnLIuvvW8l93dDViZURvYkRGTFZldXpTbVIwNnlTOUE";
+	this.mainKey = "0AnLIuvvW8l93dHlLUV9EU1B0TmhmaTVJdVphanh2dXc";
 }
 
 DataManager.prototype.wrapUrlVars = function(vars){
@@ -398,7 +399,7 @@ DataManager.prototype.organizaPullDowns = function(){ //<-- SÓ DEPOIS Q CARREGA
 			
 			//quem
 			if(a.quem){
-				var quems = a.quem.split(', ');
+				var quems = a.quem.split('\n');
 				for(var q in quems){
 					var quem = quems[q];
 					var slug = DataManager.stringToSlug(quem);
@@ -473,6 +474,25 @@ DataManager.prototype.onTimelineReady = function(){
 	if(this.query){
 		delete this.timeline.timelineStr;
 		this.checkDataComplete();
+	} else if(this.when){
+		
+		var w = this.when.split(',');
+		var dI = new Date(parseInt(w[0]));
+		var dF = new Date(parseInt(w[1]));
+		// console.log(dI);
+		// console.log(dF);
+		var f = this.timeline.dateToDv(dI);	//first
+		var l = this.timeline.dateToDv(dF); //last
+		// console.log([f, l])
+		var dateQuery = '&sq=!((dvi<=' + f + ' and dvf<=' + f + ') or (dvi>=' + l + ' and dvf>=' + l + ')) and publicar==1';
+		url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json' + dateQuery;
+		url = encodeURI(url);
+		// this.loadJsonToVar(url, 'atividades');
+		this.preAtividades ? null : this.preAtividades = [];
+		this.preAtividadesEsperadas ? null : this.preAtividadesEsperadas = 1;
+		this.addJsonToArray(url, 'preAtividades', this.currentSite.id);
+		// console.log(url);		
+		
 	} else {
 		var f = this.timeline.dateToDv(this.timeline.first.date);
 		var l = this.timeline.dateToDv(this.timeline.last.date);
@@ -518,7 +538,35 @@ DataManager.prototype.checkDataComplete = function(){
 		whatsMissing += this.timeline ? "" : " timeline";
 		whatsMissing += !this.aguardandoConferirDependencias ? "" : " aguardandoConferirDependencias";
 		whatsMissing += this.nSitesOrganizados == this.nSitesParaChecar ? "" : " faltaOrganizar";
-		console.log('NOT complete. Missing:' + whatsMissing);
+		
+		//libera para os casos onde tem when
+		if(this.when && this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && this.timeline){
+			console.log(['NENHUM RESULTADO', this]);
+			
+			//cria atividade Dummy
+			this.atividades.s0 = {};
+			this.atividades.s0.a0000 = {};
+			var a = this.atividades.s0.a0000;
+			a.id = 'a0000';
+			a.idSiteOriginal = 's0';
+			a.nome = 'Nenhuma atividade encontrada';
+			a.sobre = 'A busca que você fez não retornou nenhum resultado.</br>Clique aqui para voltar, ou faça uma nova busca nos filtros acima.';
+			a.context = this.parent;
+			a.visual = 'g';
+			var epochs = this.when.split(',');
+			// var epochMedio = Math.round((parseInt(epochs[0]) + parseInt(epochs[1]))/2);
+			// a.datainicial = new Date(epochMedio);
+			// a.datafinal = new Date(epochMedio+1);
+			a.datainicial = new Date(parseInt(epochs[0]));
+			a.datafinal = new Date(parseInt(epochs[1]));
+			a.subsite = window.location.pathname;
+			
+			//prossegue
+			this.completedBefore = true;
+			this.onDataComplete();
+		} else {
+			console.log('NOT complete. Missing:' + whatsMissing);			
+		}
 	}
 }
 
