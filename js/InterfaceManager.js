@@ -756,7 +756,8 @@ InterfaceManager.prototype.updateScreen = function(){
 	var ch = h - $('.header').height() - $('.footer').height() - MARGIN_TOP; // contents height
 	
 	var at = $('.header').height() + MARGIN_TOP;
-	var ah = $('.contents .activities').height() + $('.footer').height();
+	// var ah = $('.contents .activities').height() + $('.footer').height();
+	var ah = Math.max($('.contents .activities').height() + $('.footer').height(), $('#balloon').height());
 	
 	//ajusta a estrutura principal da página
 	$('.bg').css('width', w);
@@ -807,7 +808,8 @@ InterfaceManager.prototype.updateScreen = function(){
 	
 	//recentraliza o balloon
 	// var bt = Math.max((h - $('#balloon').height())/2, $('.header').height()+1);
-	var bt = $(window).scrollTop() + $('.header').height()+1;
+	var bt = $('.header').height()+1;
+	bt += $('#balloon').height() > h ? 0 : $(window).scrollTop();
 	var bl = (w - $('#balloon').width())/2;
 	$('#balloon').css('top', bt);
 	$('#balloon').css('left', bl);
