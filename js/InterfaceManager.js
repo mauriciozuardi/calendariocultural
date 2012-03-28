@@ -202,6 +202,7 @@ InterfaceManager.prototype.drawContents = function(){
 	$('body').append(InterfaceManager.balloonStructure);
 	$('body').append("<div class='scroller'></div>");
 	$('body').append("<div class='bg'></div>");
+	$('body').append("<div class='lens'></div>");
 	$('body').append("<div class='timeline'></div>");
 	$('body').append("<div class='timeline-now'></div>");
 	$('body').append("<div class='contents'></div>");
@@ -756,6 +757,8 @@ InterfaceManager.prototype.updateScreen = function(){
 	//ajusta a estrutura principal da página
 	$('.bg').css('width', w);
 	$('.bg').css('height', h);
+	$('.lens').css('width', w);
+	$('.lens').css('height', h);
 	$('.contents').css('width', w);
 	$('.contents').css('height', ch);
 	$('.contents').css('top', ct);
@@ -849,7 +852,8 @@ InterfaceManager.timeToPosition = function(t, timeline, mustFit){
 InterfaceManager.prototype.checkAndFadeIn = function(loadedURL){
 	if(loadedURL == this.bgLoadControl.URLtoShow){
 		//mostra
-		$('.bg').fadeIn(500, function() {
+		$('.bg').fadeIn(500, function(){
+			$('.lens').fadeIn(2000, function(){});
 		});
 		this.bgLoadControl.actualURL = loadedURL;
 	} else {
@@ -862,7 +866,28 @@ InterfaceManager.prototype.carregaBg = function(imgURL){
 		this.bgLoadControl.URLtoShow = imgURL;
 		$('.bg').fadeOut(500, function() {
 			$('.bg').smartBackgroundImage(imgURL, 'bg');
+			$('.lens').fadeOut(500, function() {
+				im.updateLens();
+			});
 		});
+	}
+}
+
+InterfaceManager.prototype.updateLens = function(){
+	if(this.dataManager.atividadeSelecionada.lens){
+		var parts = this.dataManager.atividadeSelecionada.lens.split(', ');
+		if(parts.length == 1){
+			var A = parseInt(parts[0])/100;
+			$('.lens').css('background-color', 'rgba(0,0,0,'+A+')');			
+		} else if(parts.length == 2){
+			var R = parseInt((parts[1]).substring(0,2),16);
+			var G = parseInt((parts[1]).substring(2,4),16);
+			var B = parseInt((parts[1]).substring(4,6),16);
+			var A = parseInt(parts[0])/100;
+			$('.lens').css('background-color', 'rgba('+R+','+G+','+B+','+A+')');
+		}
+	} else {
+		$('.lens').css('background-color', 'rgba(0,0,0,.7)');
 	}
 }
 

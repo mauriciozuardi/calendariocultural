@@ -394,29 +394,36 @@ em{
 
 /* ====== BG ====== */
 .bg{
-	min-width:960px;
+/*	min-width:960px;*/
 	position:fixed;
 	z-index:1;
 }
 
+.lens{
+/*	min-width:960px;*/
+	position:fixed;
+	background-color:rgba(0,0,0,.7);
+	z-index:2;
+}
+
 /* ====== CONTENTS ====== */
 .contents {
-	min-width:960px;
+/*	min-width:960px;*/
 	position:absolute;
 /*	background-color:rgba(0, 0, 255, .2);*/
-	z-index:2;
+	z-index:3;
 }
 
 /* ====== TIMELINE ====== */
 .timeline{
-	min-width:960px;
-	position:fixed;
-	z-index:3;
-}
-.timeline-now{
-	min-width:960px;
+/*	min-width:960px;*/
 	position:fixed;
 	z-index:4;
+}
+.timeline-now{
+/*	min-width:960px;*/
+	position:fixed;
+	z-index:5;
 }
 .bullet{
 	font-size:14px;
@@ -461,7 +468,7 @@ em{
 .contents .activities{
 	min-width:960px;
 	position:absolute;
-	z-index:5;
+	z-index:6;
 }
 .event{
 	display:block;
