@@ -298,10 +298,11 @@ InterfaceManager.prototype.drawActivities = function(){
 		var id = a.idComposto;
 		var labelTxt = a.nome;
 		var past = a.isPast && !this.dataManager.query ? ' past' : '';
+		var dataIncerta = a.dataincerta ? ' notSure' : '';
 		var icon = a.subsite ? "<img src='./img/interface/nano-seta.gif' class='nano' />" : "<img src='./img/interface/nano-balloon.gif' class='nano' />";
 		
 		//cria o DIV com id com a bolinha, range e label dentro
-		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range'><span data-id='" + id + "' class='dot" + past + "'></span></span><span class='label" + past + "'>" + labelTxt + icon + "</span></div>";
+		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range" + dataIncerta + "'><span data-id='" + id + "' class='dot" + past + "'></span></span><span class='label" + past + "'>" + labelTxt + icon + "</span></div>";
 		$('.activities').append(html);
 		
 		//aplica as classes baseado no status
@@ -564,8 +565,11 @@ InterfaceManager.autoSinopse = function(bigText){
 		}
 		//confere se não passou da faixa máxima
 		if(novoTexto.length > IDEAL_SINOPSE_CHAR_COUNT * (1 + PHRASE_SNAP_FACTOR)){
-			novoTexto = novoTexto.substr(0, IDEAL_SINOPSE_CHAR_COUNT) + "...";
+			// novoTexto = novoTexto.substr(0, IDEAL_SINOPSE_CHAR_COUNT) + "[...]";
+			novoTexto = novoTexto.substr(0, IDEAL_SINOPSE_CHAR_COUNT);
 		}
+		
+		novoTexto += novoTexto.substr(novoTexto.length -1, 1) == " " ? "[...]" : " [...]";
 		return novoTexto;
 	}
 }
@@ -803,7 +807,7 @@ InterfaceManager.prototype.updateScreen = function(){
 	
 	//recentraliza o balloon
 	// var bt = Math.max((h - $('#balloon').height())/2, $('.header').height()+1);
-	var bt = $('.header').height()+1;
+	var bt = $(window).scrollTop() + $('.header').height()+1;
 	var bl = (w - $('#balloon').width())/2;
 	$('#balloon').css('top', bt);
 	$('#balloon').css('left', bl);

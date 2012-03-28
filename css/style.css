@@ -549,6 +549,7 @@ em{
 	border-width:0px;
 	border-radius:30px;
 	background-color:rgba(255,255,255,.3);
+	background-image:none;
 	cursor:pointer;
 /*	transition-property: border-width, width, height;
 	transition-duration: .5s;
@@ -562,6 +563,15 @@ em{
 }
 .range:hover{
 	background-color:rgba(255,255,255,.6);
+	background-image:none;
+}
+.range.notSure{
+	background-color:rgba(255,255,255,0);
+	background-image:url(../img/interface/pattern_30.png);
+}
+.range.notSure:hover{
+	background-color:rgba(255,255,255,0);
+	background-image:url(../img/interface/pattern_60.png);
 }
 .range.mini{
 	width:100px;

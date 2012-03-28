@@ -65,7 +65,7 @@ Timeline.prototype.autoLabel = function(){
 	console.log(nH);
 	if(nD == 0 && nH > 1){
 		// se tudo rola no mesmo dia, em horas diferentes
-		for(var i=0; i<=nH; i++){
+		for(var i=0; i<=nH+1; i++){
 			var currentHour = hI + i;
 			var timelineItem = {}
 			timelineItem.date = new Date(tI + 1000*60*60*i);
