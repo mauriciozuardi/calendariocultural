@@ -300,9 +300,10 @@ InterfaceManager.prototype.drawActivities = function(){
 		var past = a.isPast && !this.dataManager.query ? ' past' : '';
 		var dataIncerta = a.dataincerta ? ' notSure' : '';
 		var icon = a.subsite ? "<img src='./img/interface/nano-seta.gif' class='nano' />" : "<img src='./img/interface/nano-balloon.gif' class='nano' />";
+		var bg = a.visual == 'g' ? 'style=background-image:url(./img/'+a.idSiteOriginal+'/'+a.imagens.split('\n')[0]+');' : '';
 		
 		//cria o DIV com id com a bolinha, range e label dentro
-		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range" + dataIncerta + "'><span data-id='" + id + "' class='dot" + past + "'></span></span><span class='label" + past + "'>" + labelTxt + icon + "</span></div>";
+		var html = "<div data-id='" + id + "' class='event " + id + past +"'><span data-id='" + id + "' class='range" + dataIncerta + "'><span data-id='" + id + "' class='dot" + past + "'" + bg + "></span></span><span class='label" + past + "'>" + labelTxt + icon + "</span></div>";
 		$('.activities').append(html);
 		
 		//aplica as classes baseado no status
@@ -415,18 +416,28 @@ InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
 	switch (this.visual){
 		//pequeno
 		case "p":
+			// if(dot.hasClass('selected'))		dot.removeClass('selected');
+			// if(dot.hasClass('big'))					dot.removeClass('big');
+			// if(!range.hasClass('mini'))			range.addClass('mini');
+			// if(!label.hasClass('mini'))			label.addClass('mini');
 			if(dot.hasClass('selected'))		dot.removeClass('selected');
-			if(dot.hasClass('big'))					dot.removeClass('big');
-			if(!range.hasClass('mini'))			range.addClass('mini');
-			if(!label.hasClass('mini'))			label.addClass('mini');
+			if(!dot.hasClass('big'))				dot.addClass('big');
+			if(dot.hasClass('thumb'))				dot.removeClass('thumb');
+			if(range.hasClass('mini'))			range.removeClass('mini');
+			if(label.hasClass('mini'))			label.removeClass('mini');
 		break;
 		
 		//pequeno e selecionado
 		case "ps":
+			// if(!dot.hasClass('selected'))		dot.addClass('selected');
+			// if(dot.hasClass('big'))					dot.removeClass('big');
+			// if(!range.hasClass('mini'))			range.addClass('mini');
+			// if(!label.hasClass('mini'))			label.addClass('mini');
 			if(!dot.hasClass('selected'))		dot.addClass('selected');
-			if(dot.hasClass('big'))					dot.removeClass('big');
-			if(!range.hasClass('mini'))			range.addClass('mini');
-			if(!label.hasClass('mini'))			label.addClass('mini');
+			if(!dot.hasClass('big'))				dot.addClass('big');
+			if(dot.hasClass('thumb'))				dot.removeClass('thumb');
+			if(range.hasClass('mini'))			range.removeClass('mini');
+			if(label.hasClass('mini'))			label.removeClass('mini');
 			leaveBg ? null : InterfaceManager.mudaFundo(this);
 		break;
 		
@@ -434,17 +445,21 @@ InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
 		case "g":
 			if(dot.hasClass('selected'))		dot.removeClass('selected');
 			if(!dot.hasClass('big'))				dot.addClass('big');
+			if(!dot.hasClass('thumb'))			dot.addClass('thumb');
 			if(range.hasClass('mini'))			range.removeClass('mini');
 			if(label.hasClass('mini'))			label.removeClass('mini');
+			dot.css('background-image', 'url(./img/'+this.idSiteOriginal+'/'+this.imagens.split('\n')[0]+')');
 		break;
 		
 		//grande e selecionado
 		case "gs":
 			if(!dot.hasClass('selected'))		dot.addClass('selected');
 			if(!dot.hasClass('big'))				dot.addClass('big');
+			if(!dot.hasClass('thumb'))			dot.addClass('thumb');
 			if(range.hasClass('mini'))			range.removeClass('mini');
 			if(label.hasClass('mini'))			label.removeClass('mini');
 			leaveBg ? null : InterfaceManager.mudaFundo(this);
+			dot.css('background-image', 'none');
 		break;
 	}
 	
@@ -467,6 +482,7 @@ InterfaceManager.posicionaAtividade = function(a, timeline){
 	var COMP_DOT_BIG = -12;
  	var COMP_DOT = -4;
 	var FINE_TUNING = dot.hasClass('big') ? COMP_DOT_BIG : COMP_DOT;
+	FINE_TUNING += dot.hasClass('thumb') ? -44 : 0;
 	
 	// //posiciona o começo do evento
 	var x0 = InterfaceManager.timeToPosition(t0, timeline) + FINE_TUNING;
@@ -807,9 +823,18 @@ InterfaceManager.prototype.updateScreen = function(){
 	}
 	
 	//recentraliza o balloon
-	// var bt = Math.max((h - $('#balloon').height())/2, $('.header').height()+1);
-	var bt = $('.header').height()+1;
-	bt += $('#balloon').height() > h ? 0 : $(window).scrollTop();
+	var bh = $('#balloon').height();
+	var hh = $('.header').height();
+	var fh = $('.footer').height();
+	var st = $(window).scrollTop();
+	var bt = hh + 1; //mínimo
+	var excedente = bh - (h-(hh+1)) + fh + 1;
+	var scrollRelativePosition = st/(ch-(h-(hh+1)));
+	scrollRelativePosition = scrollRelativePosition < 0 ? 0 : scrollRelativePosition;
+	scrollRelativePosition = scrollRelativePosition > 1 ? 1 : scrollRelativePosition;
+	var proportionalTop = excedente * scrollRelativePosition;
+	bt += bh + hh > h ? proportionalTop : st;
+	console.log([scrollRelativePosition, bt]);
 	var bl = (w - $('#balloon').width())/2;
 	$('#balloon').css('top', bt);
 	$('#balloon').css('left', bl);
@@ -893,7 +918,7 @@ InterfaceManager.prototype.updateLens = function(){
 			$('.lens').css('background-color', 'rgba('+R+','+G+','+B+','+A+')');
 		}
 	} else {
-		$('.lens').css('background-color', 'rgba(0,0,0,.7)');
+		$('.lens').css('background-color', 'rgba(0,0,0,.3)');
 	}
 }
 
@@ -1526,7 +1551,7 @@ InterfaceManager.abreBio = function(){
 			if(im.dataManager.pessoas[DataManager.stringToSlug(nome)]){
 				var q = im.dataManager.pessoas[DataManager.stringToSlug(nome)];
 				if(q.nome && q.bio){
-					html += '<p><b>//' + q.nome + '</b></p><p>' + InterfaceManager.txtToHTML(q.bio) + '<p>';				
+					html += '<p><b>// ' + q.nome + '</b></p><p>' + InterfaceManager.txtToHTML(q.bio) + '<p>';				
 				}
 			} else {
 				console.log('WARNING: ' + nome + ' NÃO está cadastrado na lista de pessoas.');

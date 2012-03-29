@@ -510,14 +510,22 @@ em{
 	background-color:white;
 }
 .dot.big{
-	width:17px;
-	height:17px;
-	border-width:4px;
+	width:21px;
+	height:21px;
+	border-width:2px;
 	background-color:rgba(255,255,255,0);
 /*	-webkit-transition-duration: .5s;
 	-moz-transition-duration: .5s;
 	-o-transition-duration: .5s;
 	transition-duration: .5s;*/
+}
+.dot.big.thumb{
+	width: 66px;
+	background-repeat:no-repeat;
+	background-position:center;
+	-moz-background-size:cover;
+	-webkit-background-size:cover;
+	background-size:cover;
 }
 .dot.past{
 	border-color:rgba(255,255,255,0);
@@ -540,6 +548,13 @@ em{
 	-moz-transition-duration: .5s;
 	-o-transition-duration: .5s;
 	transition-duration: .5s;*/
+}
+.dot.big.thumb.selected{
+	width: 70px;
+	height: 25px;
+	border-width: 0px;
+/*	background-color:rgba(255,255,255,0);*/
+/*	background-image:url(../img/interface/pattern_30.png);*/
 }
 .range{
 	position:relative;
