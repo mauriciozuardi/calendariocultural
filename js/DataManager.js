@@ -232,7 +232,7 @@ DataManager.prototype.trataValoresDasAtividades = function(s){
 		a.isPast = (a.datafinal.getTime() < Date.now() && this.currentSite.passadorelevante == '0') ? true : false;
 		
 		//preenche o visual default se não tiver nenhum
-		a.visual ? null : a.visual = 'p';
+		a.visual ? null : a.visual = 'p';		
 	}
 	if(todasValidas){
 		delete this.datasInvalidas;
@@ -570,7 +570,62 @@ DataManager.prototype.checkDataComplete = function(){
 	}
 }
 
+DataManager.prototype.trataParticipantes = function(){
+	
+	/////// FASE 2 ///////
+	//16. Quando esconderBio for SIM, importar dados das atividades filhas da tabela PESSOAS.
+	// Helena preencheria:
+	// - id
+	// - nome 
+	// - parent
+	// 
+	// Sistema preencheria:
+	// - tipo = 'participante'
+	// - visual, onde, data inicial e data final = do parent
+	// - sobre = bio
+	// - imagem = imagem da pessoa
+	// - crédito (incluir na tabela) = credito da pessoa
+	// - horário = do parent
+	
+	for(var s in this.atividades){
+		for(var i in this.atividades[s]){
+			var a = this.atividades[s][i];
+			if(this.sites[s].esconderbio != '0' && a.dependentes){
+				for(var j in a.dependentes){
+					var d = a.dependentes[j];
+					var pai = a;
+					var pessoa = this.pessoas[DataManager.stringToSlug(d.nome)];
+					if(pai && pessoa){				
+						//hardcoded
+						d.tipo = 'participante';
+						d.visual = 'p';
+
+						//pega infos do pai
+						d.datainicial = pai.datainicial ? pai.datainicial : new Date();
+						d.datafinal = pai.datafinal ? pai.datafinal : new Date();
+						d.dvi = pai.dvi ? pai.dvi : this.timeline.dateToDv(new Date());
+						d.dvf = pai.dvf ? pai.dvf : this.timeline.dateToDv(new Date());
+						pai.onde ? d.onde = pai.onde : console.log('ERRO: Pai de ' + d.id + ' não tem ONDE cadastrado');
+						pai.horario ? d.horario = pai.horario : null;
+
+						//pega infos da pessoa
+						d.sobre = pessoa.bio ? pessoa.bio : 'CADASTRAR BIO';
+						d.imagens = pessoa.imagem ? pessoa.imagem : '../interface/default-img.png';
+						d.credito = pessoa.credito ? pessoa.credito : 'SEM CRÉDITO';
+
+						console.log(['MEXI (' + d.id + ') ' + d.nome, d]);
+					}	else {
+						!pai ? console.log('WARNING: ' + d.id + ' não tem PARENT.') : null;
+						!pessoa ? console.log('WARNING: ' + d.nome + ' (' + d.id + ') não cadastrado no GERAL > PESSOAS.') : null;
+					}
+				}
+			}
+		}
+	}
+}
+
 DataManager.prototype.onDataComplete = function(){
+	this.trataParticipantes();
 	this.parent.dataManager = this;
 	this.parent.init();
 	this.query ? console.log(['Init done. QUERY.', this]) : console.log(['Init done.', this]);
