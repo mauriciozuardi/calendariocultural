@@ -227,7 +227,7 @@ InterfaceManager.prototype.drawContents = function(){
 	
 	//update no index da atividade selecionada
 	this.dataManager.arrayAtividadesIndex = InterfaceManager.indexForMatch(this.dataManager.destaqueSelecionado, this.dataManager.arrayAtividades);
-	console.log(this.dataManager.arrayAtividadesIndex)
+	// console.log(this.dataManager.arrayAtividadesIndex);
 }
 
 InterfaceManager.balloonStructure = function(){
@@ -403,7 +403,7 @@ InterfaceManager.selectActivity = function(atividade){
 	//atualiza o index da atividade selecionada
 	var i = InterfaceManager.indexForMatch(atividade, im.dataManager.arrayAtividades);
 	i != -1 ? im.dataManager.arrayAtividadesIndex = i : null;
-	console.log(im.dataManager.arrayAtividadesIndex);
+	// console.log(im.dataManager.arrayAtividadesIndex);
 }
 
 InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
@@ -416,28 +416,20 @@ InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
 	switch (this.visual){
 		//pequeno
 		case "p":
-			// if(dot.hasClass('selected'))		dot.removeClass('selected');
-			// if(dot.hasClass('big'))					dot.removeClass('big');
-			// if(!range.hasClass('mini'))			range.addClass('mini');
-			// if(!label.hasClass('mini'))			label.addClass('mini');
 			if(dot.hasClass('selected'))		dot.removeClass('selected');
 			if(!dot.hasClass('big'))				dot.addClass('big');
 			if(dot.hasClass('thumb'))				dot.removeClass('thumb');
-			if(range.hasClass('mini'))			range.removeClass('mini');
-			if(label.hasClass('mini'))			label.removeClass('mini');
+			if(label.hasClass('thumb'))			label.removeClass('thumb');
+			if(range.hasClass('thumb'))			range.removeClass('thumb');
 		break;
 		
 		//pequeno e selecionado
 		case "ps":
-			// if(!dot.hasClass('selected'))		dot.addClass('selected');
-			// if(dot.hasClass('big'))					dot.removeClass('big');
-			// if(!range.hasClass('mini'))			range.addClass('mini');
-			// if(!label.hasClass('mini'))			label.addClass('mini');
 			if(!dot.hasClass('selected'))		dot.addClass('selected');
 			if(!dot.hasClass('big'))				dot.addClass('big');
 			if(dot.hasClass('thumb'))				dot.removeClass('thumb');
-			if(range.hasClass('mini'))			range.removeClass('mini');
-			if(label.hasClass('mini'))			label.removeClass('mini');
+			if(label.hasClass('thumb'))			label.removeClass('thumb');
+			if(range.hasClass('thumb'))			range.removeClass('thumb');
 			leaveBg ? null : InterfaceManager.mudaFundo(this);
 		break;
 		
@@ -446,8 +438,8 @@ InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
 			if(dot.hasClass('selected'))		dot.removeClass('selected');
 			if(!dot.hasClass('big'))				dot.addClass('big');
 			if(!dot.hasClass('thumb'))			dot.addClass('thumb');
-			if(range.hasClass('mini'))			range.removeClass('mini');
-			if(label.hasClass('mini'))			label.removeClass('mini');
+			if(!label.hasClass('thumb'))		label.addClass('thumb');
+			if(!range.hasClass('thumb'))		range.addClass('thumb');
 			dot.css('background-image', 'url(./img/'+this.idSiteOriginal+'/'+this.imagens.split('\n')[0]+')');
 		break;
 		
@@ -456,8 +448,8 @@ InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
 			if(!dot.hasClass('selected'))		dot.addClass('selected');
 			if(!dot.hasClass('big'))				dot.addClass('big');
 			if(!dot.hasClass('thumb'))			dot.addClass('thumb');
-			if(range.hasClass('mini'))			range.removeClass('mini');
-			if(label.hasClass('mini'))			label.removeClass('mini');
+			if(!label.hasClass('thumb'))		label.addClass('thumb');
+			if(!range.hasClass('thumb'))		range.addClass('thumb');
 			leaveBg ? null : InterfaceManager.mudaFundo(this);
 			dot.css('background-image', 'none');
 		break;
@@ -482,7 +474,7 @@ InterfaceManager.posicionaAtividade = function(a, timeline){
 	var COMP_DOT_BIG = -12;
  	var COMP_DOT = -4;
 	var FINE_TUNING = dot.hasClass('big') ? COMP_DOT_BIG : COMP_DOT;
-	FINE_TUNING += dot.hasClass('thumb') ? -44 : 0;
+	FINE_TUNING += dot.hasClass('thumb') ? -31 : 0;
 	
 	// //posiciona o começo do evento
 	var x0 = InterfaceManager.timeToPosition(t0, timeline) + FINE_TUNING;
@@ -754,7 +746,7 @@ InterfaceManager.desenhaContentInfoFromFooter = function(titulo){
 
 InterfaceManager.prototype.updateScreen = function(){
 	//ajusta os min-width em função do header
-	var mw = 60 + $('.header img').width() + $('.oque').outerWidth(true) + $('.onde').outerWidth(true) + $('.quem').outerWidth(true) + (this.dataManager.query ? 30 : 0);
+	var mw = 60 + $('.header img').width() + $('.oque').outerWidth(true) + $('.onde').outerWidth(true) + $('.quem').outerWidth(true) + $('.quando').outerWidth(true) + (this.dataManager.query || this.dataManager.when ? 30 : 0);
 	$('.header').css('min-width', mw);
 	$('.bg').css('min-width', mw);
 	$('.contents').css('min-width', mw);
@@ -770,6 +762,7 @@ InterfaceManager.prototype.updateScreen = function(){
 	var h = $(window).height();
 	var ct = $('.header').height() + MARGIN_TOP + $(window).scrollTop(); // contents top
 	var ch = h - $('.header').height() - $('.footer').height() - MARGIN_TOP; // contents height
+	ch += $('.content-info').hasClass('closed') ? 0 : 12;
 	
 	var at = $('.header').height() + MARGIN_TOP;
 	// var ah = $('.contents .activities').height() + $('.footer').height();
@@ -834,7 +827,7 @@ InterfaceManager.prototype.updateScreen = function(){
 	scrollRelativePosition = scrollRelativePosition > 1 ? 1 : scrollRelativePosition;
 	var proportionalTop = excedente * scrollRelativePosition;
 	bt += bh + hh > h ? proportionalTop : st;
-	console.log([scrollRelativePosition, bt]);
+	// console.log([scrollRelativePosition, bt]);
 	var bl = (w - $('#balloon').width())/2;
 	$('#balloon').css('top', bt);
 	$('#balloon').css('left', bl);

@@ -411,19 +411,19 @@ em{
 /*	min-width:960px;*/
 	position:absolute;
 /*	background-color:rgba(0, 0, 255, .2);*/
-	z-index:3;
+	z-index:4;
 }
 
 /* ====== TIMELINE ====== */
 .timeline{
 /*	min-width:960px;*/
 	position:fixed;
-	z-index:4;
+	z-index:5;
 }
 .timeline-now{
 /*	min-width:960px;*/
 	position:fixed;
-	z-index:5;
+	z-index:3;
 }
 .bullet{
 	font-size:14px;
@@ -473,9 +473,9 @@ em{
 .event{
 	display:block;
 	clear:both;
-	margin-bottom:2px;
+	margin-bottom:-12px;
 	margin-left:90px;
-	height:26px;
+/*	height:26px;*/
 	font-weight:normal;
 }
 .event span:hover{
@@ -513,6 +513,7 @@ em{
 	width:21px;
 	height:21px;
 	border-width:2px;
+	border-radius:30px;
 	background-color:rgba(255,255,255,0);
 /*	-webkit-transition-duration: .5s;
 	-moz-transition-duration: .5s;
@@ -520,12 +521,17 @@ em{
 	transition-duration: .5s;*/
 }
 .dot.big.thumb{
-	width: 66px;
+	width: 52px;
+	height: 21px;
+	border-width:2px;
 	background-repeat:no-repeat;
 	background-position:center;
-	-moz-background-size:cover;
+/*	-moz-background-size:cover;
 	-webkit-background-size:cover;
-	background-size:cover;
+	background-size:cover;*/
+	-moz-background-size:600%;
+	-webkit-background-size:600%;
+	background-size:600%;
 }
 .dot.past{
 	border-color:rgba(255,255,255,0);
@@ -538,7 +544,6 @@ em{
 	box-shadow: 0 1px 2px 0px rgba(0,0,0,.3);
 }
 .dot.big.selected{
-	border-radius:30px;
 	border-width: 12px;
 	width: 1px;
 	height: 1px;
@@ -550,10 +555,11 @@ em{
 	transition-duration: .5s;*/
 }
 .dot.big.thumb.selected{
-	width: 70px;
-	height: 25px;
-	border-width: 0px;
-/*	background-color:rgba(255,255,255,0);*/
+	width: 52px;
+	height: 21px;
+	border-width:2px;
+	border-color:rgba(255,255,255,1);
+	background-color:rgba(255,255,255,1);
 /*	background-image:url(../img/interface/pattern_30.png);*/
 }
 .range{
@@ -563,7 +569,7 @@ em{
 	height:25px;
 	border-width:0px;
 	border-radius:30px;
-	background-color:rgba(255,255,255,.3);
+	background-color:rgba(255,255,255,.25);
 	background-image:none;
 	cursor:pointer;
 /*	transition-property: border-width, width, height;
@@ -575,6 +581,10 @@ em{
 	-moz-transition-duration: .5s;
 	-o-transition-property: border-width, width, height;
 	-o-transition-duration: .5s;*/
+}
+.range.thumb{
+/*	height:36px;
+	border-radius:10px;*/
 }
 .range:hover{
 	background-color:rgba(255,255,255,.6);
@@ -605,6 +615,9 @@ em{
 	cursor:pointer;
 	white-space: nowrap;
 	font-weight:normal;
+}
+.label.thumb{
+/*	top:-25px;*/
 }
 .label:hover{
 	font-weight:bolder;

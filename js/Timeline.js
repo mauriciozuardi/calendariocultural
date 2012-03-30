@@ -62,7 +62,7 @@ Timeline.prototype.autoLabel = function(){
 	var mesCurto = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 	this.timeMarks = [];
 
-	console.log(nH);
+	// console.log(nH);
 	if(nD == 0 && nH > 1){
 		// se tudo rola no mesmo dia, em horas diferentes
 		for(var i=0; i<=nH+1; i++){
@@ -84,44 +84,142 @@ Timeline.prototype.autoLabel = function(){
 			console.log(timelineItem.label);
 		}
 	} else {
-		for(var i=0; i<=nM+1; i++){
-			var currentMonth = (mI + i)%12;
-			var currentYear = aI + Math.floor( (mI+i)/12 );
-			// var mostraAno = (i==0 || currentMonth == 0) ? " " + currentYear : ""; // <-- mostrava ano só quando era relevante. Helena vetou.
-			if(nM <= 12){
-				//se o intervalo de meses cabe confortavelmente na tela média, mostra
-				var timelineItem = {}
-				timelineItem.date = new Date(currentYear,currentMonth,1);
-				timelineItem.label = mesCurto[currentMonth] + " " + currentYear;
-				this.timeMarks.push(timelineItem);
+		
+		//se prepara para desenhar a timeline mostrando só os 12 primeiros meses, priorizando o futuro mas mostrando o máximo possível
+		
+		if(nM > 12){
+			//confere quantos eventos passados deve pular para caber o máximo de eventos futuros
+			
+			//como saber se a data final é maior que hoje (ou seja, a atividade está acontecendo ainda)
+			var dataMaiorOuIgualHoje = function(dataTestada){
+				var today = new Date();
+				return dataTestada.getTime() >= today.getTime() - ((today.getHours()-1) * 1000*60*60) - ((today.getMinutes()-1) * 1000*60) - ((today.getSeconds()) * 1000);
+			}
+			var dataAMaiorOuIgualB = function(dataA, dataB){
+				return dataA.getTime() >= dataB.getTime() - ((dataB.getHours()-1) * 1000*60*60) - ((dataB.getMinutes()-1) * 1000*60) - ((dataB.getSeconds()) * 1000);
+			}
+			
+			//ordena o array por data final
+			datas.todas.sort(Timeline.ordemDataFinalAscendente);
+			
+			// //procura a primeira data ainda está rolando
+			// for(var i in datas.todas){
+			// 	var d = datas.todas[i];
+			// 	if(dataMaiorOuIgualHoje(d.datafinal)){
+			// 		console.log(d.datafinal);
+			// 		//anota qual é a primeira data que deve, obrigatoriamente aparecer
+			// 		primeira = d;
+			// 		primeiraIndex = i;
+			// 		break;
+			// 	}
+			// }
+			
+			//varre todas as datas de atividades que ainda estão rolando, procurando a que começa mais no passado
+			var dataRolandoComInicioMaisAntigo = {}
+			var epochDRCIMA = Infinity;
+			for(var i in datas.todas){
+				var d = datas.todas[i];
+				if(dataMaiorOuIgualHoje(d.datafinal)){
+					if(epochDRCIMA > d.datainicial.getTime()){
+						dataRolandoComInicioMaisAntigo = d;
+						epochDRCIMA = d.datainicial.getTime();
+					}
+				}
+			}
+						
+			console.log(['dataRolandoComInicioMaisAntigo', dataRolandoComInicioMaisAntigo]);
+			
+			//anota data da atividade mais remota no futuro
+			var ultima = datas.todas[datas.todas.length-1];
+			console.log(['ultima', ultima]);
+			
+			//confere quantos meses tem entre a primeira e a última
+			var aInicial = dataRolandoComInicioMaisAntigo.datainicial.getFullYear();
+			var aFinal = ultima.datafinal.getFullYear();
+			var mInicial = dataRolandoComInicioMaisAntigo.datainicial.getMonth();
+			var mFinal = ultima.datafinal.getMonth();
+			if(mFinal == 11){
+				mFinal = 0;
+				aFinal ++;
 			} else {
-				//senão, mostra só os anos
-				if(i==0 || currentMonth == 0){
-					var timelineItem = {}
-					timelineItem.label = currentYear.toString();
-					timelineItem.date = new Date(currentYear,0,1);
-					this.timeMarks.push(timelineItem);
+				mFinal ++;
+			}
+			
+			var nAnos = aFinal - aInicial;
+			if(nAnos > 0){
+				//tem mais de um ano entre as datas
+				var nMeses = (nAnos*12) - mInicial + mFinal;
+			} else {
+				//está tudo dentro do mesmo ano
+				var nMeses = mFinal - mInicial;
+			}
+			
+			// console.log(['nMeses', nMeses]);
+			
+			// se tiver menos que 12 meses, inclui alguns do passado até interar
+			if(nMeses < 12){
+				// console.log(-12+nMeses);
+				mInicial -= 12-nMeses;
+				// console.log(mInicial);
+				if(mInicial > -1){
+					mInicial += 12;
+					aInicial --;
+				}
+			}
+			var primeiraTimeMarkDate = new Date(aInicial,mInicial,1);
+			
+			//apaga as atividades que estão fora do novo range de datas
+			var primeiraTimeMarkDate = new Date(aInicial,mInicial,1);
+			for(var s in this.parent.atividades){
+				for(var i in this.parent.atividades[s]){
+					var a = this.parent.atividades[s][i];
+					!dataAMaiorOuIgualB(a.datafinal, primeiraTimeMarkDate) ? delete this.parent.atividades[s][i] : null;
 				}
 			}
 		}
-		if(nM > 12){
-			//inclui o ano final
-			var timelineItem = {}
-			timelineItem.label = (aF+1).toString();
-			timelineItem.date = new Date((aF+1),0,1);
-			this.timeMarks.push(timelineItem);	
+		
+		if(nM <= 12){
+			for(var i=0; i<=Math.min(12,nM+1); i++){
+				//se o intervalo de meses cabe confortavelmente na tela média, mostra
+				var currentMonth = (mI + i)%12;
+				var currentYear = aI + Math.floor( (mI+i)/12 );
+				var timelineItem = {}
+				timelineItem.label = mesCurto[currentMonth] + " " + currentYear;
+				timelineItem.date = new Date(currentYear,currentMonth,1);
+				this.timeMarks.push(timelineItem);
+			}
+		} else {
+			for(var i=0; i<=12; i++){
+				//senão corta o passado e/ou o futuro longínquo até caber em 12
+				var currentMonth = (mInicial + i)%12;
+				var currentYear = aInicial + Math.floor( (mInicial+i)/12 );
+				var timelineItem = {}
+				timelineItem.label = mesCurto[currentMonth] + " " + currentYear;
+				timelineItem.date = new Date(currentYear,currentMonth,1);
+				this.timeMarks.push(timelineItem);
+			}
 		}
 	}
+}
+
+Timeline.ordemDataFinalAscendente = function(a,b){
+	return a.datafinal - b.datafinal;
 }
 
 Timeline.prototype.defineActivitiesRange = function(){
 	var datas = {};
 	datas.menor = 1.7976931348623157E+10308; //infinito
 	datas.maior = 0;
+	datas.todas = [];
 
 	for(var s in this.parent.atividades){
 		for(var i in this.parent.atividades[s]){
 			var a = this.parent.atividades[s][i];
+			//guarda qualquer uma
+			var d = {}
+			d.datainicial = new Date(a.datainicial.getTime());
+			d.datafinal = new Date(a.datafinal.getTime());
+			datas.todas.push(d);
 			//guarda os recordistas
 			(a.datainicial.getTime() < datas.menor) ? datas.filhoMenor = a : null;
 			(a.datafinal.getTime() > datas.maior) ? datas.filhoMaior = a : null;
