@@ -612,6 +612,7 @@ DataManager.prototype.trataParticipantes = function(){
 						d.sobre = pessoa.bio ? pessoa.bio : 'CADASTRAR BIO';
 						d.imagens = pessoa.imagem ? pessoa.imagem : '../interface/default-img.png';
 						d.credito = pessoa.credito ? pessoa.credito : 'SEM CRÉDITO';
+						pessoa.site ? d.site = pessoa.site : null;
 
 						console.log(['MEXI (' + d.id + ') ' + d.nome, d]);
 					}	else {
