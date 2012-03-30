@@ -5,8 +5,6 @@ function DataManager(caller){
 	this.parent = caller;
 	this.totalRequests = 0;
 	this.loadedRequests = 0;
-	// this.mainKey = "0AnLIuvvW8l93dDViZURvYkRGTFZldXpTbVIwNnlTOUE";
-	this.mainKey = "0AnLIuvvW8l93dHlLUV9EU1B0TmhmaTVJdVphanh2dXc";
 }
 
 DataManager.prototype.wrapUrlVars = function(vars){
@@ -18,6 +16,10 @@ DataManager.prototype.wrapUrlVars = function(vars){
 }
 
 DataManager.prototype.init = function(){
+	//index.php?m=MAIN_KEY_HERE;
+	this.mainKey = this.mk ? this.mk : "0AnLIuvvW8l93dHlLUV9EU1B0TmhmaTVJdVphanh2dXc";
+	delete this.mk;
+	
 	this.sId = (this.sId == '') ? 's1' : this.sId;
 	this.aguardandoConferirDependencias = true;
 	this.nSitesOrganizados = 0;
