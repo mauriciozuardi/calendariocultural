@@ -1024,9 +1024,6 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	html += "<p>" + sobre + "</p>";
 	html += "</div>";
 	
-	//inclui o site da atividade, se existir
-	html += a.site ? "<p><a href='" + a.site + "' target='_BLANK'>" + a.site.replace('http://', '') + "</a></p>" : "";
-	
 	//vê se existe quem cadastrado na atividade e se ele existe na lista de pessoas
 	var quem = a.quem ? a.quem.split('\n')[0] : null;
 	if(quem){
@@ -1045,9 +1042,20 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	//vê se o quem tem biografia
 	if(quem.bio && this.dataManager.currentSite.esconderbio == '0' && todosQuem && todosQuem.length <= 2){
 		html += "<div id='bio' class='hidden'></div>";
-		html += todosQuem.length == 1 ? "<p><span class='fake-link'>Biografia</span>" : "<p><span class='fake-link'>Biografias</span>";		
+		html += "<p>";
+		//inclui o site da atividade, se existir
+		html += a.site ? "<a href='" + a.site + "' target='_BLANK'>" + a.site.replace('http://', '') + "</a>" : "";
+		var separador = a.site ? ' // ' : '';
+		html += todosQuem.length == 1 ? separador + "<span class='fake-link'>Biografia</span>&nbsp;" : separador + "<span class='fake-link'>Biografias</span>";		
+	} else {
+		html += "<p>";
+		//inclui o site da atividade, se existir
+		html += a.site ? "<a href='" + a.site + "' target='_BLANK'>" + a.site.replace('http://', '') + "</a> // " : "";
 	}
-	html += quem.site ? "<p><a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "";
+	var separador = a.quem || a.site ? ' // ' : '';
+	html += quem.site ? separador + "<a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a>" : "";
+	
+	html += "</p>";
 	
 	$('#mini-balloon-body').html(html);
 	//Aplica click se existir bio
