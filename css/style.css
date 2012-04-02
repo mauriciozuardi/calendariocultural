@@ -199,6 +199,9 @@ em{
 	background-position:93%;
 	cursor:pointer;
 }
+#slideshow-controls .next.first{
+	opacity:.1;
+}
 #slideshow-controls .next:hover{
 	opacity:.5;
 }

@@ -1275,9 +1275,11 @@ InterfaceManager.prototype.desenhaBalloonTop = function(a, idOnde){
 }
 
 InterfaceManager.prototype.updateSlideshowControls = function(){
+	$('#slideshow-controls .next').removeClass('first');
 	if(this.ballonVars.slideshow.nImgs > 1){
 		if(this.ballonVars.slideshow.showingImgIndex == 0){
 			$('#slideshow-controls .next').css('display', 'block');
+			$('#slideshow-controls .next').addClass('first');
 			$('#slideshow-controls .previous').css('display', 'none');
 		} else if(this.ballonVars.slideshow.showingImgIndex == this.ballonVars.slideshow.nImgs-1){
 			$('#slideshow-controls .next').css('display', 'none');
