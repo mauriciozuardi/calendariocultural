@@ -147,13 +147,15 @@ InterfaceManager.prototype.onQuandoChange = function(event){
 }
 
 InterfaceManager.prototype.drawPullDowns = function(){
+	var q = this.dataManager.query;
 	var html = ""
 	//desenha o quê
 	if(this.dataManager.pulldowns.oque._ordenado.length > 1 && !this.dataManager.currentSite.semoque){
 		html += "<select class='oque'><option>o quê</option>";
 		for(var i in this.dataManager.pulldowns.oque._ordenado){
 			var label = this.dataManager.pulldowns.oque._ordenado[i].label;
-			html += "<option>" + label + "</option>";
+			var selectedOrNot = q ? (DataManager.stringToSlug(q) == DataManager.stringToSlug(label) ? "<option selected='selected'>" : "<option>") : "<option>";
+			html += selectedOrNot + label + "</option>";
 		}
 		html += "</select>";
 	}
@@ -162,7 +164,8 @@ InterfaceManager.prototype.drawPullDowns = function(){
 		html += "<select class='onde'><option>onde</option>";
 		for(var i in this.dataManager.pulldowns.onde._ordenado){
 			var label = this.dataManager.pulldowns.onde._ordenado[i].label;
-			html += "<option>" + label + "</option>";
+			var selectedOrNot = q ? (q == this.dataManager.pulldowns.onde._ordenado[i].id ? "<option selected='selected'>" : "<option>") : "<option>";
+			html += selectedOrNot + label + "</option>";
 		}
 		html += "</select>";
 	}
@@ -171,18 +174,21 @@ InterfaceManager.prototype.drawPullDowns = function(){
 		html += "<select class='quem'><option>quem</option>";
 		for(var i in this.dataManager.pulldowns.quem._ordenado){
 			var label = this.dataManager.pulldowns.quem._ordenado[i].label;
-			html += "<option>" + label + "</option>";
+			var selectedOrNot = q ? (DataManager.stringToSlug(q) == DataManager.stringToSlug(label) ? "<option selected='selected'>" : "<option>") : "<option>";
+			html += selectedOrNot + label + "</option>";
 		}
 		html += "</select>";
 	}
 	//desenha quando
+	var w = this.dataManager.when;
 	if(!this.dataManager.currentSite.semquando){
 		html += "<select class='quando'><option>quando</option>";
 		var currentDate = new Date();
 		var mesLongo = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 		var mesInicial = currentDate.getMonth();
 		var anoInicial = currentDate.getFullYear();
-		for(var i=0; i<12; i++){
+		var wDate = new Date (parseInt(w.split(',')[0]));
+		for(var i=0; i<=12; i++){
 			var nMes = mesInicial+i;
 			if(nMes > 11){
 				var a = anoInicial+1;
@@ -190,7 +196,10 @@ InterfaceManager.prototype.drawPullDowns = function(){
 			} else {
 				var a = anoInicial;
 			}
-			html += "<option>" + mesLongo[nMes] + " " + a + "</option>";			
+			// html += "<option>" + mesLongo[nMes] + " " + a + "</option>";
+			// console.log([wDate.getMonth(), nMes]);
+			var selectedOrNot = w ? (wDate.getMonth() == nMes && wDate.getFullYear() == a ? "<option selected='selected'>" : "<option>") : "<option>";
+			html += selectedOrNot + mesLongo[nMes] + " " + a + "</option>";	
 		}
 		html += "</select>";
 	}
@@ -214,6 +223,7 @@ InterfaceManager.prototype.drawContents = function(){
 	
 	//seleciona um destaque
 	this.sorteiaDestaque();
+	console.log(this.dataManager.destaqueSelecionado);
 	InterfaceManager.selectActivity(this.dataManager.destaqueSelecionado);
 	
 	//abre um dos links do footer qdo abrir o site
@@ -261,12 +271,27 @@ InterfaceManager.prototype.drawActivities = function(){
 	}
 	
 	//define como deve ordenar
-	if(this.dataManager.currentSite.ordem){
+	if(this.dataManager.query || this.dataManager.when){
+		//em páginas de busca, usar ordem normal
+		sorted.sort(InterfaceManager.ordemDataFinalDescendente);
+	} else if(this.dataManager.currentSite.ordem){
 		//se tem algo especificado no cadastro do site, tanto site qto busca listam da mma forma
 		switch(this.dataManager.currentSite.ordem.toLowerCase()){
-			case 'inversa':
+			case 'final-asc':
+				var siteSearch = InterfaceManager.ordemDataFinalAscendente;
+				sorted.sort(InterfaceManager.ordemDataFinalAscendente);
+			break;
+			case 'final-desc':
+				var siteSearch = InterfaceManager.ordemDataFinalDescendente;
+				sorted.sort(InterfaceManager.ordemDataFinalDescendente);
+			break;
+			case 'inicial-asc':
 				var siteSearch = InterfaceManager.ordemDataInicialAscendente;
-				sorted.sort(InterfaceManager.ordemDataInicialAscendente);
+				sorted.sort(InterfaceManager.ordemDataInicialDescendente);
+			break;
+			case 'inicial-desc':
+				var siteSearch = InterfaceManager.ordemDataInicialAscendente;
+				sorted.sort(InterfaceManager.ordemDatainicialAscendente);
 			break;
 			case 'alfabetica':
 				sorted.sort(InterfaceManager.ordemAlfabeticaNome);
@@ -278,12 +303,9 @@ InterfaceManager.prototype.drawActivities = function(){
 				console.log('ERRO: Ordem desconhecida. Usando ordem default.');
 			break;
 		}
-	} else if(!this.dataManager.currentSite.ordem && this.dataManager.query){
-		//em páginas de busca, usar ordem normal
-		sorted.sort(InterfaceManager.ordemDataInicialDescendente);
-	} else if(!this.dataManager.currentSite.ordem){
+	} else {
 		//senão, default (data inicial)
-		sorted.sort(InterfaceManager.ordemDataInicialDescendente);
+		sorted.sort(InterfaceManager.ordemDataFinalAscendente);
 	}
 	
 	//anota a lista de atividades
@@ -511,7 +533,7 @@ InterfaceManager.mudaFundo = function(a){
 	//MUDA O NOME E O TEXTO
 	var nameParts = a.nome ? a.nome.split(' // ') : ['sem nome'];
 	var sinopse = a.sobre ? InterfaceManager.autoSinopse(a.sobre) : '-';
-	var credito = a.credito ? a.credito.split(', ')[0] : 'sem crédito';
+	var credito = a.credito ? a.credito.split('\n')[0] : 'sem crédito';
 	var remendo = "";
 	var html = "<h1>" + nameParts[0];
 	if(nameParts.length > 1){
@@ -582,11 +604,19 @@ InterfaceManager.autoSinopse = function(bigText){
 	}
 }
 
+InterfaceManager.ordemDataFinalDescendente = function(a,b){
+	return b.datafinal - a.datafinal;
+}
+
+InterfaceManager.ordemDataFinalAscendente = function(a,b){
+	return a.datafinal - b.datafinal;
+}
+
 InterfaceManager.ordemDataInicialDescendente = function(a,b){
 	return b.datainicial - a.datainicial;
 }
 
-InterfaceManager.ordemDataInicialAscendente = function(a,b){
+InterfaceManager.ordemDatainicialAscendente = function(a,b){
 	return a.datainicial - b.datainicial;
 }
 
@@ -949,7 +979,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	//SLIDESHOW
 	html = "";
 	var imgs = a.imagens ? a.imagens.split('\n') : ['default-img.png'];
-	var creditos = a.credito ? a.credito.split(', ') : [''];
+	var creditos = a.credito ? a.credito.split('\n') : [''];
 	var folder = a.imagens ? a.idSiteOriginal : 'interface';
 
 	//escreve o HTML
@@ -994,6 +1024,9 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	html += "<p>" + sobre + "</p>";
 	html += "</div>";
 	
+	//inclui o site da atividade, se existir
+	html += a.site ? "<p><a href='" + a.site + "' target='_BLANK'>" + a.site.replace('http://', '') + "</a></p>" : "";
+	
 	//vê se existe quem cadastrado na atividade e se ele existe na lista de pessoas
 	var quem = a.quem ? a.quem.split('\n')[0] : null;
 	if(quem){
@@ -1008,15 +1041,13 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	}
 	
 	var todosQuem = a.quem ? a.quem.split('\n') : null;
-	
+		
 	//vê se o quem tem biografia
 	if(quem.bio && this.dataManager.currentSite.esconderbio == '0' && todosQuem && todosQuem.length <= 2){
 		html += "<div id='bio' class='hidden'></div>";
-		html += todosQuem.length == 1 ? "<p><span class='fake-link'>Biografia</span>" : "<p><span class='fake-link'>Biografias</span>";
-		html += quem.site ?  " // <a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "</p>";			
-	} else {
-		html += quem.site ? "<p><a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "";
+		html += todosQuem.length == 1 ? "<p><span class='fake-link'>Biografia</span>" : "<p><span class='fake-link'>Biografias</span>";		
 	}
+	html += quem.site ? "<p><a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a></p>" : "";
 	
 	$('#mini-balloon-body').html(html);
 	//Aplica click se existir bio
@@ -1060,7 +1091,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	//monta o cross
 	if(crossList.length > 0){
 		//ordena por datainicial
-		crossList.sort(InterfaceManager.ordemDataInicialAscendente);
+		crossList.sort(InterfaceManager.ordemDataFinalAscendente);
 		for(var i in crossList){
 			var atividade = crossList[i];
 			var nameParts = atividade.nome.split(' // ');

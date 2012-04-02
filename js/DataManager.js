@@ -546,6 +546,8 @@ DataManager.prototype.checkDataComplete = function(){
 			console.log(['NENHUM RESULTADO', this]);
 			
 			//cria atividade Dummy
+			this.sites.s0 = {};
+			this.sites.s0.esconderbio = '0';
 			this.atividades.s0 = {};
 			this.atividades.s0.a0000 = {};
 			var a = this.atividades.s0.a0000;
@@ -554,6 +556,7 @@ DataManager.prototype.checkDataComplete = function(){
 			a.nome = 'Nenhuma atividade encontrada';
 			a.sobre = 'A busca que você fez não retornou nenhum resultado.</br>Clique aqui para voltar, ou faça uma nova busca nos filtros acima.';
 			a.context = this.parent;
+			console.log(a.context);
 			a.visual = 'p';
 			var epochs = this.when.split(',');
 			// var epochMedio = Math.round((parseInt(epochs[0]) + parseInt(epochs[1]))/2);
@@ -592,7 +595,7 @@ DataManager.prototype.trataParticipantes = function(){
 	for(var s in this.atividades){
 		for(var i in this.atividades[s]){
 			var a = this.atividades[s][i];
-			if(this.sites[s].esconderbio != '0' && a.dependentes){
+			if(this.sites[s] && this.sites[s].esconderbio != '0' && a.dependentes){
 				for(var j in a.dependentes){
 					var d = a.dependentes[j];
 					var pai = a;
