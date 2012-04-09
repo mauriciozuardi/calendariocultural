@@ -401,7 +401,15 @@ em{
 	color:white;
 	text-shadow: 0px 1px 3px #333;
 }
-
+.hint{
+	position:fixed;
+	top:77px;
+	right:31px;
+	width:179px;
+	height:96px;
+	background-image: url(../img/interface/hint.png);
+	z-index:1001;
+}
 /* ====== BG ====== */
 .bg{
 /*	min-width:960px;*/

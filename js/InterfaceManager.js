@@ -106,6 +106,8 @@ InterfaceManager.prototype.onPullDownChange = function(event){
 		var newURL = window.location.search != '' ? window.location.href.toString().split(window.location.search)[0] : window.location.href;
 		newURL += '?q=' + encodeURI(query);
 		window.location = newURL;
+	} else {
+		window.location = window.location.pathname;
 	}
 }
 
@@ -143,6 +145,8 @@ InterfaceManager.prototype.onQuandoChange = function(event){
 		// newURL += '?w=' + encodeURI(f+','+l);
 		newURL += '?w=' + encodeURI(dInicial.getTime() + ',' + dFinal.getTime());
 		window.location = newURL;
+	} else {
+		window.location = window.location.pathname;
 	}
 }
 
@@ -238,6 +242,19 @@ InterfaceManager.prototype.drawContents = function(){
 	//update no index da atividade selecionada
 	this.dataManager.arrayAtividadesIndex = InterfaceManager.indexForMatch(this.dataManager.destaqueSelecionado, this.dataManager.arrayAtividades);
 	// console.log(this.dataManager.arrayAtividadesIndex);
+	
+	//inclui a dica
+	$('body').append("<div class='hint'></div>");
+	$('.hint').hide();
+	$('.hint').click(function(event){
+		$('.hint').fadeOut(500);
+	});
+	
+	var fadeMeIn = function(){
+		$('.hint').fadeIn(500);
+	}
+	
+	this.dataManager.query || this.dataManager.when ? null : setTimeout(fadeMeIn, 1000);
 }
 
 InterfaceManager.balloonStructure = function(){
