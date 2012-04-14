@@ -17,7 +17,8 @@ DataManager.prototype.wrapUrlVars = function(vars){
 
 DataManager.prototype.init = function(){
 	//index.php?m=MAIN_KEY_HERE;
-	this.mainKey = this.mk ? this.mk : "0AnLIuvvW8l93dHlLUV9EU1B0TmhmaTVJdVphanh2dXc";
+	// this.mainKey = this.mk ? this.mk : "0AnLIuvvW8l93dHlLUV9EU1B0TmhmaTVJdVphanh2dXc";
+	this.mainKey = this.mk ? this.mk : "0AnLIuvvW8l93dFFyT3FtWFpuMnUwVFRnOFVVTlpTVGc";
 	delete this.mk;
 	
 	this.sId = (this.sId == '') ? 's1' : this.sId;
@@ -115,14 +116,19 @@ DataManager.prototype.organizaPreAtividades = function(){
 	this.atividades = {};
 	for(var i in this.preAtividades){
 		var obj = this.preAtividades[i];
+		// var DEBUG_ATIVIDADES = [];
 		for(var j in obj){
 			var a = obj[j];
 			var lastSite = a.idSiteOriginal;
+			// console.log(j);
 			// console.log(lastSite);
 			// lastSite == undefined ? console.log(['lastSite undefined for: ' + a.id, a]) : null;
 			this.atividades[a.idSiteOriginal] ? null : this.atividades[a.idSiteOriginal] = {};
 			this.atividades[a.idSiteOriginal][a.id] = a;
+			
+			// DEBUG_ATIVIDADES.push(a.id);
 		}
+		// console.log(DEBUG_ATIVIDADES);
 		// console.log('chamando confereDependencias ' + lastSite);
 		this.confereDependencias(lastSite);
 	}
@@ -159,14 +165,18 @@ DataManager.prototype.confereDependencias = function(s){
 		// console.log('criei this.pais.' + s);
 		for(var i in this.atividades[s]){
 			var a = this.atividades[s][i];
-			if(a.parent){
-				var repetido = false;
-				for(var p in this.pais[s]){
-					var pai = this.pais[s][p];
-					if(pai == a.parent){ repetido = true; break }
-				}
-				if(!repetido){ this.pais[s].push(a.parent) }
-			}
+			// // maneira antiga de determinar a paternidade
+			// if(a.parent){
+			// 	var repetido = false;
+			// 	for(var p in this.pais[s]){
+			// 		var pai = this.pais[s][p];
+			// 		if(pai == a.parent){ repetido = true; break }
+			// 	}
+			// 	if(!repetido){ this.pais[s].push(a.parent) }
+			// }
+			
+			//nova forma de checar se é pai - adotada para o caso de só o pai ser carregado
+			a.havechildren ? this.pais[s].push(a.id) : null;
 		}
 		//se precisar, carrega de novo, buscando pelos pais agora
 		if(this.pais[s].length > 0){
@@ -269,20 +279,24 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 	for(var i in this.atividades[s]){
 		this.atividades[s][i].nDependentes = 0;
 		this.atividades[s][i].dependentes = {};
+		// console.log(this.atividades[s][i].id);
 	}
 	//move os dependentes para a atividade principal;
 	for(var i in this.atividades[s]){
 		var a = this.atividades[s][i];
+		// console.log(a.id);
 		for(var j in this.pais[s]){
 			var p = this.pais[s][j];
 			// a.parent ? console.log(a.parent + ":" + p + " = " + a.id) : null;
 			// console.log([p, this.atividades[s][p]]);
 			if(a.parent == p && this.atividades[s][p] && this.atividades[s][i]){
-				// console.log(p);
 				this.atividades[s][p].dependentes[a.id] = a;
 				this.atividades[s][p].nDependentes ++;
 				// console.log([p, this.atividades[s][p], this.atividades[s][i].id]);
 				delete this.atividades[s][i];
+				
+				//remove o isPast se o pai não for past
+				// this.atividades[s][p].isPast ? null : this.atividades[s][p].dependentes[a.id].isPast = false;
 			}
 		}
 	}
@@ -291,6 +305,7 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 		if(this.atividades[s][i].nDependentes == 0){
 			delete this.atividades[s][i].dependentes;
 		}
+		// console.log(this.atividades[s][i].id);
 	}
 	
 	//ajusta o range de todos os pais, baseado nos filhos
@@ -302,6 +317,7 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 		a.isPast = (a.datafinal.getTime() < Date.now() && this.currentSite.passadorelevante == '0') ? true : false;
 	}
 	
+	
 	//DEBUG
 	var nPais = this.pais[s] ? this.pais[s].length : '*';
 	// console.log(['ORGANIZEI ' + s.toUpperCase() + ' (' + nPais + '):', this.pais[s]])
@@ -309,6 +325,14 @@ DataManager.prototype.organizaAtividadesEmGrupos = function(s){
 	// 	console.log(this.atividades[s][i].id);
 	// }
 	// console.log('---');
+
+	// console.log('DEBUG START');
+	// for(var i in this.atividades){
+	// 	for(var j in this.atividades[i]){
+	// 		console.log(i + j);
+	// 	}
+	// }
+	// console.log('DEBUG END');
 	
 	this.nSitesOrganizados ++;
 	
@@ -344,9 +368,8 @@ DataManager.prototype.confereDependenciasGeral = function(){
 		// // console.log('\\o/');
 	} else {
 		var problem = "";
-		problem += this.temDependencias ? " tem dependencias" : "";
-		problem += (this.temDependencias && this.carregouTodasDependencias) ? "" : " não carregou todas as dependencias"
-		console.log('NÃO passou no check geral. Problema:' + problem);
+		problem += (this.temDependencias && this.carregouTodasDependencias) ? "" : "não carregou todas as dependencias"
+		console.log('Check G:  ' + problem);
 		return false;
 	}
 }
@@ -487,6 +510,7 @@ DataManager.prototype.onTimelineReady = function(){
 		var l = this.timeline.dateToDv(dF); //last
 		// console.log([f, l])
 		var dateQuery = '&sq=!((dvi<=' + f + ' and dvf<=' + f + ') or (dvi>=' + l + ' and dvf>=' + l + ')) and publicar==1';
+		// var dateQuery = '&sq=!((dvi<=' + f + ' and dvf<=' + f + ') or (dvi>=' + l + ' and dvf>=' + l + ') or tempai!=0) and publicar==1';
 		url = 'https://spreadsheets.google.com/feeds/list/' + this.sites[this.sId].key + '/2/public/basic?alt=json' + dateQuery;
 		url = encodeURI(url);
 		// this.loadJsonToVar(url, 'atividades');
@@ -513,6 +537,15 @@ DataManager.prototype.onTimelineReady = function(){
 
 DataManager.prototype.checkDataComplete = function(){
 	// console.log('checking data ..');
+	
+	// //DEBUG
+	// console.log('checkDataComplete START');
+	// for(var i in this.atividades){
+	// 	for(var j in this.atividades[i]){
+	// 		console.log(i + j);
+	// 	}
+	// }
+	// console.log('checkDataComplete END');
 		
 	//checa tudo
 	if(this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && this.timeline && !this.aguardandoConferirDependencias && this.nSitesOrganizados == this.nSitesParaChecar){
@@ -529,17 +562,29 @@ DataManager.prototype.checkDataComplete = function(){
 		// this.completedBefore = true;
 		// this.onDataComplete();
 	} else {
-		var whatsMissing = "";
-		whatsMissing += this.atividades ? "" : " atividades";
-		whatsMissing += this.sites ? "" : " sites";
-		whatsMissing += this.pessoas ? "" : " pessoas";
-		whatsMissing += this.espacos ? "" : " espacos";
-		whatsMissing += this.pulldowns ? "" : " pulldowns";
-		whatsMissing += this.totalRequests == this.loadedRequests ? "" : " requests";
-		whatsMissing += !this.completedBefore ? "" : " alreadyCompleted";
-		whatsMissing += this.timeline ? "" : " timeline";
-		whatsMissing += !this.aguardandoConferirDependencias ? "" : " aguardandoConferirDependencias";
-		whatsMissing += this.nSitesOrganizados == this.nSitesParaChecar ? "" : " faltaOrganizar";
+		// var whatsMissing = "";
+		// whatsMissing += this.atividades ? "" : " atividades";
+		// whatsMissing += this.sites ? "" : " sites";
+		// whatsMissing += this.pessoas ? "" : " pessoas";
+		// whatsMissing += this.espacos ? "" : " espacos";
+		// whatsMissing += this.pulldowns ? "" : " pulldowns";
+		// whatsMissing += this.totalRequests == this.loadedRequests ? "" : " requests";
+		// whatsMissing += !this.completedBefore ? "" : " alreadyCompleted";
+		// whatsMissing += this.timeline ? "" : " timeline";
+		// whatsMissing += !this.aguardandoConferirDependencias ? "" : " aguardandoConferirDependencias";
+		// whatsMissing += this.nSitesOrganizados == this.nSitesParaChecar ? "" : " faltaOrganizar";
+		
+		var whatsMissing = [];
+		this.atividades ? null : whatsMissing.push("atividades");
+		this.sites ? null : whatsMissing.push("sites");
+		this.pessoas ? null : whatsMissing.push("pessoas");
+		this.espacos ? null : whatsMissing.push("espacos");
+		this.pulldowns ? null : whatsMissing.push("pulldowns");
+		this.totalRequests == this.loadedRequests ? null : whatsMissing.push("requests");
+		this.completedBefore ? whatsMissing.push("alreadyCompleted") : null;
+		this.timeline ? null : whatsMissing.push("timeline");
+		this.aguardandoConferirDependencias ? whatsMissing.push("aguardandoConferirDependencias") : null;
+		this.nSitesOrganizados == this.nSitesParaChecar ? null : whatsMissing.push("faltaOrganizar");
 		
 		//libera para os casos onde tem when
 		if(this.when && this.atividades && this.sites && this.pessoas && this.espacos && this.pulldowns && this.totalRequests == this.loadedRequests && !this.completedBefore && this.timeline){
@@ -570,7 +615,7 @@ DataManager.prototype.checkDataComplete = function(){
 			this.completedBefore = true;
 			this.onDataComplete();
 		} else {
-			console.log('NOT complete. Missing:' + whatsMissing);			
+			console.log('Check DC: ' + whatsMissing);			
 		}
 	}
 }
@@ -595,7 +640,7 @@ DataManager.prototype.trataParticipantes = function(){
 	for(var s in this.atividades){
 		for(var i in this.atividades[s]){
 			var a = this.atividades[s][i];
-			if(this.sites[s] && this.sites[s].esconderbio != '0' && a.dependentes){
+			if(this.sites[s] && this.sites[s].esconderbio && a.dependentes){
 				for(var j in a.dependentes){
 					var d = a.dependentes[j];
 					var pai = a;
@@ -631,6 +676,15 @@ DataManager.prototype.trataParticipantes = function(){
 }
 
 DataManager.prototype.onDataComplete = function(){
+	// //DEBUG
+	// console.log('onDataComplete START');
+	// for(var i in this.atividades){
+	// 	for(var j in this.atividades[i]){
+	// 		console.log(i + j);
+	// 	}
+	// }
+	// console.log('onDataComplete END');
+	
 	this.trataParticipantes();
 	this.parent.dataManager = this;
 	this.parent.init();

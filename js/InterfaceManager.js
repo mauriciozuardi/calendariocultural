@@ -227,7 +227,7 @@ InterfaceManager.prototype.drawContents = function(){
 	
 	//seleciona um destaque
 	this.sorteiaDestaque();
-	console.log(this.dataManager.destaqueSelecionado);
+	// console.log(this.dataManager.destaqueSelecionado);
 	InterfaceManager.selectActivity(this.dataManager.destaqueSelecionado);
 	
 	//abre um dos links do footer qdo abrir o site
@@ -1227,7 +1227,7 @@ InterfaceManager.prototype.desenhaBalloonTop = function(a, idOnde){
 		enderecoGmaps += e.estado ? ', ' + e.estado : '';
 		enderecoGmaps += e.pais ? ', ' + e.pais : '';
 		var autoGmapsLink = 'http://maps.google.com?q=' + encodeURI(enderecoGmaps);
-		console.log(autoGmapsLink);
+		// console.log(autoGmapsLink);
 		var htmlGmaps = "<a href='" + autoGmapsLink + "' target='_BLANK'>";
 	} else {
 		console.log('WARNING: ' + a.id + 'não tem endereço cadastrado.');

@@ -103,16 +103,16 @@ Timeline.prototype.autoLabel = function(){
 			datas.todas.sort(Timeline.ordemDataFinalAscendente);
 			
 			// //procura a primeira data ainda está rolando
-			// for(var i in datas.todas){
-			// 	var d = datas.todas[i];
-			// 	if(dataMaiorOuIgualHoje(d.datafinal)){
-			// 		console.log(d.datafinal);
-			// 		//anota qual é a primeira data que deve, obrigatoriamente aparecer
-			// 		primeira = d;
-			// 		primeiraIndex = i;
-			// 		break;
-			// 	}
-			// }
+			for(var i in datas.todas){
+				var d = datas.todas[i];
+				if(dataMaiorOuIgualHoje(d.datafinal)){
+					// console.log(d.datafinal);
+					//anota qual é a primeira data que deve, obrigatoriamente aparecer
+					primeira = d;
+					primeiraIndex = i;
+					break;
+				}
+			}
 			
 			//varre todas as datas de atividades que ainda estão rolando, procurando a que começa mais no passado
 			var dataRolandoComInicioMaisAntigo = {}
@@ -126,54 +126,107 @@ Timeline.prototype.autoLabel = function(){
 					}
 				}
 			}
-						
-			console.log(['dataRolandoComInicioMaisAntigo', dataRolandoComInicioMaisAntigo]);
 			
 			//anota data da atividade mais remota no futuro
 			var ultima = datas.todas[datas.todas.length-1];
-			console.log(['ultima', ultima]);
+			// console.log(['ultima', ultima]);
 			
-			//confere quantos meses tem entre a primeira e a última
-			var aInicial = dataRolandoComInicioMaisAntigo.datainicial.getFullYear();
-			var aFinal = ultima.datafinal.getFullYear();
-			var mInicial = dataRolandoComInicioMaisAntigo.datainicial.getMonth();
-			var mFinal = ultima.datafinal.getMonth();
-			if(mFinal == 11){
-				mFinal = 0;
-				aFinal ++;
-			} else {
-				mFinal ++;
+			
+			
+			var checaMeses = function(d0, d1){
+				//confere quantos meses tem entre a primeira e a última
+				var dados = {}
+				dados.aInicial = d0.datainicial.getFullYear();
+				dados.aFinal = d1.datafinal.getFullYear();
+				dados.mInicial = d0.datainicial.getMonth();
+				dados.mFinal = d1.datafinal.getMonth();
+				
+				if(dados.mFinal == 11){
+					dados.mFinal = 0;
+					dados.aFinal ++;
+				} else {
+					dados.mFinal ++;
+				}
+				dados.nAnos = dados.aFinal - dados.aInicial;
+				if(dados.nAnos > 0){
+					//tem mais de um ano entre as datas
+					dados.nMeses = (dados.nAnos*12) - dados.mInicial + dados.mFinal;
+				} else {
+					//está tudo dentro do mesmo ano
+					dados.nMeses = dados.mFinal - dados.mInicial;
+				}
+				
+				return dados;
 			}
 			
-			var nAnos = aFinal - aInicial;
-			if(nAnos > 0){
-				//tem mais de um ano entre as datas
-				var nMeses = (nAnos*12) - mInicial + mFinal;
-			} else {
-				//está tudo dentro do mesmo ano
-				var nMeses = mFinal - mInicial;
+			
+			
+			// para o caso de nenhuma atividade estar no presente
+			if(!dataRolandoComInicioMaisAntigo.datainicial){
+				//inverte a ordem do array
+				datas.todas.sort(Timeline.ordemDataFinalDescendente);
+				
+				//varre, procurando o primeiro que intere 12 meses
+				for(var i in datas.todas){
+					var d = datas.todas[i];
+					var dados1 = checaMeses(d, ultima);
+					if(dados1.nMeses <= 12){
+						dataRolandoComInicioMaisAntigo = d;
+					} else {
+						break;
+					}
+				}
 			}
+						
+			// console.log(['dataRolandoComInicioMaisAntigo', dataRolandoComInicioMaisAntigo]);
+
+			datas.todas.sort(Timeline.ordemDataFinalAscendente);
+			
+			// //confere quantos meses tem entre a primeira e a última
+			// var aInicial = dataRolandoComInicioMaisAntigo.datainicial.getFullYear();
+			// var aFinal = ultima.datafinal.getFullYear();
+			// var mInicial = dataRolandoComInicioMaisAntigo.datainicial.getMonth();
+			// var mFinal = ultima.datafinal.getMonth();
+			// if(mFinal == 11){
+			// 	mFinal = 0;
+			// 	aFinal ++;
+			// } else {
+			// 	mFinal ++;
+			// }
+			// 
+			// var nAnos = aFinal - aInicial;
+			// if(nAnos > 0){
+			// 	//tem mais de um ano entre as datas
+			// 	var nMeses = (nAnos*12) - mInicial + mFinal;
+			// } else {
+			// 	//está tudo dentro do mesmo ano
+			// 	var nMeses = mFinal - mInicial;
+			// }
+			
+			var dados2 = checaMeses(dataRolandoComInicioMaisAntigo, ultima);
 			
 			// console.log(['nMeses', nMeses]);
 			
 			// se tiver menos que 12 meses, inclui alguns do passado até interar
-			if(nMeses < 12){
+			if(dados2.nMeses < 12){
 				// console.log(-12+nMeses);
-				mInicial -= 12-nMeses;
+				dados2.mInicial -= 12-dados2.nMeses;
 				// console.log(mInicial);
-				if(mInicial > -1){
-					mInicial += 12;
-					aInicial --;
+				if(dados2.mInicial > -1){
+					dados2.mInicial += 12;
+					dados2.aInicial --;
 				}
 			}
-			var primeiraTimeMarkDate = new Date(aInicial,mInicial,1);
+			var primeiraTimeMarkDate = new Date(dados2.aInicial,dados2.mInicial,1);
 			
 			//apaga as atividades que estão fora do novo range de datas
-			var primeiraTimeMarkDate = new Date(aInicial,mInicial,1);
+			var primeiraTimeMarkDate = new Date(dados2.aInicial,dados2.mInicial,1);
+			// console.log(primeiraTimeMarkDate);
 			for(var s in this.parent.atividades){
 				for(var i in this.parent.atividades[s]){
 					var a = this.parent.atividades[s][i];
 					!dataAMaiorOuIgualB(a.datafinal, primeiraTimeMarkDate) ? delete this.parent.atividades[s][i] : null;
+					// dataAMaiorOuIgualB(a.datafinal, primeiraTimeMarkDate) ? console.log([a.nome, a.datafinal]) : null;
 				}
 			}
 		}
@@ -182,6 +235,7 @@ Timeline.prototype.autoLabel = function(){
 			for(var i=0; i<=Math.min(12,nM+1); i++){
 				//se o intervalo de meses cabe confortavelmente na tela média, mostra
 				var currentMonth = (mI + i)%12;
+				while (currentMonth < 0) { currentMonth += 12 }
 				var currentYear = aI + Math.floor( (mI+i)/12 );
 				var timelineItem = {}
 				timelineItem.label = mesCurto[currentMonth] + " " + currentYear;
@@ -191,8 +245,9 @@ Timeline.prototype.autoLabel = function(){
 		} else {
 			for(var i=0; i<=12; i++){
 				//senão corta o passado e/ou o futuro longínquo até caber em 12
-				var currentMonth = (mInicial + i)%12;
-				var currentYear = aInicial + Math.floor( (mInicial+i)/12 );
+				var currentMonth = (dados2.mInicial + i)%12;
+				while (currentMonth < 0) { currentMonth += 12 }
+				var currentYear = dados2.aInicial + Math.floor( (dados2.mInicial+i)/12 );
 				var timelineItem = {}
 				timelineItem.label = mesCurto[currentMonth] + " " + currentYear;
 				timelineItem.date = new Date(currentYear,currentMonth,1);
@@ -206,6 +261,10 @@ Timeline.ordemDataFinalAscendente = function(a,b){
 	return a.datafinal - b.datafinal;
 }
 
+Timeline.ordemDataFinalDescendente = function(a,b){
+	return b.datafinal - a.datafinal;
+}
+
 Timeline.prototype.defineActivitiesRange = function(){
 	var datas = {};
 	datas.menor = 1.7976931348623157E+10308; //infinito
@@ -215,6 +274,7 @@ Timeline.prototype.defineActivitiesRange = function(){
 	for(var s in this.parent.atividades){
 		for(var i in this.parent.atividades[s]){
 			var a = this.parent.atividades[s][i];
+			// console.log(["defineActivitiesRange", a.id]);
 			//guarda qualquer uma
 			var d = {}
 			d.datainicial = new Date(a.datainicial.getTime());
@@ -237,7 +297,19 @@ Timeline.defineParentRange = function(parent){
 	datas.menor = 1.7976931348623157E+10308; //infinito
 	datas.maior = 0;
 	
-	// console.log(parent);
+	// console.log(['defineParentRange', parent.id]);
+	
+	// for(var i in parent.dependentes){
+	// 	var dependente = parent.dependentes[i];
+	// 	//guarda os recordistas
+	// 	(dependente.datainicial.getTime() < datas.menor) ? datas.filhoMenor = dependente : null;
+	// 	(dependente.datafinal.getTime() > datas.maior) ? datas.filhoMaior = dependente : null;
+	// 	//atualiza a maior e a menor
+	// 	datas.menor = Math.min(dependente.datainicial.getTime(), datas.menor);
+	// 	datas.maior = Math.max(dependente.datafinal.getTime(), datas.maior);
+	// }
+	
+	// confere a maior e a menor data dos filhos
 	for(var i in parent.dependentes){
 		var dependente = parent.dependentes[i];
 		//guarda os recordistas
@@ -247,6 +319,13 @@ Timeline.defineParentRange = function(parent){
 		datas.menor = Math.min(dependente.datainicial.getTime(), datas.menor);
 		datas.maior = Math.max(dependente.datafinal.getTime(), datas.maior);
 	}
+	
+	// confere se a data do pai não extende os extremos
+	(parent.datainicial.getTime() < datas.menor) ? datas.filhoMenor = parent : null;
+	(parent.datafinal.getTime() > datas.maior) ? datas.filhoMaior = parent : null;
+	//atualiza a maior e a menor
+	datas.menor = Math.min(parent.datainicial.getTime(), datas.menor);
+	datas.maior = Math.max(parent.datafinal.getTime(), datas.maior);
 
 	// //DEBUG
 	// a.filhoMenor = datas.filhoMenor;
@@ -290,6 +369,13 @@ Timeline.prototype.labelsToDates = function(){
 
 		this.first = this.timeMarks[0];
 		this.last = this.timeMarks[this.timeMarks.length - 1];
+		
+		var mesCurto = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];		
+		var dateAfterLabel = function(date, yearToo){
+			yearToo ? null : yearToo = false;
+			ano = yearToo ? " " + date.getFullYear() : "";
+			return " [" + date.getDate() + " " + mesCurto[date.getMonth()] + ano + "]";
+		}
 
 		for(var i in this.timeMarks){
 			switch (this.timeMarks[i].label){
@@ -297,6 +383,7 @@ Timeline.prototype.labelsToDates = function(){
 					// se for janeiro, mês passado é dezembro!
 					if(month == 0){ month = 11; year -- } else { month -- }
 					this.timeMarks[i].date = new Date (year, month, 1, 0, 0, 0);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
 					break;
 				case "último finde":
 					if(weekday > 0 && weekday < 6){
@@ -310,18 +397,22 @@ Timeline.prototype.labelsToDates = function(){
 						this.timeMarks[i].date = new Date (this.today.getTime() - (this.ONE_DAY_MS*7));
 					}
 					this.zeraRelogio(this.timeMarks[i].date);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
 					break;
 				case "ontem":
 					this.timeMarks[i].date = new Date (this.today.getTime() - this.ONE_DAY_MS);
 					this.zeraRelogio(this.timeMarks[i].date);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
 					break;
 				case "hoje":
 					this.timeMarks[i].date = new Date (this.today.getTime());
 					this.zeraRelogio(this.timeMarks[i].date);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
 					break;
 				case "amanhã":
 					this.timeMarks[i].date = new Date (this.today.getTime() + this.ONE_DAY_MS);
 					this.zeraRelogio(this.timeMarks[i].date);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
 					break;
 				case "próximo finde":
 					if(weekday == 6){
@@ -330,11 +421,23 @@ Timeline.prototype.labelsToDates = function(){
 						this.timeMarks[i].date = new Date (this.today.getTime() + (this.ONE_DAY_MS*(6-weekday)));
 					}
 					this.zeraRelogio(this.timeMarks[i].date);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
 					break;
 				case "mês que vem":
 					// se for dezembro, mês que vem é dezembro!
 					if(month == 11){ month = 0; year ++ } else { month ++ }
 					this.timeMarks[i].date = new Date (year, month, 1, 0, 0, 0);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
+					break;
+				case "em 6 meses":
+					// se for dezembro, mês que vem é dezembro!
+					if(month > 5){ month -= 6; year ++ } else { month += 6 }
+					this.timeMarks[i].date = new Date (year, month, this.today.getDate(), 0, 0, 0);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
+					break;
+				case "em 1 ano":
+					this.timeMarks[i].date = new Date (this.today.getFullYear()+1, this.today.getMonth(), this.today.getDate(), 0, 0, 0);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date, true);
 					break;
 				default:
 					//parte do princípio que a string refere-se a uma data (corretamente formatada) : "January 6, 1972 16:05:00"
