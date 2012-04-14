@@ -351,7 +351,7 @@ Timeline.prototype.zeraRelogio = function(date){
 }
 
 Timeline.prototype.labelsToDates = function(){
-	// console.log('labelsToDates');
+	// hoje | próximo finde | mês que vem | em 6 meses | em 1 ano
 	if(this.timelineStr){
 		var year		= this.today.getFullYear();
 		var month		= this.today.getMonth();
@@ -371,10 +371,12 @@ Timeline.prototype.labelsToDates = function(){
 		this.last = this.timeMarks[this.timeMarks.length - 1];
 		
 		var mesCurto = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];		
-		var dateAfterLabel = function(date, yearToo){
+		var dateAfterLabel = function(date, yearToo, noDay){
 			yearToo ? null : yearToo = false;
-			ano = yearToo ? " " + date.getFullYear() : "";
-			return " [" + date.getDate() + " " + mesCurto[date.getMonth()] + ano + "]";
+			noDay ? null : noDay = false;
+			var ano = yearToo ? " " + date.getFullYear() : "";
+			var dia = noDay ? "" : date.getDate() + " ";
+			return " [ " + dia + mesCurto[date.getMonth()] + ano + " ]";
 		}
 
 		for(var i in this.timeMarks){
@@ -427,17 +429,24 @@ Timeline.prototype.labelsToDates = function(){
 					// se for dezembro, mês que vem é dezembro!
 					if(month == 11){ month = 0; year ++ } else { month ++ }
 					this.timeMarks[i].date = new Date (year, month, 1, 0, 0, 0);
-					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date, false, true);
 					break;
 				case "em 6 meses":
 					// se for dezembro, mês que vem é dezembro!
-					if(month > 5){ month -= 6; year ++ } else { month += 6 }
-					this.timeMarks[i].date = new Date (year, month, this.today.getDate(), 0, 0, 0);
-					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date);
+					if(month > 5){ 
+						month -= 6; year ++;
+						this.timeMarks[i].date = new Date (year, month, 1, 0, 0, 0);
+						this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date, true, true);
+					} else { 
+						month += 6;
+						this.timeMarks[i].date = new Date (year, month, 1, 0, 0, 0);
+						this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date, false, true);
+					}
+
 					break;
 				case "em 1 ano":
-					this.timeMarks[i].date = new Date (this.today.getFullYear()+1, this.today.getMonth(), this.today.getDate(), 0, 0, 0);
-					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date, true);
+					this.timeMarks[i].date = new Date (this.today.getFullYear()+1, this.today.getMonth(), 1, 0, 0, 0);
+					this.timeMarks[i].label += dateAfterLabel(this.timeMarks[i].date, true, true);
 					break;
 				default:
 					//parte do princípio que a string refere-se a uma data (corretamente formatada) : "January 6, 1972 16:05:00"
