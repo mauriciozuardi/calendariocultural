@@ -1067,12 +1067,22 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	} else {
 		html += "<p>";
 		//inclui o site da atividade, se existir
-		html += a.site ? "<a href='" + a.site + "' target='_BLANK'>" + a.site.replace('http://', '') + "</a> // " : "";
+		html += a.site ? "<a href='" + a.site + "' target='_BLANK'>" + a.site.replace('http://', '') + "</a>"  : "";
 	}
-	var separador = a.quem || a.site ? ' // ' : '';
 	html += quem.site ? separador + "<a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a>" : "";
 	
 	html += "</p>";
+	
+	//mostra todos os quem se tiver mais de 2 cadastrados
+	if(todosQuem && todosQuem.length > 2){
+		console.log(a.nome);
+		html += "<p><b>Quem</b><br />";
+		for(var i in todosQuem){
+			var q = todosQuem[i];
+			html += q + "<br />";
+		}
+		html += "</p>";
+	}
 	
 	$('#mini-balloon-body').html(html);
 	//Aplica click se existir bio
