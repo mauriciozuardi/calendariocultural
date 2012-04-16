@@ -862,21 +862,35 @@ InterfaceManager.prototype.updateScreen = function(){
 		}
 	}
 	
-	//recentraliza o balloon
+	//ajusta o balloon na vertical
 	var bh = $('#balloon').height();
-	var hh = $('.header').height();
+	var HH = $('.header').height();
 	var fh = $('.footer').height();
 	var st = $(window).scrollTop();
-	var bt = hh + 1; //mínimo
-	var excedente = bh - (h-(hh+1)) + fh + 1;
-	var scrollRelativePosition = st/(ch-(h-(hh+1)));
-	scrollRelativePosition = scrollRelativePosition < 0 ? 0 : scrollRelativePosition;
-	scrollRelativePosition = scrollRelativePosition > 1 ? 1 : scrollRelativePosition;
-	var proportionalTop = excedente * scrollRelativePosition;
-	bt += bh + hh > h ? proportionalTop : st;
+	// var bt = hh + 1; //mínimo
+	// var excedente = bh - (h-(hh+1)) + fh + 1;
+	// var scrollRelativePosition = st/(ch-(h-(hh+1)));
+	// scrollRelativePosition = scrollRelativePosition < 0 ? 0 : scrollRelativePosition;
+	// scrollRelativePosition = scrollRelativePosition > 1 ? 1 : scrollRelativePosition;
+	// var proportionalTop = excedente * scrollRelativePosition;
+	// bt += bh + hh > h ? proportionalTop : st;
 	// console.log([scrollRelativePosition, bt]);
-	var bl = (w - $('#balloon').width())/2;
+	
+	var uh = h - HH - fh - MARGIN_TOP;
+	var bt = HH + 1; // mínimo
+	var ah = $('.activities').height();
+	var MAX_ST = ah - uh;
+	var scrollZeroAUm = st/MAX_ST;
+	var EXCESSO = bh-uh;
+	bt += st - (scrollZeroAUm * (EXCESSO - MARGIN_TOP + 1));
+	
+	console.log([st, Math.round(scrollZeroAUm*100)/100, EXCESSO]);
+	
 	$('#balloon').css('top', bt);
+	
+	
+	//ajusta o balloon na horizontal
+	var bl = (w - $('#balloon').width())/2;
 	$('#balloon').css('left', bl);
 }
 
@@ -992,7 +1006,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	var onde;
 	!a.onde ? console.log(a.id + ' não tem onde cadastrado.') : !idOnde ? idOnde = a.onde.split(', ')[0] : "";	
 	a.context.desenhaBalloonTop(a, idOnde);
-
+	
 	//SLIDESHOW
 	html = "";
 	var imgs = a.imagens ? a.imagens.split('\n') : ['default-img.png'];
@@ -1055,27 +1069,29 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	}
 	
 	var todosQuem = a.quem ? a.quem.split('\n') : null;
+	var funnyTxt = "Saiba muito + ";
 		
 	//vê se o quem tem biografia
 	if(quem.bio && this.dataManager.currentSite.esconderbio == '0' && todosQuem && todosQuem.length <= 2){
 		html += "<div id='bio' class='hidden'></div>";
 		html += "<p>";
 		//inclui o site da atividade, se existir
-		html += a.site ? "<a href='" + a.site + "' target='_BLANK'>" + a.site.replace('http://', '') + "</a>" : "";
+		html += a.site ? "<a href='" + a.site + "' target='_BLANK'>" + funnyTxt + a.site.replace('http://', '') + "</a>" : "";
 		var separador = a.site ? ' // ' : '';
 		html += todosQuem.length == 1 ? separador + "<span class='fake-link'>Biografia</span>&nbsp;" : separador + "<span class='fake-link'>Biografias</span>";		
 	} else {
 		html += "<p>";
 		//inclui o site da atividade, se existir
-		html += a.site ? "<a href='" + a.site + "' target='_BLANK'>" + a.site.replace('http://', '') + "</a>"  : "";
+		html += a.site ? "<a href='" + a.site + "' target='_BLANK'>" + funnyTxt + a.site.replace('http://', '') + "</a>"  : "";
 	}
+	
+	var separador = a.site || a.bio ? ' // ' : '';
 	html += quem.site ? separador + "<a href='" + quem.site + "' target='_BLANK'>" + quem.site.replace('http://', '') + "</a>" : "";
 	
 	html += "</p>";
 	
 	//mostra todos os quem se tiver mais de 2 cadastrados
 	if(todosQuem && todosQuem.length > 2){
-		console.log(a.nome);
 		html += "<p><b>Quem</b><br />";
 		for(var i in todosQuem){
 			var q = todosQuem[i];
@@ -1160,6 +1176,9 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	//mostra
 	var callback = function(){
 		im.ballonVars.showedBalloon = true;
+		//ajusta altura das setas
+		var bt = Math.max(126, $('#txt-block').height() + 30);
+		$('.balloon.seta').css('top', bt);
 	}
 	
 	var update = function(){
@@ -1176,7 +1195,7 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 }
 
 InterfaceManager.abreBalloonCross = function(){
-	this.context.abreBalloon(this.a);
+	this.a.onde ? this.context.abreBalloon(this.a, this.a.onde) : this.context.abreBalloon(this.a);
 }
 
 InterfaceManager.prototype.desenhaBalloonTopViaNome = function(a, nomeOnde){
@@ -1280,7 +1299,15 @@ InterfaceManager.prototype.desenhaBalloonTop = function(a, idOnde){
 		}
 	}
 	
-	linha2 += ((e.fone || e.email) && e.site) ? separador : "";
+	//trata o link do site
+	if(e.site){
+		//tira a última barra do site
+		e.site.substr(e.site.length -1, e.site.length) == "/" ? e.site = e.site.substr(0, e.site.length -1) : null
+		//inclui o http:// se não tiver
+		e.site.substr(0,7) == 'http://' ? null : e.site = 'http://' + e.site;
+	}
+	
+	linha2 += ((e.fone || e.email) && e.site) ? separador : "";	
 	linha2 += e.site ? "<a href='" + e.site + "' target='_BLANK'>" + e.site.replace('http://', '') + "</a>" : "";
 	linha2 != "" ? nLinhas ++ : null;
 	
