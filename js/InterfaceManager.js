@@ -866,16 +866,7 @@ InterfaceManager.prototype.updateScreen = function(){
 	var bh = $('#balloon').height();
 	var HH = $('.header').height();
 	var fh = $('.footer').height();
-	var st = $(window).scrollTop();
-	// var bt = hh + 1; //mínimo
-	// var excedente = bh - (h-(hh+1)) + fh + 1;
-	// var scrollRelativePosition = st/(ch-(h-(hh+1)));
-	// scrollRelativePosition = scrollRelativePosition < 0 ? 0 : scrollRelativePosition;
-	// scrollRelativePosition = scrollRelativePosition > 1 ? 1 : scrollRelativePosition;
-	// var proportionalTop = excedente * scrollRelativePosition;
-	// bt += bh + hh > h ? proportionalTop : st;
-	// console.log([scrollRelativePosition, bt]);
-	
+	var st = $(window).scrollTop();	
 	var uh = h - HH - fh - MARGIN_TOP;
 	var bt = HH + 1; // mínimo
 	var ah = $('.activities').height();
@@ -883,9 +874,6 @@ InterfaceManager.prototype.updateScreen = function(){
 	var scrollZeroAUm = st/MAX_ST;
 	var EXCESSO = bh-uh;
 	bt += st - (scrollZeroAUm * (EXCESSO - MARGIN_TOP + 1));
-	
-	console.log([st, Math.round(scrollZeroAUm*100)/100, EXCESSO]);
-	
 	$('#balloon').css('top', bt);
 	
 	
