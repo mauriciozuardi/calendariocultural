@@ -813,7 +813,8 @@ InterfaceManager.prototype.updateScreen = function(){
 	
 	var at = $('.header').height() + MARGIN_TOP;
 	// var ah = $('.contents .activities').height() + $('.footer').height();
-	var ah = Math.max($('.contents .activities').height() + $('.footer').height(), $('#balloon').height());
+	var ah = Math.max($('.activities').height() + $('.footer').height(), $('#balloon').height());
+	
 	
 	//ajusta a estrutura principal da página
 	$('.bg').css('width', w);
@@ -868,12 +869,14 @@ InterfaceManager.prototype.updateScreen = function(){
 	var fh = $('.footer').height();
 	var st = $(window).scrollTop();	
 	var uh = h - HH - fh - MARGIN_TOP;
-	var bt = HH + 1; // mínimo
+	var bt = 0;
 	var ah = $('.activities').height();
 	var MAX_ST = ah - uh;
 	var scrollZeroAUm = st/MAX_ST;
 	var EXCESSO = bh-uh;
 	bt += st - (scrollZeroAUm * (EXCESSO - MARGIN_TOP + 1));
+	bh > ah ? bt = 0 : null;
+	bt += HH + 1 // minimo
 	$('#balloon').css('top', bt);
 	
 	
