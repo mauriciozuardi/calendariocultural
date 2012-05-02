@@ -550,7 +550,7 @@ InterfaceManager.mudaFundo = function(a){
 	//MUDA O NOME E O TEXTO
 	var nameParts = a.nome ? a.nome.split(' // ') : ['sem nome'];
 	var sinopse = a.sobre ? InterfaceManager.autoSinopse(a.sobre) : '-';
-	var credito = a.credito ? a.credito.split('\n')[0] : 'sem crédito';
+	var credito = a.credito ? a.credito.split('\n')[0] : 'arquivo pessoal';
 	var remendo = "";
 	var html = "<h1>" + nameParts[0];
 	if(nameParts.length > 1){
