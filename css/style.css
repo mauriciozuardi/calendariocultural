@@ -410,6 +410,21 @@ em{
 	background-image: url(../img/interface/hint.png);
 	z-index:1001;
 }
+.social-tag{
+	position:fixed;
+	top:77px;
+	left:0px;
+	width:32px;
+	height:128px;
+	background-image: url(../img/interface/social-tag-bg.png);
+	z-index:1002;
+}
+.social-tag img{
+	padding: 2px;
+}
+.social-tag .first-icon{
+	padding-top: 9px !important;
+}
 /* ====== BG ====== */
 .bg{
 /*	min-width:960px;*/

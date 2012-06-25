@@ -17,14 +17,20 @@ DataManager.prototype.wrapUrlVars = function(vars){
 
 DataManager.prototype.init = function(){
 	//index.php?m=MAIN_KEY_HERE;
-	// this.mainKey = this.mk ? this.mk : "0AnLIuvvW8l93dHlLUV9EU1B0TmhmaTVJdVphanh2dXc";
-	this.mainKey = this.mk ? this.mk : "0AnLIuvvW8l93dFFyT3FtWFpuMnUwVFRnOFVVTlpTVGc";
+	this.mainKey = this.mk ? this.mk : "0AnLIuvvW8l93dHlLUV9EU1B0TmhmaTVJdVphanh2dXc"; //2.0
+	// this.mainKey = this.mk ? this.mk : "0AnLIuvvW8l93dFFyT3FtWFpuMnUwVFRnOFVVTlpTVGc"; //2.1
 	delete this.mk;
+	
+	this.balloonInfo = this.bi ? this.bi.split('|') : '';
+	delete this.bi;
 	
 	this.sId = (this.sId == '') ? 's1' : this.sId;
 	this.aguardandoConferirDependencias = true;
 	this.nSitesOrganizados = 0;
 	this.loadBasicInfo();
+	
+	// console.log(window.location.host);
+	// console.log(window.location.pathname);
 }
 
 DataManager.prototype.loadBasicInfo = function(mainKey){
@@ -661,14 +667,28 @@ DataManager.prototype.trataParticipantes = function(){
 						//pega infos da pessoa
 						d.sobre = pessoa.bio ? pessoa.bio : 'CADASTRAR BIO';
 						d.imagens = pessoa.imagem ? pessoa.imagem : '../interface/default-img.png';
-						d.credito = pessoa.credito ? pessoa.credito : 'SEM CRÉDITO';
+						d.credito = pessoa.credito ? pessoa.credito : 'arquivo pessoal';
 						pessoa.site ? d.site = pessoa.site : null;
+						
+						// d.pai = pai;
+						// d.pessoa = pessoa;
 
 						console.log(['MEXI (' + d.id + ') ' + d.nome, d]);
 					}	else {
 						!pai ? console.log('WARNING: ' + d.id + ' não tem PARENT.') : null;
 						!pessoa ? console.log('WARNING: ' + d.nome + ' (' + d.id + ') não cadastrado no GERAL > PESSOAS.') : null;
+
+						// !pai ? alert('WARNING: ' + d.id + ' não tem PARENT.') : null;
+						// !pessoa ? alert('WARNING: ' + d.nome + ' (' + d.id + ') não cadastrado no GERAL > PESSOAS.') : null;
 					}
+				}
+			} else {
+				if(a.tipo && a.tipo.toLowerCase() == 'participante'){
+					console.log(['ERRO', a.id + ' não tem PARENT.', a]);
+					// alert(['ERRO: ' + a.id + ' não tem PARENT.']);
+				} else {
+					// console.log(['WARNING', a.id + ' não tem PARENT.', a]);
+					// alert(['WARNING: ' + a.id + ' não tem PARENT.']);
 				}
 			}
 		}

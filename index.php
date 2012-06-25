@@ -17,7 +17,7 @@
 	<script type="text/javascript" charset="utf-8" src="js/DataManager.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/InterfaceManager.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/script.js"></script>
-	<script type="text/javascript" charset="utf-8">sId="<?php echo $_REQUEST['s']; ?>";query="<?php echo $_REQUEST['q']; ?>";when="<?php echo $_REQUEST['w']; ?>";mk="<?php echo $_REQUEST['m']; ?>";</script>
+	<script type="text/javascript" charset="utf-8">sId="<?php echo $_REQUEST['s']; ?>";query="<?php echo $_REQUEST['q']; ?>";when="<?php echo $_REQUEST['w']; ?>";mk="<?php echo $_REQUEST['m']; ?>";bi="<?php echo $_REQUEST['b']; ?>";</script>
 </head>
 <body>
   <style>

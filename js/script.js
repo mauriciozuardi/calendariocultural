@@ -17,7 +17,7 @@ function init(){
 	//init
 	im = new InterfaceManager();
 	data = new DataManager(im);
-	data.wrapUrlVars(['sId', 'query', 'when', 'mk']);
+	data.wrapUrlVars(['sId', 'query', 'when', 'mk', 'bi']);
 	data.init();
 }
 

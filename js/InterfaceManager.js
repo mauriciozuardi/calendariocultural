@@ -23,6 +23,26 @@ InterfaceManager.prototype.init = function(){
 	$('#slideshow-controls .previous').click($.proxy(this.prevSlideImg, context));
 	$('#slideshow-controls .next').click($.proxy(this.nextSlideImg, context));
 	
+	//abre o balloon se tiver algo na URL
+	if(this.dataManager.balloonInfo){
+		// console.log(this.dataManager.balloonInfo);
+		
+		var aBalloon = this.dataManager.atividades[this.dataManager.currentSite.id][this.dataManager.balloonInfo[0]];
+		// aBalloon ? console.log(aBalloon) : console.log("atividade solicitada não carregada");
+		
+		var eBalloon = this.dataManager.espacos[this.dataManager.balloonInfo[1]];
+		// eBalloon ? console.log(eBalloon) : console.log("espaço solicitado não existe");
+		
+		if(aBalloon && eBalloon){
+			this.abreBalloon(aBalloon, eBalloon.id);
+		}	else {
+			console.log("ERRO: atividade e/ou espaço da URL não carregados")
+		}	
+	} else {
+		console.log("sem balloon");
+	}
+	// InterfaceManager.prototype.abreBalloon = function(a, idOnde)
+	
 	this.updateScreen();
 	
 	//tentativa um pouco menos tosca de resolver o bug do content-info
@@ -103,7 +123,8 @@ InterfaceManager.prototype.onPullDownChange = function(event){
 		if(t.hasClass('quem')){
 			var query = v;
 		}		
-		var newURL = window.location.search != '' ? window.location.href.toString().split(window.location.search)[0] : window.location.href;
+		// var newURL = window.location.search != '' ? window.location.href.toString().split(window.location.search)[0] : window.location.href;
+		var newURL = window.location.pathname.toString();
 		newURL += '?q=' + encodeURI(query);
 		window.location = newURL;
 	} else {
@@ -141,7 +162,8 @@ InterfaceManager.prototype.onQuandoChange = function(event){
 		// var f = this.instance.dataManager.timeline.dateToDv(dInicial);	//first
 		// var l = this.instance.dataManager.timeline.dateToDv(dFinal); 		//last
 		
-		var newURL = window.location.search != '' ? window.location.href.toString().split(window.location.search)[0] : window.location.href;
+		// var newURL = window.location.search != '' ? window.location.href.toString().split(window.location.search)[0] : window.location.href;
+		var newURL = window.location.pathname.toString();
 		// newURL += '?w=' + encodeURI(f+','+l);
 		newURL += '?w=' + encodeURI(dInicial.getTime() + ',' + dFinal.getTime());
 		window.location = newURL;
@@ -227,9 +249,8 @@ InterfaceManager.prototype.drawContents = function(){
 	
 	//seleciona um destaque
 	this.sorteiaDestaque();
-	// console.log(this.dataManager.destaqueSelecionado);
 	InterfaceManager.selectActivity(this.dataManager.destaqueSelecionado);
-	
+
 	//abre um dos links do footer qdo abrir o site
 	(this.dataManager.currentSite.footerlinkaberto && !this.dataManager.query) ? InterfaceManager.desenhaContentInfoFromFooter(this.dataManager.currentSite.footerlinkaberto) : null;
 	
@@ -255,6 +276,15 @@ InterfaceManager.prototype.drawContents = function(){
 	}
 	
 	this.dataManager.query || this.dataManager.when ? null : setTimeout(fadeMeIn, 1000);
+	
+	//inclui social-tab
+	if(this.dataManager.currentSite.id == 's3'){
+		$('body').append("<div class='social-tag'></div>");
+		$('.social-tag').append("<a href='http://estudiomadalena.tumblr.com/tagged/pensamentoereflexao' target='_BLANK'><img src='./img/interface/icn_estudio-madalena.png' class='first-icon'/></a>");
+		$('.social-tag').append("<a href='http://www.flickr.com/photos/estudiomadalena/sets/72157629740476852/' target='_BLANK'><img src='./img/interface/icn_flickr.png' /></a>");
+		$('.social-tag').append("<a href='https://www.facebook.com/events/345266855537771/' target='_BLANK'><img src='./img/interface/icn_facebook.png' /></a>");
+		$('.social-tag').append("<a href='https://vimeo.com/album/1939699' target='_BLANK'><img src='./img/interface/icn_vimeo.png' /></a>");
+	}
 }
 
 InterfaceManager.balloonStructure = function(){
@@ -452,6 +482,8 @@ InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
 	var range = $('div.' + id + ' .range');
 	var label = $('div.' + id + ' .label');
 	
+	// console.log(this);
+	
 	switch (this.visual){
 		//pequeno
 		case "p":
@@ -479,7 +511,8 @@ InterfaceManager.updateHTMLClass = function(timeline, leaveBg){
 			if(!dot.hasClass('thumb'))			dot.addClass('thumb');
 			if(!label.hasClass('thumb'))		label.addClass('thumb');
 			if(!range.hasClass('thumb'))		range.addClass('thumb');
-			dot.css('background-image', 'url(./img/'+this.idSiteOriginal+'/'+this.imagens.split('\n')[0]+')');
+			var imgPath = this.tipo == 'participante' ? 'content' : this.idSiteOriginal;
+			dot.css('background-image', 'url(./img/'+imgPath+'/'+this.imagens.split('\n')[0]+')');
 		break;
 		
 		//grande e selecionado
@@ -998,11 +1031,15 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	!a.onde ? console.log(a.id + ' não tem onde cadastrado.') : !idOnde ? idOnde = a.onde.split(', ')[0] : "";	
 	a.context.desenhaBalloonTop(a, idOnde);
 	
+	//URL
+	var addToURL = "?b=" + a.id + "|" + idOnde;
+	history.pushState(null, null, addToURL);
+	
 	//SLIDESHOW
 	html = "";
 	var imgs = a.imagens ? a.imagens.split('\n') : ['default-img.png'];
-	var creditos = a.credito ? a.credito.split('\n') : [''];
-	var folder = a.imagens ? a.idSiteOriginal : 'interface';
+	var creditos = a.credito ? a.credito.split('\n') : ['arquivo pessoal'];
+	var folder = a.imagens ? a.tipo == 'participante' ? 'content' : a.idSiteOriginal : 'interface';
 
 	//escreve o HTML
 	html += "<div id='slideshow-imgs'>";
@@ -1137,7 +1174,8 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 		for(var i in crossList){
 			var atividade = crossList[i];
 			var nameParts = atividade.nome.split(' // ');
-			var img = atividade.imagens ? atividade.idSiteOriginal + '/' + atividade.imagens.split('\n')[0] : 'interface/default-img.png';
+			var imgPath = atividade.tipo == 'participante' ? 'content' : atividade.idSiteOriginal;
+			var img = atividade.imagens ? imgPath + '/' + atividade.imagens.split('\n')[0] : 'interface/default-img.png';
 			
 			//clareia si mesma
 			var cssClass = atividade != a ? '' : ' selected';
@@ -1696,4 +1734,6 @@ InterfaceManager.abreSocial = function(event, serviceCode, a){
 
 InterfaceManager.fechaBaloon = function(){
 	$('#balloon').fadeOut(250);
+	var url = window.location.pathname.toString();
+	history.pushState(null, null, url);
 }
