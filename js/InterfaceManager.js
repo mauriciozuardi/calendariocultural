@@ -1043,35 +1043,6 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	addToURL += "&f=" + folder;
 	addToURL += "&i=" + encodeURI(imgs[0]);
 	history.pushState(null, null, addToURL);
-	
-	//ENCURTA A URL
-	var apiKey = 'AIzaSyBsMwiQzufALTenZaJtenBAkpseK0eFp6I';
-	gapi.client.setApiKey(apiKey);
-	var longurl = location.toString();
-
-	gapi.client.load('urlshortener', 'v1', function() {
-	    var request = gapi.client.urlshortener.url.insert({
-	        'resource': {'longUrl': longurl}
-	    });
-	    var resp = request.execute(function(resp) {
-	        if (resp.error) {
-							console.log('Error. ' + resp.error.message);
-	        } else {
-							console.log("Short URL for "+longurl+" is: " + resp.id);
-							//atualiza o HTML
-							$('#facebook').html("<a name='fb_share' share_url='" + resp.id + "'></a><script src='http://static.ak.fbcdn.net/connect.php/js/FB.Share' type='text/javascript'></script>");
-	        }
-	    });
-	});
-	
-	//Ajusta META
-	// $('meta[property="og:title"]').attr("content", a.nome);
-	// $("meta[property=og:title]").attr("content", a.nome);
-	// $("meta[property=og:type]").attr("content", "article");
-	// $("meta[property=og:url]").attr("content", location.toString());
-	// $("meta[property=og:image]").attr("content", "./img/" + folder + "/" + encodeURI(imgs[0]));
-	// $("meta[property=og:site_name]").attr("content", "Calendário Cultural");
-	// $("meta[property=og:admins]").attr("content", "562447341");
 
 	//escreve o HTML
 	html += "<div id='slideshow-imgs'>";
@@ -1169,9 +1140,9 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	html = "";
 	html += "<div id='twitter'><img src='./img/interface/btn_tweet.png'/></div>";
 	
-	// html += "<div id='facebook'><a name='fb_share'></a><script src='http://static.ak.fbcdn.net/connect.php/js/FB.Share' type='text/javascript'></script></div>";
+	html += "<div id='facebook'><a name='fb_share' share_url='" + location.toString() + "'></a><script src='http://static.ak.fbcdn.net/connect.php/js/FB.Share' type='text/javascript'></script></div>";
 	
-	html += "<div id='facebook'></div>";
+	// html += "<div id='facebook'></div>";
 	
 	// html += "	<div id='opine'><p>Opine:</p><div id='estrelas-opine'><div class='estrela e1'></div><div class='estrela e2'></div><div class='estrela e3'></div><div class='estrela e4'></div><div class='estrela e5'></div></div></div>";
 	
