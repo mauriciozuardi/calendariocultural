@@ -996,7 +996,7 @@ InterfaceManager.prototype.updateLens = function(){
 			$('.lens').css('background-color', 'rgba('+R+','+G+','+B+','+A+')');
 		}
 	} else {
-		$('.lens').css('background-color', 'rgba(0,0,0,.3)');
+		$('.lens').css('background-color', 'rgba(0,0,0,.7)');
 	}
 }
 
