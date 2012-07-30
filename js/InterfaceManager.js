@@ -1138,11 +1138,13 @@ InterfaceManager.prototype.abreBalloon = function(a, idOnde){
 	
 	//MINI-BALLOON-FOOTER
 	html = "";
+	
 	html += "<div id='twitter'><img src='./img/interface/btn_tweet.png'/></div>";
 	
-	html += "<div id='facebook'><a name='fb_share' share_url='" + location.toString() + "'></a><script src='http://static.ak.fbcdn.net/connect.php/js/FB.Share' type='text/javascript'></script></div>";
+	//iFrame Facebook
+	html += "<iframe id='facebook'  src='//www.facebook.com/plugins/like.php?href=" + location.toString() + "&amp;send=false&amp;layout=button_count&amp;width=450&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font=lucida+grande&amp;height=21' scrolling='no' frameborder='0' style='border:none; overflow:hidden; width:450px; height:21px;' allowTransparency='true'></iframe>";
 	
-	// html += "<div id='facebook'></div>";
+	// html += "<div id='facebook'><a name='fb_share' share_url='" + location.toString() + "'></a><script src='http://static.ak.fbcdn.net/connect.php/js/FB.Share' type='text/javascript'></script></div>";
 	
 	// html += "	<div id='opine'><p>Opine:</p><div id='estrelas-opine'><div class='estrela e1'></div><div class='estrela e2'></div><div class='estrela e3'></div><div class='estrela e4'></div><div class='estrela e5'></div></div></div>";
 	
