@@ -47,6 +47,7 @@
 	  js.src = "//connect.facebook.net/pt_BR/all.js#xfbml=1";
 	  fjs.parentNode.insertBefore(js, fjs);
 	}(document, 'script', 'facebook-jssdk'));</script> -->
+	<div id='spinner'></div>
 </body>
 </html>
 

@@ -14,6 +14,11 @@ function init(){
 		console.log('Navegador ok. Versão:' + version);
 	}
 
+	//spinner in
+	var half = $(window).height()/2 + 'px';
+	$('#spinner').css('margin-top', half);
+	$('#spinner').fadeIn(2000);
+
 	//init
 	im = new InterfaceManager();
 	data = new DataManager(im);

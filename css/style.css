@@ -6,6 +6,16 @@ body{
 	color:white;
 	font-size:11px;
 }
+
+#spinner{
+	display:none;
+	width:56px;
+	height:56px;
+	margin:0 auto;
+	vertical-align: middle;
+	background-image:url(../img/interface/spinner_h2r.gif);
+}
+
 .bgcover{
 	background-repeat:no-repeat;
 	background-position:center;
@@ -591,8 +601,8 @@ em{
 	width: 52px;
 	height: 21px;
 	border-width:2px;
-	border-color:rgba(255,255,255,1);
-	background-color:rgba(255,255,255,1);
+	border-color:rgba(0,255,255,1);
+	background-color:rgba(0,255,255,1);
 /*	background-image:url(../img/interface/pattern_30.png);*/
 }
 .range{

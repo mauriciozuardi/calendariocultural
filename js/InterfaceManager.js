@@ -5,6 +5,8 @@ function InterfaceManager(){
 }
 
 InterfaceManager.prototype.init = function(){
+	$('#spinner').css('display', 'none');
+	
 	this.ballonVars ? null : this.ballonVars = {};
 	this.ballonVars.showedBalloon = false;
 	
@@ -382,7 +384,8 @@ InterfaceManager.prototype.drawActivities = function(){
 		var id = a.idSiteOriginal + '-' + a.id;
 		var range = $('div.' + id + ' .range');
 		var label = $('div.' + id + ' .label');
-		range.click($.proxy(InterfaceManager.dotOrRangeClicked, a));
+		// range.click($.proxy(InterfaceManager.dotOrRangeClicked, a));
+		range.click($.proxy(InterfaceManager.labelClicked, a));
 		label.click($.proxy(InterfaceManager.labelClicked, a));
 	}
 	
